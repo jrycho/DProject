@@ -1,2 +1,2 @@
 # DProject
-Project I by JR, git repositories
+Project aims for food optimizations and API, SQL and Frontend settings. Commits will hopefully add over time.
