@@ -4,6 +4,7 @@ from gwo_optimizer import gwo_optimizer
 from woa_optimizer import woa_optimizer
 from pso_optimizer import pso_optimizer
 from mealpy import FloatVar, PSO, GWO, WOA
+import copy
 #print("mealpy done")
 import numpy as np
 
@@ -83,13 +84,40 @@ slack_weights = np.array([6,4,4,0])  #going under
 optimized_properties = ["calories", "carbs", "protein", "fats" ]
 
 settings1 = Settings(excess_weights, slack_weights, target_goal, optimized_properties)
+settings2 = copy.deepcopy(settings1)
+target_goal_2 = np.array([1000, 100, 60, 30])
+settings2.set_target_goal(target_goal_2)
 
-res = linprog_optimizer(settings1, input_list).x
-res = gwo_optimizer(settings1, input_list)
-res = woa_optimizer(settings1, input_list)
-res = pso_optimizer(settings1, input_list)
-print(target_goal)
+#res = linprog_optimizer(settings1, input_list).x
+print("GWO part")
+gwo_obj = gwo_optimizer(settings1, input_list)
+gwo_obj.solve()
+gwo_obj.print_solution()
+print("solved and printer")
+gwo_obj.set_settings(settings2)
+gwo_obj.print_solution()
+print("printed, check for recalculated")
 
+#res = woa_optimizer(settings1, input_list)
+#res = pso_optimizer(settings1, input_list)
+
+print("WOApart")
+woa_obj = woa_optimizer(settings1, input_list)
+woa_obj.solve()
+woa_obj.print_solution()
+print("solved and printer")
+woa_obj.set_settings(settings2)
+woa_obj.print_solution()
+print("printed, check for recalculated")
+
+print("PSO part")
+pso_obj = pso_optimizer(settings1, input_list)
+pso_obj.solve()
+pso_obj.print_solution()
+print("solved and printer")
+pso_obj.set_settings(settings2)
+pso_obj.print_solution()
+print("printed, check for recalculated")
 
 """ notes: 
 gives too much youghurt, need to start with dynamic bounds
