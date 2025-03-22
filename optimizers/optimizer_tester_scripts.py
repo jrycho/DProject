@@ -88,7 +88,17 @@ settings2 = copy.deepcopy(settings1)
 target_goal_2 = np.array([1000, 100, 60, 30])
 settings2.set_target_goal(target_goal_2)
 
-#res = linprog_optimizer(settings1, input_list).x
+
+print("Linprog part")
+linprog_obj = linprog_optimizer(settings1, input_list)
+linprog_obj.solve()
+linprog_obj.print_solution()
+print("solved and printed")
+linprog_obj.set_settings(settings2)
+linprog_obj.print_solution()
+print("printed, check for recalculated")
+
+""""
 print("GWO part")
 gwo_obj = gwo_optimizer(settings1, input_list)
 gwo_obj.solve()
@@ -118,7 +128,7 @@ print("solved and printer")
 pso_obj.set_settings(settings2)
 pso_obj.print_solution()
 print("printed, check for recalculated")
-
+"""
 """ notes: 
 gives too much youghurt, need to start with dynamic bounds
 Seems like dynamic bounds fixed that
