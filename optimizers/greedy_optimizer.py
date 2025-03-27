@@ -9,6 +9,7 @@ class greedy_optimizer(AbstractOptimizerBase):
         self.A_matrix = None
 
     def solve(self):
+        print(self.settings.get_excess_weights())
         if self.A_matrix is None:
             self.A_matrix_creator()
         else:
@@ -29,8 +30,8 @@ class greedy_optimizer(AbstractOptimizerBase):
         """ Does something, stop itself, check if it is alright result, still bounds missing """
 
         #while np.all(target_difference >= -lower_bounds) and iter <100:
-        while np.all((self.settings.get_target_goal()-target_difference) <= upper_bounds) and iter <100:
-            #print(target_difference <= -lower_bounds)
+        while np.all((self.settings.get_target_goal()-target_difference) <= upper_bounds) and iter <1000:
+            #print(target_difference <= upper_bounds
             #print(np.all(target_difference <= -lower_bounds))
             #print(np.all((self.settings.get_target_goal()-target_difference) <= upper_bounds))
             #print(iter)
@@ -41,22 +42,31 @@ class greedy_optimizer(AbstractOptimizerBase):
             target_difference = target_difference - 0.05 * self.A_matrix[self.input_list.index(best_item)]
             """ maybe try self.get_target_goal() - target_difference <= upper bounds"""
             iter += 1
+            #print(self.settings.get_target_goal()-target_difference)
         
         self.solution = greedy_return
         return self.solution
     
-    """ make it iterational, penalty-wise vs  soft/hard bounds, combination of adding soft bounds and finding the best feasibility inside? performance 
-        enhancement """
-    """ TODO: print solution """
+    """  penalty-wise vs  soft/hard bounds, combination of adding soft bounds and finding the best feasibility inside?  """
 
     def print_solution(self):
         print(self.solution)
+        amounts_list = []
+        for item in self.input_list:
+           amounts_list.append( self.solution[item.get_name()] )
+        res = np.zeros_like(np.array(self.A_matrix[0]))
+        for item in range(len(self.input_list)):
+            res = res + amounts_list[item] * self.A_matrix[item]
+        for attribute in self.settings.get_optimized_properties():
+            print(f"{attribute}: {res[self.settings.get_optimized_properties().index(attribute)]}")
+
+
 
     def get_solution(self):
         return self.solution
 
     def A_matrix_actualize(self):
-        self.A_matrix_creator
+        self.A_matrix_creator()
 
     def set_input_list(self, new_input_list):
         self.input_list = new_input_list
@@ -73,10 +83,12 @@ class greedy_optimizer(AbstractOptimizerBase):
         return self.input_list
 
 
-    """ TODO: lower upper bounds """
     def bounds_creator(self):
-        upper_bounds =  self.settings.get_target_goal()*(1+(np.e**(2/(self.settings.get_target_goal()+1e-8))-1.18)*self.settings.get_excess_weights())
-        lower_bounds =  self.settings.get_target_goal()*((np.e**(2/(self.settings.get_target_goal()+1e-8))-1.18)*self.settings.get_excess_weights())
+        upper_bounds =  self.settings.get_target_goal()*(1+(self.settings.get_excess_weights()+0.05))
+        #print((self.settings.get_excess_weights()))
+        #print("upper bounds: ")
+        #print(upper_bounds)
+        lower_bounds =  self.settings.get_target_goal()*(1-(self.settings.get_excess_weights()+0.05))
         return upper_bounds, lower_bounds
 
     def A_matrix_creator(self):

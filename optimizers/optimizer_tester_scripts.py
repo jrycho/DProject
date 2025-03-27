@@ -93,11 +93,15 @@ target_goal_2 = np.array([1000, 100, 60, 30])
 settings2.set_target_goal(target_goal_2)
 
 
+
+"""
 print("Linprog part")
 linprog_obj = linprog_optimizer(settings1, input_list)
 linprog_obj.solve()
 linprog_obj.print_solution()
 """
+"""
+
 print("solved and printed")
 linprog_obj.set_settings(settings2)
 linprog_obj.print_solution()
