@@ -3,6 +3,7 @@ from linprog_optimizer import linprog_optimizer
 from gwo_optimizer import gwo_optimizer
 from woa_optimizer import woa_optimizer
 from pso_optimizer import pso_optimizer
+from greedy_optimizer import greedy_optimizer
 from mealpy import FloatVar, PSO, GWO, WOA
 import copy
 #print("mealpy done")
@@ -18,7 +19,9 @@ class Ingredient():
         self.protein = protein
         self.fats = fats
         self.priority = priority
-
+    
+    def get_name(self):
+        return self.name
 
 class Settings():
     def __init__(self, excess_weights:list, slack_weights:list, target_goal:list, optimized_properties:list):
@@ -61,6 +64,7 @@ class Settings():
     def get_optimized_properties(self):
         return self.optimized_properties
     
+    
     def __str__(self):
         return f"Excess weights: {self.excess_weights}, Slack weights: {self.slack_weights}, Target goal: {self.target_goal}, Optimized properties: {self.optimized_properties}"
             
@@ -93,11 +97,12 @@ print("Linprog part")
 linprog_obj = linprog_optimizer(settings1, input_list)
 linprog_obj.solve()
 linprog_obj.print_solution()
+"""
 print("solved and printed")
 linprog_obj.set_settings(settings2)
 linprog_obj.print_solution()
 print("printed, check for recalculated")
-
+"""
 """"
 print("GWO part")
 gwo_obj = gwo_optimizer(settings1, input_list)
@@ -133,3 +138,11 @@ print("printed, check for recalculated")
 gives too much youghurt, need to start with dynamic bounds
 Seems like dynamic bounds fixed that
 """
+
+greedy_obj = greedy_optimizer(settings1, input_list)
+greedy_obj.solve()
+greedy_obj.print_solution()
+print("solved and printed")
+greedy_obj.set_settings(settings2)
+greedy_obj.print_solution()
+print("printed, check for recalculated")
