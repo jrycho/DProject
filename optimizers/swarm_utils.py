@@ -2,6 +2,19 @@ import numpy as np
 
 """ TODO: Needs further commenting, error handling, testing """
 
+""" AbstractOptimizerBase - template of necessarry methods for optimizers, ensures unified sets/gets
+methods:
+solve: uses solver on given problem
+print solution: ensures return of previously calculated values
+get solution: returns solution
+A_matrix_actualize: linprog uses matrix of properties, swarms use A matrix as np calculation of fitness solution (A*sol = how much of property on current sol), should be called when changes to settings
+set_input_list
+get_input_list - set/get method to change input list; should actualize A matrix, should set a flag for recalculation if called print_solution
+set_settings
+get_settings - set/get method to change settings; should actualize A matrix, should set a flag for recalculation if called print_solution
+bounds_creator
+"""
+
 class AbstractOptimizerBase:
 
     def solve(self):
@@ -34,6 +47,20 @@ class AbstractOptimizerBase:
 
 
 
+"""  
+BaseOptimizer - class for swarm optimizers, used in GWO, WOA, PSO
+solve: uses solver on given problem, implemented in name_optimizer.py files
+print solution: ensures return of previously calculated values
+get solution: returns solution if previously calculated, otherwise calls solve
+A_matrix_actualize: linprog uses matrix of properties, swarms use A matrix as np calculation of fitness solution (A*sol = how much of property on current sol), should be called when changes to settings
+set_input_list
+get_input_list - set/get method to change input list; should actualize A matrix, should set a flag for recalculation if called print_solution
+set_settings
+get_settings - set/get method to change settings; should actualize A matrix, should set a flag for recalculation if called print_solution
+bounds_creator - creates bounds for optimization problem, should be called in solve, different for each optimizer
+>>
+swarn_fitness_function__for_genA - fitness func, calculate solution difference of all propperties, splits them to negative and positive vals, multiplies them by weights, returns sum of differences to find minimal solution.
+"""
 
 
 class BaseOptimizer(AbstractOptimizerBase):
@@ -93,6 +120,11 @@ class BaseOptimizer(AbstractOptimizerBase):
     def get_input_list(self):
         return self.input_list
     
+    """ 
+    For whole food item infinite upper bound for non-whole foods minimum is 10g max 200g
+    TODO: user bound settings, fruit/veggies
+    TODO: undividable ingredients handeling
+    """
     def bounds_creator(self):
         lower_bounds = []
         upper_bounds = []
@@ -105,6 +137,20 @@ class BaseOptimizer(AbstractOptimizerBase):
                 upper_bounds.append(2)
         return lower_bounds, upper_bounds
     
+
+    """  
+    makes list of lists of properties for each item in input list, then transposes it to get matrix of properties for each item in input list
+    return:
+             item1   item2   item3   item4
+    cals      100     200     150     180
+    carbs      20      40      30      35
+    protein    10      15      12      14 ...
+                                        .
+                                        .
+                                        .
+    should be scalable on properties                          
+    TODO: undividable ingredients handeling
+    """
     def properties_matrix_creator_for_genA(self):
         temp_A_list = []
         for item in self.input_list:

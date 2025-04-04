@@ -1,6 +1,6 @@
 
 #ignore pycache
-__pycache__/
+**/__pycache__/
 #ignore venv
 .venv/
 #ignore vscode

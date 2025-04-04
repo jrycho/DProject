@@ -8,8 +8,8 @@ class woa_optimizer(BaseOptimizer):
 
     def solve(self):
             
-        if self.A_matrix is None:
-            self.A_matrix = self.properties_matrix_creator_for_genA()
+        if self.A_matrix is None: #called if Not calculated before
+            self.A_matrix = self.properties_matrix_creator_for_genA() #changes should automatically call properties_matrix_creator_for_genA in BaseOptimizer
         else:
             pass
 
@@ -23,9 +23,9 @@ class woa_optimizer(BaseOptimizer):
         "log_to": None,
         }
 
-        model = WOA.HI_WOA(epoch=1000, pop_size=700, verbose=False)
-        self.solution = model.solve(problem_dict)
-        self.update_flag = False
+        model = WOA.HI_WOA(epoch=1000, pop_size=700, verbose=False) #creates model with default parameters
+        self.solution = model.solve(problem_dict) #solve problem
+        self.update_flag = False #indicates calculated solution for printing
             
 
 
