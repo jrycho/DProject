@@ -115,7 +115,7 @@ class linprog_optimizer(AbstractOptimizerBase):
          test for oils and what they do, if they have any tendency to overfill the meal? (maybe not as they are clear fats, lots of cals, nothing else?)
          """
     def bounds_creator(self):
-        print("creating")
+        #print("creating")
         bounds = []
         for item in self.input_list:
             if item.priority == 1:
@@ -124,5 +124,5 @@ class linprog_optimizer(AbstractOptimizerBase):
                 bounds.append((0.1, 2))
     
         bounds.extend([(0, None) for _ in range(2 * self.n)])
-        print(bounds)
+        #print(bounds)
         self.bounds = bounds

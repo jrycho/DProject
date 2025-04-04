@@ -82,9 +82,9 @@ input_list = [
     Ingredient("Greek Yogurt", 100, 7, 10, 0.5,0),
     Ingredient("Oil", 884, 0, 0, 100, 0)]
 
-target_goal = np.array([800, 100, 60, 30])
-excess_weights = np.array([10,2,0,10]) #going over 
-slack_weights = np.array([6,4,4,0])  #going under
+target_goal = np.array([1200, 150, 80, 40])
+excess_weights = np.array([10,0,0,10]) #going over 
+slack_weights = np.array([10,8,10,0])  #going under
 optimized_properties = ["calories", "carbs", "protein", "fats" ]
 
 settings1 = Settings(excess_weights, slack_weights, target_goal, optimized_properties)

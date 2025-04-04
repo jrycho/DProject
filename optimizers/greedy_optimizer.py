@@ -28,18 +28,21 @@ class greedy_optimizer(AbstractOptimizerBase):
 
         """ TODO: end cause is not working, bound amounts. It  """
         """ Does something, stop itself, check if it is alright result, still bounds missing """
-
+        input_list = self.input_list
         #while np.all(target_difference >= -lower_bounds) and iter <100:
         while np.all((self.settings.get_target_goal()-target_difference) <= upper_bounds) and iter <1000:
             #print(target_difference <= upper_bounds
             #print(np.all(target_difference <= -lower_bounds))
             #print(np.all((self.settings.get_target_goal()-target_difference) <= upper_bounds))
             #print(iter)
-            best_item = self.bang_for_buck(target_difference)
+            best_item = self.bang_for_buck(input_list, target_difference)
             #print(target_difference)
-            #print(best_item.get_name())
+            #print(best_item.get_name())               
+
             greedy_return[best_item.get_name()] = greedy_return[best_item.get_name()] + 0.05
-            target_difference = target_difference - 0.05 * self.A_matrix[self.input_list.index(best_item)]
+            target_difference = target_difference - 0.05 * self.A_matrix[input_list.index(best_item)]
+            if greedy_return[best_item.get_name()] >= 2 and best_item.priority == 0:
+               input_list.remove(best_item)
             """ maybe try self.get_target_goal() - target_difference <= upper bounds"""
             iter += 1
             #print(self.settings.get_target_goal()-target_difference)
@@ -101,8 +104,8 @@ class greedy_optimizer(AbstractOptimizerBase):
         self.A_matrix = np.array(A_temp)
         
 
-    def score_counter(self, item, target_difference):
-        delta = np.array(target_difference - self.A_matrix[self.input_list.index(item)])
+    def score_counter(self, item, input_list, target_difference):
+        delta = np.array(target_difference - self.A_matrix[input_list.index(item)])
         delta_norm = np.divide(delta, (target_difference + 1e-6))
         slacks = np.where(delta_norm>0,delta_norm,0)
         excess = np.where(delta_norm<0, delta_norm, 0)
@@ -111,10 +114,10 @@ class greedy_optimizer(AbstractOptimizerBase):
         #score = np.sum(np.multiply(self.settings.get_excess_weights(),excess))+np.sum(np.multiply(self.settings.get_slacks_weights(), slacks))
         return score
 
-    def bang_for_buck(self, target_difference):
+    def bang_for_buck(self,input_list, target_difference):
         score_list = []
-        for item in self.input_list:
-            score_list.append(self.score_counter(item, target_difference))
+        for item in input_list:
+            score_list.append(self.score_counter(item, input_list, target_difference))
         best_indx = min(score_list)
-        item_to_return = self.input_list[score_list.index(best_indx)]
+        item_to_return = input_list[score_list.index(best_indx)]
         return item_to_return
