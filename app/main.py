@@ -1,4 +1,4 @@
-
+import uvicorn
 from fastapi import FastAPI, HTTPException
 import requests
 import os
@@ -7,7 +7,6 @@ from typing import List
 print("fastAPI done")
 print("import test done")
 
-app = FastAPI()
 
 API_NINJAS_KEY = os.environ.get("Ninjas_API_KEY")
 API_NINJAS_URL = "https://api.api-ninjas.com/v1/nutrition"

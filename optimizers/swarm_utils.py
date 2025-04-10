@@ -52,11 +52,11 @@ BaseOptimizer - class for swarm optimizers, used in GWO, WOA, PSO
 solve: uses solver on given problem, implemented in name_optimizer.py files
 print solution: ensures return of previously calculated values
 get solution: returns solution if previously calculated, otherwise calls solve
-A_matrix_actualize: linprog uses matrix of properties, swarms use A matrix as np calculation of fitness solution (A*sol = how much of property on current sol), should be called when changes to settings
-set_input_list
-get_input_list - set/get method to change input list; should actualize A matrix, should set a flag for recalculation if called print_solution
+A_matrix_actualize: A matrix is a properties matrix used in optimizers (differently on usage), this method actualizes it by calling relevant creator, should be called upon settings and input changes
+set_input_list - 
+get_input_list - set/get method to change input list; should actualize A matrix, should set update_flag = True, indicating need for recalculation if called print_solution
 set_settings
-get_settings - set/get method to change settings; should actualize A matrix, should set a flag for recalculation if called print_solution
+get_settings - set/get method to change settings; should actualize A matrix, should set update_flag = True, indicating need for recalculation if called print_solution
 bounds_creator - creates bounds for optimization problem, should be called in solve, different for each optimizer
 >>
 swarn_fitness_function__for_genA - fitness func, calculate solution difference of all propperties, splits them to negative and positive vals, multiplies them by weights, returns sum of differences to find minimal solution.
@@ -66,9 +66,10 @@ swarn_fitness_function__for_genA - fitness func, calculate solution difference o
 class BaseOptimizer(AbstractOptimizerBase):
 
 
-    def __init__(self, settings, input_list):
+    def __init__(self, settings, input_obj):
         self.settings = settings
-        self.input_list = input_list
+        self.input_list = input_obj.get_input_list()
+        self.is_indivisible = input_obj.get_is_indivisible()
         self.solution = None
         self.A_matrix = None
         self.update_flag = False
@@ -79,17 +80,17 @@ class BaseOptimizer(AbstractOptimizerBase):
         
 
     def print_solution(self):
-        if self.solution == None or self.update_flag == True:
+        if self.solution is None or self.update_flag == True:
             self.solve()
             print("recalculated")
         else:
             pass
-        print(self.solution.solution)
+        print(self.solution)
         for parameter in self.settings.get_optimized_properties():
                 #print(parameter)
             val = 0
             for item in range(len(self.input_list)):
-                val += self.solution.solution[item] * getattr(self.input_list[item], parameter)
+                val += self.solution[item] * getattr(self.input_list[item], parameter)
             print(f"{parameter} amount is: {val}")
 
 
@@ -98,7 +99,7 @@ class BaseOptimizer(AbstractOptimizerBase):
 
 
     def A_matrix_actualize(self):
-        self.A_matrix = self.properties_matrix_creator_for_genA()
+        self.A_matrix = self.properties_matrix_creator_for_genA(self.input_list, self.settings.get_optimized_properties())
 
 
     def set_input_list(self, new_input_list):
@@ -125,17 +126,17 @@ class BaseOptimizer(AbstractOptimizerBase):
     TODO: user bound settings, fruit/veggies
     TODO: undividable ingredients handeling
     """
-    def bounds_creator(self):
+    def bounds_creator(self, input_list):
         lower_bounds = []
         upper_bounds = []
-        for item in self.input_list:
+        for item in input_list:
             if item.priority == 1:
                 lower_bounds.append(0.1)
                 upper_bounds.append(15)
             else:
                 lower_bounds.append(0.1)
                 upper_bounds.append(2)
-        return lower_bounds, upper_bounds
+        return np.array(lower_bounds), np.array(upper_bounds)
     
 
     """  
@@ -151,19 +152,19 @@ class BaseOptimizer(AbstractOptimizerBase):
     should be scalable on properties                          
     TODO: undividable ingredients handeling
     """
-    def properties_matrix_creator_for_genA(self):
+    def properties_matrix_creator_for_genA(self, input_list, optimized_properties):
         temp_A_list = []
-        for item in self.input_list:
+        for item in input_list:
             row = []
-            for atribute in self.settings.get_optimized_properties():
+            for atribute in optimized_properties:
                 row.append(getattr(item, atribute))
             temp_A_list.append(row)
         #ret_mat = np.array(temp_A_list).T
         #print(ret_mat)
         return np.array(temp_A_list).T
     
-    def swarm_fitness_function_for_genA(self, sol):
-        solution = self.settings.get_target_goal() - np.matmul(self.A_matrix,sol)
+    def swarm_fitness_function_for_genA(self, sol, A_matrix, target_goal):
+        solution = target_goal - np.matmul(A_matrix,sol)
         neg_sol = np.where(solution < 0, solution, 0)
         pos_sol = np.where(solution > 0, solution, 0)
         minimize_func = (-np.dot(neg_sol, self.settings.get_excess_weights().T ) + np.dot(pos_sol, self.settings.get_slack_weights().T))

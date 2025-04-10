@@ -1,6 +1,6 @@
 import numpy as np
 from mealpy import FloatVar, PSO
-from swarm_utils import BaseOptimizer
+from optimizers.swarm_utils import BaseOptimizer
 
 
 """ TODO: Needs further commenting, error handling, testing """
