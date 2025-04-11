@@ -142,13 +142,13 @@ settings2.set_target_goal(target_goal_2)
 
 
 
-"""
+
 print("Linprog part")
-linprog_obj = linprog_optimizer(settings1, input_list)
+linprog_obj = linprog_optimizer(settings1, Input_Object)
 linprog_obj.solve()
 linprog_obj.print_solution()
-"""
-"""
+
+
 
 print("solved and printed")
 linprog_obj.set_settings(settings2)
@@ -172,14 +172,18 @@ print("printed, check for recalculated")
 #res = woa_optimizer(settings1, input_list)
 #res = pso_optimizer(settings1, input_list)
 """
+
+"""
 print("WOApart")
-woa_obj = woa_optimizer(settings1, input_list)
+woa_obj = woa_optimizer(settings1, Input_Object)
 woa_obj.solve()
 woa_obj.print_solution()
 print("solved and printer")
 woa_obj.set_settings(settings2)
 woa_obj.print_solution()
 print("printed, check for recalculated")
+"""
+
 """
 print("PSO part")
 pso_obj = pso_optimizer(settings1, Input_Object)
@@ -189,7 +193,7 @@ print("solved and printed")
 pso_obj.set_settings(settings2)
 pso_obj.print_solution()
 print("printed, check for recalculated")
-
+"""
 """ notes: 
 gives too much youghurt, need to start with dynamic bounds
 Seems like dynamic bounds fixed that
