@@ -9,7 +9,7 @@ class Settings():
     def get_settings(self):
         return  self.target_goal, self.excess_weights, self.slack_weights, self.optimized_properties
 
-    def weiths_normalize(target_goal,excess_weights, slack_weights):
+    def weights_normalize(target_goal,excess_weights, slack_weights):
         excess_weights = np.divide(excess_weights,target_goal)
         slack_weights = np.divide(slack_weights,target_goal)   
         return excess_weights, slack_weights

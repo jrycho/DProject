@@ -1,5 +1,5 @@
 from scipy.optimize import linprog
-from abstract_optimizer_base import AbstractOptimizerBase
+from optimizers.abstract_optimizer_base import AbstractOptimizerBase
 import numpy as np
 
 class linprog_optimizer(AbstractOptimizerBase):

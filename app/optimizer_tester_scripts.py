@@ -1,4 +1,3 @@
-
 from optimizers.linprog_optimizer import linprog_optimizer
 from optimizers.gwo_optimizer import gwo_optimizer
 from optimizers.woa_optimizer import woa_optimizer
@@ -181,16 +180,16 @@ print("solved and printer")
 woa_obj.set_settings(settings2)
 woa_obj.print_solution()
 print("printed, check for recalculated")
-
+"""
 print("PSO part")
-pso_obj = pso_optimizer(settings1, input_list)
+pso_obj = pso_optimizer(settings1, Input_Object)
 pso_obj.solve()
 pso_obj.print_solution()
-print("solved and printer")
+print("solved and printed")
 pso_obj.set_settings(settings2)
 pso_obj.print_solution()
 print("printed, check for recalculated")
-"""
+
 """ notes: 
 gives too much youghurt, need to start with dynamic bounds
 Seems like dynamic bounds fixed that

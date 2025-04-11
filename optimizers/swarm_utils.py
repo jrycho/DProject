@@ -1,49 +1,8 @@
 import numpy as np
+from optimizers.abstract_optimizer_base import AbstractOptimizerBase
+from mealpy import FloatVar
 
 """ TODO: Needs further commenting, error handling, testing """
-
-""" AbstractOptimizerBase - template of necessarry methods for optimizers, ensures unified sets/gets
-methods:
-solve: uses solver on given problem
-print solution: ensures return of previously calculated values
-get solution: returns solution
-A_matrix_actualize: linprog uses matrix of properties, swarms use A matrix as np calculation of fitness solution (A*sol = how much of property on current sol), should be called when changes to settings
-set_input_list
-get_input_list - set/get method to change input list; should actualize A matrix, should set a flag for recalculation if called print_solution
-set_settings
-get_settings - set/get method to change settings; should actualize A matrix, should set a flag for recalculation if called print_solution
-bounds_creator
-"""
-
-class AbstractOptimizerBase:
-
-    def solve(self):
-        raise NotImplementedError("The method 'solve' must be implemented by subclass")
-
-    def print_solution(self):
-        raise NotImplementedError("The method 'print_solution' must be implemented by subclass")
-
-    def get_solution(self):
-        raise NotImplementedError("The method 'get_solution' must be implemented by subclass")
-
-    def A_matrix_actualize(self):
-        raise NotImplementedError("The method 'A_matrix_actualize' must be implemented by subclass")
-
-    def set_input_list(self, new_input_list):
-        raise NotImplementedError("The method 'set_input_list' must be implemented by subclass")
-
-    def set_settings(self, new_settings):
-        raise NotImplementedError("The method 'set_settings' must be implemented by subclass")
-
-    def get_settings(self):
-        raise NotImplementedError("The method 'get_settings' must be implemented by subclass")
-
-    def get_input_list(self):
-        raise NotImplementedError("The method 'get_input_list' must be implemented by subclass")
-
-    def bounds_creator(self):
-        raise NotImplementedError("The method 'bounds_creator' must be implemented by subclass")
-
 
 
 
@@ -73,10 +32,8 @@ class BaseOptimizer(AbstractOptimizerBase):
         self.solution = None
         self.A_matrix = None
         self.update_flag = False
-
-
-    def solve(self):
-        raise NotImplementedError("Solve must be implemented by subclasses")
+        self.used_optimizer = None
+        self.swarm_settings = None
         
 
     def print_solution(self):
@@ -170,3 +127,116 @@ class BaseOptimizer(AbstractOptimizerBase):
         minimize_func = (-np.dot(neg_sol, self.settings.get_excess_weights().T ) + np.dot(pos_sol, self.settings.get_slack_weights().T))
         return minimize_func
 
+    def problem_dict_creator(self, lower_bounds, upper_bounds, A_matrix, target_goal):
+        """ Problem dict method """
+        problem_dict = {
+        "obj_func": lambda sol: self.swarm_fitness_function_for_genA(sol, A_matrix, target_goal),  # Pass target
+        "bounds": FloatVar(lb=lower_bounds, ub=upper_bounds, name="delta"),
+        "minmax": "min",  # Minimize the difference
+        "verbose": False,
+        "log_to": None,
+        }
+        return problem_dict
+    
+    def create_model(self, specification):
+        if specification == "final_calculation":
+            params = self.swarm_settings.get_params()
+
+        elif specification == "guess_calculation":
+            params = self.swarm_settings.get_guess_params()
+
+        return self.used_optimizer(epoch=params["epoch"], pop_size=params["pop_size"], verbose=False)
+
+
+    
+    def solve(self):
+        """ If no indicator, do a solve. If indivisibility indicator run solve, extract optimal values and round, cut from A matrix (make lambda parsable), cut from bounds, run GWO, reconstruct"""
+
+        if self.A_matrix is None: #called if Not calculated before
+            self.A_matrix = self.properties_matrix_creator_for_genA(self.input_list,self.settings.get_optimized_properties()) #changes should automatically call properties_matrix_creator_for_genA in BaseOptimizer
+            #self.bounds = self.bounds_creator(self.input_list)
+        else:
+            pass
+        
+            """ Continuous space search """
+        if any(self.is_indivisible) == False:
+            lower_bounds, upper_bounds = self.bounds_creator(self.input_list) #creates bounds
+            problem_dict = self.problem_dict_creator(lower_bounds, upper_bounds, self.A_matrix, self.settings.get_target_goal())
+
+            model = self.create_model("final_calculation") #creates model with default parameters
+
+            self.solution = model.solve(problem_dict) #solve problem
+            self.update_flag = False #indicates calculated solution for printing
+
+
+            """ Space with required indivisibility """
+        elif any(self.is_indivisible) == True:
+            """ Quicksearch to get closer to optimal solution by indivisible ingredients """
+            #region
+            lower_bounds, upper_bounds = self.bounds_creator(self.input_list) #creates bounds
+            problem_dict = self.problem_dict_creator(lower_bounds, upper_bounds, self.A_matrix,self.settings.get_target_goal())
+            model = self.create_model("guess_calculation") #creates model with default parameters
+            optimal_solution = model.solve(problem_dict).solution #optimal guess
+            print(f"optimal solution", optimal_solution)
+            print("self.is_indivisible", self.is_indivisible)
+            only_indivisible = np.where(self.is_indivisible ==0, 0, optimal_solution) #uf self.is_indivisible ==0; puts there 0, else puts optimal value
+            print(f"only indivisible", only_indivisible)
+            #endregion  first round search
+
+
+            result = np.divide(only_indivisible, self.is_indivisible, out=np.zeros_like(only_indivisible, dtype=float), where=self.is_indivisible !=0) #divide optimal values by pieces
+            rounded_vals = np.round(result+1e-8).astype(int) #rounding to full pieces
+            #put somewhere to reconstruct results
+            filtered_A = self.A_matrix[:, rounded_vals == 0] #should leave only columns where indivisible
+            filtered_lower_bounds = lower_bounds[rounded_vals == 0] #should leave only columns where indivisible
+            filtered_upper_bounds = upper_bounds[rounded_vals == 0] #should leave only columns where indivisible
+            mask = rounded_vals.copy()
+            print(mask)
+            results = np.multiply(mask.astype(float), self.is_indivisible)
+            new_target_goal = self.settings.get_target_goal() - np.matmul(self.A_matrix,results).T
+            print(new_target_goal)
+            problem_dict = self.problem_dict_creator(filtered_lower_bounds, filtered_upper_bounds, filtered_A, new_target_goal) #new dict
+            model = self.create_model("final_calculation") #creates model with default parameters
+            
+            #values reconstruction
+            solution = model.solve(problem_dict)
+            results[mask == 0] = solution.solution
+            self.solution = results
+            self.update_flag = False #indicates calculated solution for printing
+
+        else:
+            print("Error")
+
+
+class swarm_settings():
+    def __init__(self, used_optimizer):
+        self.used_optimizer = used_optimizer
+        print(self.used_optimizer)
+        
+        self.GWO_epoch = 100
+        self.GWO_pop_size = 50
+        self.WOA_epoch = 100
+        self.WOA_pop_size = 50
+        self.PSO_epoch = 100
+        self.PSO_pop_size = 50
+
+        self.GWO_epoch_guess = 100
+        self.GWO_pop_size_guess = 50
+        self.WOA_epoch_guess = 100
+        self.WOA_pop_size_guess = 50
+        self.PSO_epoch_guess = 100
+        self.PSO_pop_size_guess = 50
+
+    def get_params(self):
+        name = self.used_optimizer
+        return {
+            "epoch": getattr(self, f"{name}_epoch"),
+            "pop_size": getattr(self, f"{name}_pop_size"),
+        }
+    
+    def get_guess_params(self):
+        name = self.used_optimizer
+        return {
+            "epoch": getattr(self, f"{name}_epoch_guess"),
+            "pop_size": getattr(self, f"{name}_pop_size_guess"),
+        }
