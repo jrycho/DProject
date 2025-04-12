@@ -2,6 +2,7 @@ from optimizers.linprog_optimizer import linprog_optimizer
 from optimizers.gwo_optimizer import gwo_optimizer
 from optimizers.woa_optimizer import woa_optimizer
 from optimizers.pso_optimizer import pso_optimizer
+from optimizers.genetic_optimizer import genetic_optimizer
 from optimizers.greedy_optimizer import greedy_optimizer
 from mealpy import FloatVar, PSO, GWO, WOA
 from models.ingredient import Ingredient
@@ -207,3 +208,15 @@ greedy_obj.set_settings(settings2)
 greedy_obj.print_solution()
 print("printed, check for recalculated")
 """
+print("GA part")
+gwo_obj = genetic_optimizer(settings1, Input_Object)
+start = time.time()
+gwo_obj.solve()
+end = time.time()
+print(f"⏱️ Time taken: {end - start:.4f} seconds")
+gwo_obj.print_solution()
+
+print("solved and printed")
+gwo_obj.set_settings(settings2)
+gwo_obj.print_solution()
+print("printed, check for recalculated")
