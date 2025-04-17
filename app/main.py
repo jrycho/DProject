@@ -3,11 +3,15 @@ from fastapi import FastAPI, HTTPException
 import requests
 import os
 from typing import List
+from models.ingredient import Ingredient
+from models.input_obj import InputObject
+from models.settings import Settings
+from uuid import uuid4
+from pydantic import BaseModel
+from optimizers.gwo_optimizer import gwo_optimizer
 
-print("fastAPI done")
-print("import test done")
 
-
+"""  
 API_NINJAS_KEY = os.environ.get("Ninjas_API_KEY")
 API_NINJAS_URL = "https://api.api-ninjas.com/v1/nutrition"
 
@@ -30,7 +34,7 @@ for item in name_list:
 
 for i in test_list:
     print(i.name, i.calories)
-
+"""
 """NINJAS API QUERRY 
 @app.get("/item/{food_item}")
 def get_item(food_item: str):
@@ -48,83 +52,121 @@ def get_item(food_item: str):
     else:
         raise HTTPException(status_code=response.status_code, detail="API request failed.")
 """
-
+active_meals = {}
+session_settings = None
 app = FastAPI()
 
 OPEN_FOOD_FACTS_URL = "https://world.openfoodfacts.org/cgi/search.pl"
 
-@app.get("/Open_food_facts_item/{food_item}")
-def get_food_data(food_item: str):
-    params = {
-        "search_terms": food_item,
-        "search_simple": 1,
-        "action": "process",
-        "json": 1,
+
+@app.post("/meal")
+def create_meal():
+    meal_id = str(uuid4())
+    active_meals[meal_id] = InputObject()
+    return {"meal_id": meal_id}
+
+@app.post("/meal/{meal_id}/ingredient")
+def add_ingredient_by_barcode(meal_id: str, barcode: str, priority: int):
+    if meal_id not in active_meals:
+        raise HTTPException(status_code=404, detail="Meal not found")
+
+    url = f"https://world.openfoodfacts.org/api/v0/product/{barcode}.json"
+    response = requests.get(url)
+
+    if response.status_code != 200:
+        raise HTTPException(status_code=response.status_code, detail="Open Food Facts API failed")
+
+    data = response.json()
+    product = data.get("product")
+
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found.")
+
+    nutriments = product.get("nutriments", {})
+
+    nutrition_data = {
+        "product_name": product.get("product_name", "Unknown"),
+        "energy_kcal": nutriments.get("energy-kcal_100g"),
+        "fat_100g": nutriments.get("fat_100g"),
+        "saturated_fat_100g": nutriments.get("saturated-fat_100g"),
+        "carbohydrates_100g": nutriments.get("carbohydrates_100g"),
+        "sugars_100g": nutriments.get("sugars_100g"),
+        "fiber_100g": nutriments.get("fiber_100g"),
+        "proteins_100g": nutriments.get("proteins_100g"),
+        "salt_100g": nutriments.get("salt_100g"),
+        "barcode": product.get("code"),
     }
 
-    response = requests.get(OPEN_FOOD_FACTS_URL, params=params)
+    ingredient = Ingredient(nutrition_data, priority)
+    active_meals[meal_id].add_ingredient(ingredient)
 
-    if response.status_code == 200:
-        data = response.json()
+    return {
+        "message": f"Ingredient '{ingredient.get_name()}' added successfully.",
+        "ingredient": ingredient.__dict__
+    }
+    
 
-        if data.get("products"):
-            product = data["products"][0]  # Get the first matching product
-            # Extract nutritional information
-            nutriments = product.get("nutriments", {})
-            
-            nutrition_data = {
-                "product_name": product.get("product_name", "Unknown"),
-                "energy_kcal": nutriments.get("energy-kcal_100g"),
-                "fat_100g": nutriments.get("fat_100g"),
-                "saturated_fat_100g": nutriments.get("saturated-fat_100g"),
-                "carbohydrates_100g": nutriments.get("carbohydrates_100g"),
-                "sugars_100g": nutriments.get("sugars_100g"),
-                "fiber_100g": nutriments.get("fiber_100g"),
-                "proteins_100g": nutriments.get("proteins_100g"),
-                "salt_100g": nutriments.get("salt_100g"),
-            }
+@app.get("/meal/{meal_id}")
+def get_meal(meal_id: str):
+    if meal_id not in active_meals:
+        raise HTTPException(status_code=404, detail="Meal not found")
+    return active_meals[meal_id].get_input_list()
 
-            return nutrition_data
-        else:
-            raise HTTPException(status_code=404, detail="Food item not found.")
+@app.delete("/meal/{meal_id}/ingredient")
+def remove_ingredient(meal_id: str, barcode: str):
+    if meal_id not in active_meals:
+        raise HTTPException(status_code=404, detail="Meal not found")
 
+    removed = False
+    for ing in active_meals[meal_id].input_list:
+        if ing.barcode == barcode:
+            active_meals[meal_id].input_list.remove(ing)
+            removed = True
+            break
+
+    if removed:
+        return {"message": f"Ingredient removed from meal {meal_id}."}
     else:
-        raise HTTPException(status_code=response.status_code, detail="Open Food Facts API failed.")
+        raise HTTPException(status_code=404, detail="Ingredient not found in meal.")
 
-@app.post("/add_items_by_name/")
-def add_items_by_name(keyword:str):
 
-    #TODO:will be replaced by sql structure
-    selected_items = list(filter(lambda item: keyword in item.name, test_list))
+class SettingsInput(BaseModel):
+    optimized_properties: List[str]
+    excess_weights: List[int]
+    slack_weights: List[int]
+    target_goal: List[float]
+
+@app.post("/settings")
+def settings_creation(input: SettingsInput):
+    settings_obj = Settings(
+        excess_weights=input.excess_weights,
+        slack_weights=input.slack_weights,
+        target_goal=input.target_goal,
+        optimized_properties=input.optimized_properties
+    )
+    global session_settings
+    session_settings= settings_obj
+    return {"message": "Settings saved"}
+
+@app.get("/session_settings")
+def get_session_settings():
+    return session_settings.__dict__
+
+@app.get("/optimized_weights/{meal_id}")
+def get_optimized_wights(meal_id: str):
+    optimization_object = gwo_optimizer(session_settings,active_meals[meal_id])
+    optimization_object.solve()
+    return optimization_object.get_json_results()
     
     
-    selected_list.extend(selected_items)
-    return {"selected_items": [item.name for item in selected_list]}
 
+""" RUNNING ON TURN ON """
 
-
-@app.delete("/remove_items_by_name/")
-def remove_items_by_name(keyword:str):
-    global selected_list
-    selected_list = list(filter(lambda item: keyword not in item.name, selected_list))
-    return {"selected_items": selected_list}
-
-
-
-@app.get("/")
-def home():
-    return {"message": "FastAPI is running!"}
-
-
-
-@app.get("/get_test_list_calories")
-def get_list_calories():
-    value = 0
-    for item in selected_list:
-        value += item.calories
-    return {"calories": value}
-
-
-@app.get("/get_selected_list")
-def get_selected_list():
-    return {"selected_items": selected_list}
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(
+        "main:app",        # "<module>:<app-instance>"
+        host="0.0.0.0",     # or "127.0.0.1"
+        port=8000,          # pick your port
+        reload=True         # auto‑reload on code changes
+    )

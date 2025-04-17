@@ -207,6 +207,17 @@ class BaseOptimizer(AbstractOptimizerBase):
         else:
             print("Error")
 
+    def get_json_results(self):
+        print(self.solution)
+        if self.solution == None:
+            self.solve()
+
+        json = {}
+        for iterator in range(len(self.input_list)):
+            json[self.input_list[iterator].name] = self.solution.solution[iterator] * 100
+        print(json)
+        return json    
+
 
 class swarm_settings():
     def __init__(self, used_optimizer):
@@ -240,3 +251,4 @@ class swarm_settings():
             "epoch": getattr(self, f"{name}_epoch_guess"),
             "pop_size": getattr(self, f"{name}_pop_size_guess"),
         }
+

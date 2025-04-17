@@ -7,7 +7,7 @@ from optimizers.greedy_optimizer import greedy_optimizer
 from mealpy import FloatVar, PSO, GWO, WOA
 from models.ingredient import Ingredient
 from models.settings import Settings
-from models.input_obj import Input_obj
+from models.input_obj import InputObject
 import copy
 import time
 #print("mealpy done")
@@ -111,7 +111,7 @@ priority_list = ["Chicken Breast", "Rice"]
 
 
 ingredients = [Ingredient(data, 0) for data in input_list]
-Input_Object = Input_obj()
+Input_Object = InputObject()
 print(ingredients)
 for item in ingredients:
     if item == "Chicken Breast":

@@ -1,5 +1,5 @@
 import numpy as np
-class Input_obj:
+class InputObject:
     def __init__(self):
         self.input_list = []
         self.is_indivisible = [] #will be rewritten is it a sin? should use None here?
@@ -12,6 +12,7 @@ class Input_obj:
     def add_ingredient(self, ingredient):
         if ingredient not in self.input_list:
             self.input_list.append(ingredient)
+            self.is_indivisible.append(0)
         else:
             print("Ingredient already in list")
     

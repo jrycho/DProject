@@ -27,6 +27,7 @@ class Ingredient():
 
         self.priority = priority
         self.piece_weight = 0.0
+        self.barcode = data.get("barcode") 
 
     
     def get_name(self):
