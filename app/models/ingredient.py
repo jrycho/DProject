@@ -1,4 +1,5 @@
-"""  
+"""  FORMAT FOR NUTRITION DATA:
+
             nutrition_data = {
                 "product_name": product.get("product_name", "Unknown"),
                 "energy_kcal": nutriments.get("energy-kcal_100g"),
@@ -27,6 +28,7 @@ class Ingredient():
 
         self.priority = priority
         self.piece_weight = 0.0
+        self.user_designated_value = 0.0
         self.barcode = data.get("barcode") 
 
     
@@ -34,7 +36,7 @@ class Ingredient():
         return self.name
     
     def set_piece_weight(self, piece_weight):
-        self.piece_weight = piece_weight / 100
+        self.piece_weight = piece_weight/100
     
     def get_piece_weight(self):
         return self.piece_weight
@@ -45,6 +47,14 @@ class Ingredient():
     def get_priority(self):
         return self.priority
     
+    def set_user_designated_value(self, user_designated_value):
+        
+        self.user_designated_value = user_designated_value/100
+        print(self.user_designated_value)
+
+    def get_user_designated_value(self):
+        return self.user_designated_value
+
     def __repr__(self):
         return self.name
     

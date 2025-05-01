@@ -9,6 +9,6 @@ class genetic_optimizer(BaseOptimizer):
     def __init__(self, settings, input_obj):
         super().__init__( settings, input_obj)
         self.used_optimizer = GA.BaseGA
-        self.swarm_settings = swarm_settings("GWO")
+        self.swarm_settings = swarm_settings("GA")
   
 

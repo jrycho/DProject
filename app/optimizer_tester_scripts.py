@@ -105,7 +105,18 @@ input_list = [
             "sugars_100g": 0,
             "fiber_100g": 0,
             "salt_100g": 0,
-        }
+        },
+        {
+            "product_name": "Chicken Breast",
+            "energy_kcal": 165,
+            "carbohydrates_100g": 0,
+            "proteins_100g": 31,
+            "fat_100g": 3,
+            "saturated_fat_100g": 1,
+            "sugars_100g": 0,
+            "fiber_100g": 0,
+            "salt_100g": 0.1,
+        },
     ]
 priority_list = ["Chicken Breast", "Rice"]
 
@@ -125,31 +136,29 @@ for item in ingredients:
         # print(item.get_priority())
     
     Input_Object.add_ingredient(item)
-    
-#print(Input_Object)
-Input_Object.is_indivisible_eval()
+Input_Object.set_user_designated_value_by_name("Almonds", 40)
+print(Input_Object)
+#Input_Object.is_indivisible_eval()
 #print(Input_Object.is_indivisible)
 
 
-target_goal = np.array([1200, 150, 80, 40])
-excess_weights = np.array([10,10,0,10]) #going over 
-slack_weights = np.array([0,4,10,0])  #going under
-optimized_properties = ["calories", "carbs", "protein", "fats" ]
+target_goal = np.array([1200, 150, 80, 40, 10])
+excess_weights = np.array([10,10,0,10, 5]) #going over 
+slack_weights = np.array([0,4,10,0, 0])  #going under
+optimized_properties = ["calories", "carbs", "protein", "fats", "sugars" ]
 
 settings1 = Settings(excess_weights, slack_weights, target_goal, optimized_properties)
 settings2 = copy.deepcopy(settings1)
-target_goal_2 = np.array([1000, 100, 60, 30])
+target_goal_2 = np.array([1000, 100, 60, 30, 10])
 settings2.set_target_goal(target_goal_2)
 
 
 
-
+"""
 print("Linprog part")
 linprog_obj = linprog_optimizer(settings1, Input_Object)
 linprog_obj.solve()
 linprog_obj.print_solution()
-
-
 
 print("solved and printed")
 linprog_obj.set_settings(settings2)
@@ -173,8 +182,6 @@ print("printed, check for recalculated")
 #res = woa_optimizer(settings1, input_list)
 #res = pso_optimizer(settings1, input_list)
 """
-
-"""
 print("WOApart")
 woa_obj = woa_optimizer(settings1, Input_Object)
 woa_obj.solve()
@@ -183,9 +190,7 @@ print("solved and printer")
 woa_obj.set_settings(settings2)
 woa_obj.print_solution()
 print("printed, check for recalculated")
-"""
 
-"""
 print("PSO part")
 pso_obj = pso_optimizer(settings1, Input_Object)
 pso_obj.solve()
@@ -195,11 +200,14 @@ pso_obj.set_settings(settings2)
 pso_obj.print_solution()
 print("printed, check for recalculated")
 """
+
 """ notes: 
 gives too much youghurt, need to start with dynamic bounds
 Seems like dynamic bounds fixed that
 """
+
 """
+
 greedy_obj = greedy_optimizer(settings1, input_list)
 greedy_obj.solve()
 greedy_obj.print_solution()
@@ -207,7 +215,7 @@ print("solved and printed")
 greedy_obj.set_settings(settings2)
 greedy_obj.print_solution()
 print("printed, check for recalculated")
-"""
+
 print("GA part")
 gwo_obj = genetic_optimizer(settings1, Input_Object)
 start = time.time()
@@ -220,3 +228,4 @@ print("solved and printed")
 gwo_obj.set_settings(settings2)
 gwo_obj.print_solution()
 print("printed, check for recalculated")
+"""

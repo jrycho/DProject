@@ -9,61 +9,50 @@ from models.settings import Settings
 from uuid import uuid4
 from pydantic import BaseModel
 from optimizers.gwo_optimizer import gwo_optimizer
+from fastapi.middleware.cors import CORSMiddleware
 
 
-"""  
-API_NINJAS_KEY = os.environ.get("Ninjas_API_KEY")
-API_NINJAS_URL = "https://api.api-ninjas.com/v1/nutrition"
-
-class Ingredient():
-    def __init__(self, name:str, calories:int):
-        self.name = name
-        self.calories = calories
-
-#test_list
-test_list = []
-selected_list = []
-
-name_list = ["apple", "banana", "cherry", "date", "elderberry"]
-dull_value = 20
-for item in name_list:
-    item = Ingredient(item, dull_value)
-    test_list.append(item)
-    dull_value *= 2
 
 
-for i in test_list:
-    print(i.name, i.calories)
-"""
-"""NINJAS API QUERRY 
-@app.get("/item/{food_item}")
-def get_item(food_item: str):
-    headers = {"X-Api-Key": API_NINJAS_KEY}
-    params = {"query": food_item}
+class SettingsInput(BaseModel):
+    optimized_properties: List[str]
+    excess_weights: List[int]
+    slack_weights: List[int]
+    target_goal: List[float]
 
-    response = requests.get(API_NINJAS_URL, headers=headers, params=params)
-
-    if response.status_code == 200:
-        nutrition_info = response.json()
-        if nutrition_info:
-            return nutrition_info
-        else:
-            raise HTTPException(status_code=404, detail="Food item not found.")
-    else:
-        raise HTTPException(status_code=response.status_code, detail="API request failed.")
-"""
+""" Global vars for meals "db" and session settings, should be both loaded from db. TODO: DO IT """
 active_meals = {}
 session_settings = None
+
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"], 
+    allow_credentials=True, 
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 OPEN_FOOD_FACTS_URL = "https://world.openfoodfacts.org/cgi/search.pl"
 
-
+"""  
+Post function, create a meal, should be called on task loading
+"""
 @app.post("/meal")
 def create_meal():
     meal_id = str(uuid4())
     active_meals[meal_id] = InputObject()
     return {"meal_id": meal_id}
+
+"""  
+Post function, add an ingredient to a meal, should be called on ingredient loading¨
+The barcode should be obtained in frontend via search
+args:
+meal_id: str
+barcode: int - should be in form without (EAN etc...)
+priority: int
+"""
 
 @app.post("/meal/{meal_id}/ingredient")
 def add_ingredient_by_barcode(meal_id: str, barcode: str, priority: int):
@@ -98,20 +87,30 @@ def add_ingredient_by_barcode(meal_id: str, barcode: str, priority: int):
     }
 
     ingredient = Ingredient(nutrition_data, priority)
-    active_meals[meal_id].add_ingredient(ingredient)
+    if ingredient not in active_meals[meal_id].get_input_list():
+        active_meals[meal_id].add_ingredient(ingredient)
+        print(active_meals[meal_id].get_input_list())
 
-    return {
-        "message": f"Ingredient '{ingredient.get_name()}' added successfully.",
-        "ingredient": ingredient.__dict__
-    }
+        return {
+            "message": f"Ingredient '{ingredient.get_name()}' added successfully.",
+            "ingredient": ingredient.__dict__
+        }
+    else:
+        raise HTTPException(status_code=400, detail="Ingredient already exists in the meal.")
     
-
+"""  
+Get all active meals on execution
+"""
 @app.get("/meal/{meal_id}")
 def get_meal(meal_id: str):
     if meal_id not in active_meals:
         raise HTTPException(status_code=404, detail="Meal not found")
     return active_meals[meal_id].get_input_list()
 
+
+"""   
+Delete ingredient from meal on execution
+"""
 @app.delete("/meal/{meal_id}/ingredient")
 def remove_ingredient(meal_id: str, barcode: str):
     if meal_id not in active_meals:
@@ -129,12 +128,14 @@ def remove_ingredient(meal_id: str, barcode: str):
     else:
         raise HTTPException(status_code=404, detail="Ingredient not found in meal.")
 
+"""  
+Settings loading - TODO: handle from frontend
+1. pick properties to optimize
+2. That loads list in len(optimized_properties) length
+3. create a list of lists with values for each property (E,S,Target)
 
-class SettingsInput(BaseModel):
-    optimized_properties: List[str]
-    excess_weights: List[int]
-    slack_weights: List[int]
-    target_goal: List[float]
+"""
+
 
 @app.post("/settings")
 def settings_creation(input: SettingsInput):
@@ -148,12 +149,33 @@ def settings_creation(input: SettingsInput):
     session_settings= settings_obj
     return {"message": "Settings saved"}
 
+
+"""  
+Get session settings returns
+"""
 @app.get("/session_settings")
 def get_session_settings():
-    return session_settings.__dict__
+    if session_settings is None:
+        raise HTTPException(status_code=404, detail="Settings not found")
+    else:
+        return session_settings.__dict__
 
+
+"""  
+Method for getting optimized weights for a meal, should be called on task loading
+Args:
+    meal_id: str - id of the meal to optimize
+
+With check for if meal exists and if settings were loaded
+"""
 @app.get("/optimized_weights/{meal_id}")
 def get_optimized_wights(meal_id: str):
+    if meal_id not in active_meals:
+        raise HTTPException(status_code=404, detail="Meal not found")
+    
+    if session_settings is None:
+        raise HTTPException(status_code=404, detail="Settings not found")
+    
     optimization_object = gwo_optimizer(session_settings,active_meals[meal_id])
     optimization_object.solve()
     return optimization_object.get_json_results()
