@@ -1,5 +1,5 @@
 import numpy as np
-from optimizers.abstract_optimizer_base import AbstractOptimizerBase
+from app.optimizers.abstract_optimizer_base import AbstractOptimizerBase
 from mealpy import FloatVar
 
 """ TODO: Needs further commenting, error handling, testing """
@@ -252,7 +252,7 @@ class BaseOptimizer(AbstractOptimizerBase):
     """
     def get_json_results(self):
         print(self.solution)
-        if self.solution == None:
+        if self.solution is None:
             self.solve()
 
         rounded_solution = 0.05* np.round(self.solution/0.05)
@@ -280,8 +280,8 @@ class swarm_settings():
         self.used_optimizer = used_optimizer
         print(self.used_optimizer)
         
-        self.GWO_epoch = 300
-        self.GWO_pop_size = 30
+        self.GWO_epoch = 500
+        self.GWO_pop_size = 50
         self.WOA_epoch = 100
         self.WOA_pop_size = 50
         self.PSO_epoch = 100

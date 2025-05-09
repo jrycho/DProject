@@ -47,6 +47,9 @@ class Ingredient():
     def get_priority(self):
         return self.priority
     
+    def get_barcode(self):
+        return self.barcode
+    
     def set_user_designated_value(self, user_designated_value):
         
         self.user_designated_value = user_designated_value/100

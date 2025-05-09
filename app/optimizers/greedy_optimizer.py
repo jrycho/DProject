@@ -1,4 +1,4 @@
-from optimizers.swarm_utils import AbstractOptimizerBase
+from app.optimizers.swarm_utils import AbstractOptimizerBase
 import numpy as np
 class greedy_optimizer(AbstractOptimizerBase):
     

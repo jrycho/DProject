@@ -31,6 +31,13 @@ class InputObject:
                 self.input_list.remove(item)
         else:
             print("Ingredient not in list")
+
+    def remove_ingredient_by_barcode(self, barcode:str):
+        for item in self.input_list:
+            if item.get_barcode() == barcode:
+                self.input_list.remove(item)
+        else:
+            print("Ingredient not in list")
                        
 
     def get_input_list(self):

@@ -1,6 +1,6 @@
 import numpy as np
 from mealpy import GWO, FloatVar
-from optimizers.swarm_utils import  BaseOptimizer, swarm_settings #, properties_matrix_creator_for_genA, bounds_creator, swarm_fitness_function_for_genA,
+from app.optimizers.swarm_utils import  BaseOptimizer, swarm_settings #, properties_matrix_creator_for_genA, bounds_creator, swarm_fitness_function_for_genA,
 
 
 

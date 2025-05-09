@@ -1,10 +1,12 @@
 import numpy as np
-class Settings():
-    def __init__(self, excess_weights:list, slack_weights:list, target_goal:list, optimized_properties:list):
-        self.excess_weights = excess_weights
-        self.slack_weights = slack_weights
-        self.target_goal = target_goal
-        self.optimized_properties = optimized_properties
+from pydantic import BaseModel
+from typing import List
+
+class Settings(BaseModel):
+    excess_weights: List[float]
+    slack_weights: List[float]
+    target_goal: List[float]
+    optimized_properties: List[str]
 
     def get_settings(self):
         return  self.target_goal, self.excess_weights, self.slack_weights, self.optimized_properties
@@ -43,3 +45,10 @@ class Settings():
     
     def __str__(self):
         return f"Excess weights: {self.excess_weights}, Slack weights: {self.slack_weights}, Target goal: {self.target_goal}, Optimized properties: {self.optimized_properties}"
+
+
+class SettingsInput(BaseModel):
+    optimized_properties: List[str]
+    excess_weights: List[int]
+    slack_weights: List[int]
+    target_goal: List[float]

@@ -1,7 +1,7 @@
 import random
 import numpy as np
 from mealpy.evolutionary_based import GA
-from optimizers.swarm_utils import BaseOptimizer, swarm_settings
+from app.optimizers.swarm_utils import BaseOptimizer, swarm_settings
 
 
 

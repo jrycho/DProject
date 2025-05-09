@@ -1,9 +1,9 @@
-from optimizers.linprog_optimizer import linprog_optimizer
-from optimizers.gwo_optimizer import gwo_optimizer
-from optimizers.woa_optimizer import woa_optimizer
-from optimizers.pso_optimizer import pso_optimizer
-from optimizers.genetic_optimizer import genetic_optimizer
-from optimizers.greedy_optimizer import greedy_optimizer
+from app.optimizers.linprog_optimizer import linprog_optimizer
+from app.optimizers.gwo_optimizer import gwo_optimizer
+from app.optimizers.woa_optimizer import woa_optimizer
+from app.optimizers.pso_optimizer import pso_optimizer
+from app.optimizers.genetic_optimizer import genetic_optimizer
+from app.optimizers.greedy_optimizer import greedy_optimizer
 from mealpy import FloatVar, PSO, GWO, WOA
 from models.ingredient import Ingredient
 from models.settings import Settings
