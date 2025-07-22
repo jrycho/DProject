@@ -9,3 +9,9 @@ MONGO_DB_NAME = os.getenv("MONGO_DB_NAME", "nutrition_app")
 
 client = AsyncIOMotorClient(MONGO_URI)
 db = client[MONGO_DB_NAME]
+
+users_collection = db["users"]
+meals_collection = db["meal_logs"]
+
+def get_db():
+    return db

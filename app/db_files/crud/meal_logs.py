@@ -21,9 +21,10 @@ creates meal log via MealLogModel class
 returns: str (id of the new meal log)
 
 """
-async def create_meal_log(meal_id: str) -> str:
+async def create_meal_log(meal_id: str, user_id:str) -> str:
     meal_log = MealLogModel(
         meal_id=meal_id,
+        user_id = user_id,
         date=datetime.now(timezone.utc),
         ingredients= [],
     )

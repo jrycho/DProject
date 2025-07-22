@@ -24,7 +24,7 @@ class MealLogModel(BaseModel):
     user_settings_id: Optional[str] = None  # planned for future
 
     model_config = {
-        "populate_by_name": True,
+        "populate_by_name": True, #Use the field aliases instead of the Python variable names when converting to a dictionary
         "arbitrary_types_allowed": True, #allows usage of custom Python types like ObjectID
         "json_encoders": {ObjectId: str}, #converts ObjectId to string for work with JSONs, desired in frontend
     }

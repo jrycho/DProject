@@ -1,27 +1,60 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from app.db_files.crud.meal_logs import create_meal_log, get_all_meal_logs, add_ingredient_to_log, delete_ingredient_from_meal_log
 from app.utils.build_ingredient_from_barcode import build_ingredient_from_barcode
 from app.db_files.core.database import db
 from app.models.input_obj import InputObject
+from app.db_files.models.users import User
 from app.state.state import active_meals
 from app.db_files.models.ingredient_entry import IngredientEntry
 from anyio.to_thread import run_sync
+from uuid import uuid4
+from app.security.security import get_current_user_id
 
 
 router = APIRouter(prefix="/logs", tags=["Meal Logs"])
 
 @router.post("/{meal_id}")
-async def log_meal(meal_id: str): 
+async def log_meal_with_id(meal_id: str): 
     """
     Log a meal by its ID.
     Calls create_meal_log function from crud.py
     returns a message and the log_id
     """
+
     try:
+        
         log_id = await create_meal_log(meal_id)
         return {"message": "Meal logged", "log_id": log_id}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+@router.post("/")
+async def log_meal(user_id: str = Depends(get_current_user_id)):
+    
+    """
+    Log a meal creates ID.
+    Calls create_meal_log function from crud.py
+    returns a message and the log_id
+    """
+
+    """
+    Logs a meal and returns meal and log ID.
+    """
+    try:
+        meal_id = str(uuid4())
+        user_id = str(user_id)
+
+        log_id = await create_meal_log(meal_id=meal_id, user_id=user_id)
+        return {
+            "message": "Meal logged",
+            "log_id": log_id,
+            "meal_id": meal_id,
+            "user_id": user_id  # optional, useful for debugging
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 
 @router.get("/")
 async def read_logs():

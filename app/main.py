@@ -15,7 +15,8 @@ from pydantic import BaseModel
 from app.optimizers.gwo_optimizer import gwo_optimizer
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routes import meal_logs_routes, settings_routes, optimization_routes
+from app import routes
+from app.routes import meal_logs_routes, settings_routes, optimization_routes, testing_routes, users_routes, login_routes
 from app.state.state import active_meals
 import app.state.state as state
 
@@ -42,11 +43,16 @@ OPEN_FOOD_FACTS_URL = "https://world.openfoodfacts.org/cgi/search.pl"
 
 """  
 Include router for meal log
-"""    
+"""
+
+
+
 app.include_router(meal_logs_routes.router)
 app.include_router(settings_routes.router)   
 app.include_router(optimization_routes.router)
-
+app.include_router(testing_routes.router)
+app.include_router(users_routes.router)
+app.include_router(login_routes.router)
 
 """  
 Post function, create a meal, should be called on task loading

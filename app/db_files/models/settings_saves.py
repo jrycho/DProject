@@ -1,6 +1,10 @@
 from pydantic import BaseModel
 from typing import Dict, List
 
+
+"""  
+Defines settings storage model
+"""
 class SettingsInput(BaseModel):
     excess_weights: List[float]
     slack_weights: List[float]
