@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.responses import JSONResponse
 from app.db_files.core.database import get_db
 from app.db_files.models.users import UserPublic
 from app.db_files.crud.users import verify_password
@@ -28,8 +29,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db=Depends(get
 
     token = create_access_token(data={"sub": str(user["_id"])})
 
-    #!! TODO: Add a cookie to the response with the token
-    """ 
+    
     response = JSONResponse(content={"message": "Login successful"})
     response.set_cookie(
         key="access_token",
@@ -39,8 +39,8 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db=Depends(get
         samesite="Lax",      # Or "Strict" / "None" depending on frontend/backend origin
         max_age=3600         # Or match your token expiry
     )
-    return response
-       """
+    #return response
+
 
 
     return {"access_token": token, "token_type": "bearer"}

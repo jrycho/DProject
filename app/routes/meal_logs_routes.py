@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from app.db_files.crud.meal_logs import create_meal_log, get_all_meal_logs, add_ingredient_to_log, delete_ingredient_from_meal_log
+from app.db_files.crud.meal_logs import get_meal_by_date
 from app.utils.build_ingredient_from_barcode import build_ingredient_from_barcode
 from app.db_files.core.database import db
 from app.models.input_obj import InputObject
@@ -9,11 +10,14 @@ from app.db_files.models.ingredient_entry import IngredientEntry
 from anyio.to_thread import run_sync
 from uuid import uuid4
 from app.security.security import get_current_user_id
-
+from datetime import datetime
+import logging
+log = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/logs", tags=["Meal Logs"])
 
-@router.post("/{meal_id}")
+
+@router.post("/log_custom_id/{meal_id}")
 async def log_meal_with_id(meal_id: str): 
     """
     Log a meal by its ID.
@@ -22,14 +26,15 @@ async def log_meal_with_id(meal_id: str):
     """
 
     try:
-        
-        log_id = await create_meal_log(meal_id)
+        meal_id = str(meal_id)
+        user_id = str("test")
+        log_id = await create_meal_log(meal_id, user_id, "test")
         return {"message": "Meal logged", "log_id": log_id}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
-@router.post("/")
-async def log_meal(user_id: str = Depends(get_current_user_id)):
+@router.post("/log_meal")
+async def log_meal(meal_type:str, date:str, user_id: str = Depends(get_current_user_id)):
     
     """
     Log a meal creates ID.
@@ -40,11 +45,19 @@ async def log_meal(user_id: str = Depends(get_current_user_id)):
     """
     Logs a meal and returns meal and log ID.
     """
+    print("user_id: ", user_id)
+    print(type(user_id))
     try:
         meal_id = str(uuid4())
         user_id = str(user_id)
+        meal_type = str(meal_type)
 
-        log_id = await create_meal_log(meal_id=meal_id, user_id=user_id)
+        log_id = await create_meal_log(
+            meal_id=meal_id,
+            user_id=user_id,
+            type_of_meal=meal_type,
+            date=date,
+            )
         return {
             "message": "Meal logged",
             "log_id": log_id,
@@ -52,11 +65,12 @@ async def log_meal(user_id: str = Depends(get_current_user_id)):
             "user_id": user_id  # optional, useful for debugging
         }
     except Exception as e:
+        log.exception("log_meal failed")
         raise HTTPException(status_code=500, detail=str(e))
 
 
 
-@router.get("/")
+@router.get("/Read_logs")
 async def read_logs():
     """  
     Returns all meal logs
@@ -131,3 +145,16 @@ async def remove_ingredient_by_barcode(meal_id: str, barcode: str):
         input_object = active_meals[meal_id]
         input_object.remove_ingredient_by_barcode(barcode)
 
+@router.get("/fetch_meal_by_date")
+async def fetch_meal_by_date(current_user_id: str = Depends(get_current_user_id), date: str = None):
+    if not date:
+        raise HTTPException(status_code=400, detail="Date is required")
+    if not current_user_id:
+        raise HTTPException(status_code=401, detail="User not authenticated")
+    
+    try:
+        date_obj = datetime.fromisoformat(date)
+    except ValueError:
+        raise HTTPException(status_code=402, detail="Invalid date format. Use YYYY-MM-DD")
+    
+    return await get_meal_by_date(current_user_id, date)

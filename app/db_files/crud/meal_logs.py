@@ -1,14 +1,17 @@
 from app.db_files.core.database import db
 from app.db_files.models.meal_logs import MealLogModel
-from datetime import datetime, timezone
+from datetime import datetime, timezone, date as Date
 from typing import List
 from app.db_files.models.ingredient_entry import IngredientEntry
 from fastapi import HTTPException
+from fastapi.encoders import jsonable_encoder
 from bson import ObjectId
 from app.models.input_obj import InputObject
 from app.utils.build_ingredient_from_barcode import build_ingredient_from_barcode
 from anyio.to_thread import run_sync
-
+from uuid import uuid4
+from pymongo.errors import DuplicateKeyError
+from pydantic import Field
 # MongoDB database and 
 collection = db["meal_logs"]  # MongoDB collection
 
@@ -21,16 +24,24 @@ creates meal log via MealLogModel class
 returns: str (id of the new meal log)
 
 """
-async def create_meal_log(meal_id: str, user_id:str) -> str:
-    meal_log = MealLogModel(
-        meal_id=meal_id,
-        user_id = user_id,
-        date=datetime.now(timezone.utc),
-        ingredients= [],
-    )
-    result = await collection.insert_one(meal_log.model_dump(by_alias=True, exclude_unset=True)) #insert_one, model_dump for MDB savable collection, await for work in async 
-    return str(result.inserted_id) #Returning the ID of the newly inserted document as a string.
-
+async def create_meal_log(meal_id: str | None, user_id:str, type_of_meal: str, date:str )-> str:
+ while True:
+        internal_meal_id = meal_id or str(uuid4())
+        meal_log = MealLogModel(
+            meal_id=internal_meal_id,
+            user_id = user_id,
+            type_of_meal=type_of_meal,
+            date = date,
+            ingredients= [],
+        )
+        try:
+            result = await collection.insert_one(meal_log.model_dump(by_alias=True, exclude_unset=True)) #insert_one, model_dump for MDB savable collection, await for work in async 
+            return str(result.inserted_id) #Returning the ID of the newly inserted document as a string.
+        except DuplicateKeyError:
+            if meal_id:
+                raise HTTPException(status_code=409, detail="Meal log with user given id already exists")
+            meal_id = None
+            continue
 """  
 Get all meal logs (can filter by user_id later)
 creates list
@@ -140,3 +151,14 @@ async def delete_ingredient_from_meal_log(meal_id, barcode):
         raise HTTPException(status_code=500, detail="Failed to remove ingredient from log")
     
     return {"message": f"Ingredient {barcode} removed from meal {meal_id}"}
+
+async def get_meal_by_date(user_id: str, date: str) -> List[MealLogModel]:
+    # Normalize date to only match the day (ignoring time)
+    key = date
+
+    logs = await db.meal_logs.find({
+        "user_id": user_id,
+        "date": key
+    }).to_list(length=None)
+
+    return jsonable_encoder(logs, custom_encoder={ObjectId: str})  # List of meal logs for that user and date

@@ -1,7 +1,24 @@
 {
   "compilerOptions": {
-    "paths": {
-      "@/*": ["./*"]
-    }
-  }
+    "allowJs": true,
+    "checkJs": false,
+    "noEmit": true,
+
+    "baseUrl": ".",
+    "paths": { "@/*": ["./*"] },
+
+    "types": []                         // don't auto-include ambient @types
+  },
+  "typeAcquisition": {
+    "enable": true,
+    "exclude": ["page"]                 // stop grabbing @types/page
+  },
+  "include": [
+    "app/**/*.js",
+    "pages/**/*.js",
+    "components/**/*.js",
+    "src/**/*.js",
+    "utils/**/*.js"
+  ],
+  "exclude": ["node_modules"]
 }

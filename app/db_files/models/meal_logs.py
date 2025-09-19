@@ -1,9 +1,12 @@
 from pydantic import BaseModel, Field
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, date as Date
 from bson import ObjectId
 from .ingredient_entry import IngredientEntry
 from typing import List
+from app.db_files.models.pyobject import PyObjectId
+from time import timezone
+
 
 """  
 Defines class for meal log
@@ -16,8 +19,10 @@ user id (optional, for future implementation),
 user settings id (optional, for future implementation)
 """
 class MealLogModel(BaseModel):
+    id: Optional[PyObjectId] = Field(default=None, alias="_id")
     meal_id: str  # from your existing /meal endpoint
-    date: datetime  # when the meal log is created
+    date: str  # when the meal log is created
+    created_at: datetime =Field(default_factory=lambda: datetime.now(timezone.utc)),
     ingredients: List[IngredientEntry] = []
     type_of_meal: Optional[str] = None  # e.g., "lunch", can be added later
     user_id: Optional[str] = None       # add when user accounts are implemented

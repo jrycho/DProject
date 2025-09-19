@@ -31,12 +31,17 @@ import app.state.state as state
 app = FastAPI()
 
 
+origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"], 
-    allow_credentials=True, 
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=origins,          # don't use "*" if you send credentials/cookies
+    allow_credentials=True,         # True if you use cookies/session
+    allow_methods=["*"],            # or ["GET","POST","OPTIONS",...]
+    allow_headers=["*"],            # include "Authorization" for bearer tokens
 )
 
 OPEN_FOOD_FACTS_URL = "https://world.openfoodfacts.org/cgi/search.pl"
