@@ -63,15 +63,17 @@ async def get_all_meal_logs() -> List[MealLogModel]:
 
 """  
 Get a specific meal log by meal_id
-args: meal_id: str
+args: meal_id: str, user_id: str
 Finds a document in the meal_logs collection with given meal_id
 Raises 404 if not found
 Returns it as a MealLogModel
 """
-async def get_meal_log_by_meal_id(meal_id: str):
-    doc = await meal_logs.find_one({"meal_id": meal_id})
+async def get_meal_log_by_meal_id(meal_id: str, user_id:str):
+    doc = await meal_logs.find_one({"meal_id": meal_id, "user_id": user_id})
     if not doc:
         raise HTTPException(status_code=404, detail="Meal log not found")
+    if isinstance(doc.get("_id"), ObjectId):
+        doc["_id"] = str(doc["_id"])
     return MealLogModel(**doc)
 
 
@@ -86,10 +88,10 @@ Raises 400 if duplicate
 Pushes ingredient to log's ingredients list
 Raises 404 if update fails
 """
-async def add_ingredient_to_log(log_id: str, ingredient: IngredientEntry):
+async def add_ingredient_to_log(log_id: str, ingredient: IngredientEntry): #! USED
     entry_dict = ingredient.model_dump()
     
-    existing_log = await meal_logs.find_one({"_id": ObjectId(log_id)})
+    existing_log = await meal_logs.find_one({"meal_id": log_id})
     if not existing_log:
         raise HTTPException(status_code=404, detail="Meal log not found")
     
@@ -97,7 +99,7 @@ async def add_ingredient_to_log(log_id: str, ingredient: IngredientEntry):
         raise HTTPException(status_code=400, detail="Ingredient already exists in the log")
 
     result = await meal_logs.update_one(
-        {"_id": ObjectId(log_id)},
+        {"meal_id": log_id},
         {"$push": {"ingredients": entry_dict}}
     )
     
@@ -112,9 +114,9 @@ For each ingredient:
     Adds it to the input object
 Returns the InputObject
 """
-async def build_input_object_from_meal_log(meal_id: str) -> InputObject:
+async def build_input_object_from_meal_log(meal_id: str, user_id: str) -> InputObject: #! USED
 
-    log = await get_meal_log_by_meal_id(meal_id) #loads meal
+    log = await get_meal_log_by_meal_id(meal_id, user_id) #loads meal
     input_object = InputObject() #object creation
 
     for entry in log.ingredients: #forcycle on ingredients
@@ -152,7 +154,7 @@ async def delete_ingredient_from_meal_log(meal_id, barcode):
     
     return {"message": f"Ingredient {barcode} removed from meal {meal_id}"}
 
-async def get_meal_by_date(user_id: str, date: str) -> List[MealLogModel]:
+async def get_meal_by_date(user_id: str, date: str) -> List[MealLogModel]: #! USED
     # Normalize date to only match the day (ignoring time)
     key = date
 

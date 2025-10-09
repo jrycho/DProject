@@ -1,12 +1,17 @@
 'use client';
 
 import MealLogger from '@/components/MealLogger';
+import Navbar from '@/components/Navbar';
+import OptimizeButton from '@/components/OptimizeButton';
+import {MealIdCtx} from '@/utils/mealIdCtx'
 
 export default function Page() {
   return (
     <main className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Meal Logger</h1>
+
+      <Navbar />
       <MealLogger />
     </main>
+
   );
 }

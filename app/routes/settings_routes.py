@@ -1,8 +1,10 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from app.models.settings import SettingsInput
 from app.models.settings import Settings  #
 from app.db_files.crud.settings_saves import save_user_settings, get_user_settings
 import app.state.state as state  # global memory state
+from app.security.security import get_current_user_id
+from app.utils.settingsPayload import SettingsPayload
 
 router = APIRouter(prefix="/settings", tags=["User Settings"])
 
@@ -15,16 +17,18 @@ saves it to state
 saves it to MongoDB
 returns message and user_id
 """
-@router.post("/{user_id}")
-async def create_settings(user_id: str, input: SettingsInput):
+@router.post("/save_settings") #! USED, worth 
+async def create_settings(input: SettingsPayload, user_id: str = Depends(get_current_user_id)):
+    print(input.excess_weights)
     settings_obj = Settings(
         excess_weights=input.excess_weights,
         slack_weights=input.slack_weights,
         target_goal=input.target_goal,
         optimized_properties=input.optimized_properties,
     )
+    print(settings_obj)
 
-    # Save to memory
+    # Save to memory #!DELETABLE THINGY
     state.session_settings = settings_obj
 
     # Save to MongoDB
@@ -41,8 +45,8 @@ args: user_id: str
 if not in DB HTTPException 404
 returns Settings object
 """
-@router.get("/{user_id}")
-async def get_settings(user_id: str):
+@router.get("/get_settings") #! USED
+async def get_settings(user_id: str = Depends(get_current_user_id)):
     try:
         # Get from MongoDB
         db_data = await get_user_settings(user_id)

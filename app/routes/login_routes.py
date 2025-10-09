@@ -21,7 +21,7 @@ Returns:
 Raises:
     - HTTPException: If the user is not found or the 
 """
-@router.post("/login")
+@router.post("/login") #!USED
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db=Depends(get_db)):
     user = await db["users"].find_one({"email": form_data.username.lower().strip()})
     if not user or not verify_password(form_data.password, user["password"]):
@@ -56,7 +56,7 @@ Args:
 Returns:
     - UserPublic: The current user's information.
 """
-@router.get("/me")
+@router.get("/me") #! USED testing
 async def get_me(current_user=Depends(get_current_user)):
 
     return UserPublic(**current_user)

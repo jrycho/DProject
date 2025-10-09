@@ -18,7 +18,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/Auth/login") #important for swag
 
 """
 
-def create_access_token(data: dict, expires_delta: timedelta = None):
+def create_access_token(data: dict, expires_delta: timedelta = None): #!USED
     #avoiding modifying data dict
     to_encode = data.copy()
     
@@ -39,7 +39,7 @@ Args: token: str
 Returns: payload
 Raises: HTTPException 
 """
-def verify_access_token(token: str):
+def verify_access_token(token: str): #!USED
     #decode the JWT using the SECRET_KEY and the selected ALGORITHM (e.g. HS256)
     #if the token is valid, return the payload (e.g. { "sub": "user_id" })
     try:
@@ -55,7 +55,7 @@ Args: token: str
 Returns: User as dict
 Raises: HTTPException 
 """
-async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
+async def get_current_user(token: str = Depends(oauth2_scheme)) -> User: #! USED Testing
     #credentials exception encapsulation
     credentials_exception = HTTPException(
         status_code=401,
@@ -94,7 +94,7 @@ Args: token: str
 Returns: user id as str
 Raises: HTTPException 
 """
-async def get_current_user_id(token: str = Depends(oauth2_scheme)) -> str:
+async def get_current_user_id(token: str = Depends(oauth2_scheme)) -> str: #! USED a lot
 
     user_data =  await get_current_user(token)
     user_id = user_data["_id"]

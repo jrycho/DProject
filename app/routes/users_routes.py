@@ -16,7 +16,7 @@ Returns:
 Raises: 
     HTTPException: 400 if user already exists
 """
-@router.post("/signup")
+@router.post("/signup") #! USED
 async def signup(user: UserCreate, db=Depends(get_db)):
     if await db["users"].find_one({"email": user.email}):
         raise HTTPException(status_code=400, detail="Email already exists")

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from app.db_files.crud.meal_logs import create_meal_log, get_all_meal_logs, add_ingredient_to_log, delete_ingredient_from_meal_log
 from app.db_files.crud.meal_logs import get_meal_by_date
+from app.db_files.crud.ingredient_crud import get_or_fetch_ingredient_dict_sync, doc_to_ingredient_entry
 from app.utils.build_ingredient_from_barcode import build_ingredient_from_barcode
 from app.db_files.core.database import db
 from app.models.input_obj import InputObject
@@ -12,12 +13,15 @@ from uuid import uuid4
 from app.security.security import get_current_user_id
 from datetime import datetime
 import logging
+
+
+
 log = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/logs", tags=["Meal Logs"])
 
 
-@router.post("/log_custom_id/{meal_id}")
+@router.post("/log_custom_id/{meal_id}") #!UNUSED, testable
 async def log_meal_with_id(meal_id: str): 
     """
     Log a meal by its ID.
@@ -33,7 +37,7 @@ async def log_meal_with_id(meal_id: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
-@router.post("/log_meal")
+@router.post("/log_meal") #!USED
 async def log_meal(meal_type:str, date:str, user_id: str = Depends(get_current_user_id)):
     
     """
@@ -70,7 +74,7 @@ async def log_meal(meal_type:str, date:str, user_id: str = Depends(get_current_u
 
 
 
-@router.get("/Read_logs")
+@router.get("/Read_logs") #!UNUSED, not functional
 async def read_logs():
     """  
     Returns all meal logs
@@ -89,11 +93,11 @@ priority: int
 Checks if in state, if not there pull from db, if not in db HTTP exception
 """
 
-@router.post("/meal/{meal_id}/ingredient")
-async def add_ingredient_by_barcode(meal_id: str, barcode: str, priority: int):
+@router.post("/meal/{meal_id}/ingredient") #DELETABLE #!UNUSED
+async def add_ingredient_by_barcode(meal_id: str, barcode: str, priority: int, user_id: str = Depends(get_current_user_id)):
     #1 Check state, In state aditions for current work
     if meal_id not in active_meals:
-        meal_doc = await db.meal_logs.find_one({"meal_id": meal_id})
+        meal_doc = await db.meal_logs.find_one({"meal_id": meal_id, "user_id" : user_id} )
         if not meal_doc:
             raise HTTPException(status_code=404, detail="Meal not found")
         
@@ -137,7 +141,7 @@ Returns: message
 calls crud function to remove ingredient from log
 removes ingredient if in state
 """
-@router.delete("/meal/{meal_id}/ingredient")
+@router.delete("/meal/{meal_id}/ingredient") #!UNUSED
 async def remove_ingredient_by_barcode(meal_id: str, barcode: str):
     await delete_ingredient_from_meal_log(meal_id, barcode)
 
@@ -145,7 +149,7 @@ async def remove_ingredient_by_barcode(meal_id: str, barcode: str):
         input_object = active_meals[meal_id]
         input_object.remove_ingredient_by_barcode(barcode)
 
-@router.get("/fetch_meal_by_date")
+@router.get("/fetch_meal_by_date") #!USED
 async def fetch_meal_by_date(current_user_id: str = Depends(get_current_user_id), date: str = None):
     if not date:
         raise HTTPException(status_code=400, detail="Date is required")
@@ -158,3 +162,24 @@ async def fetch_meal_by_date(current_user_id: str = Depends(get_current_user_id)
         raise HTTPException(status_code=402, detail="Invalid date format. Use YYYY-MM-DD")
     
     return await get_meal_by_date(current_user_id, date)
+
+
+@router.post("/add_ingredient{barcode}") #!USED
+async def add_ingredient(barcode: str, meal_id: str, user_id: str = Depends(get_current_user_id)):
+    if not user_id:
+        return  {
+            "message": f"No user found, log in",
+            }
+    #check if ingredient in db ✅
+    #if not fetch and save to db ✅
+    #make ingredient entry ✅
+    doc = await get_or_fetch_ingredient_dict_sync(barcode)
+    #make ingredient entry ✅
+    entry = await doc_to_ingredient_entry(doc,1)
+    # append to meal of meal id ✅
+    await add_ingredient_to_log(meal_id, entry)
+    return  {
+            "message": f"Ingredient added successfully.",
+            
+        }
+

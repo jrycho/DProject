@@ -1,6 +1,7 @@
 'use client';
 
 import {useState} from 'react';
+import Navbar from '@/components/Navbar';
 
 
 export default function Login() {
@@ -47,7 +48,10 @@ export default function Login() {
         
 
     return (
-        <div className="p-4 max-w-md mx-auto">
+        <>
+        <Navbar/>
+        
+        <div className="p-4 max-w-md mx-auto mt-20">
             <h2 className="text-xl font-bold mb-4">Log In</h2>
             <input
                 type="email"
@@ -69,5 +73,7 @@ export default function Login() {
 
             </button>
                 {message && <p className="mt-2 text-sm">{message}</p>}
-             </div>)
+             </div>
+             </>
+    )
 }

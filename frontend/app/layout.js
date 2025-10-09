@@ -1,5 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Navbar from "@/components/Navbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,11 +19,12 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+      {/* site-wide background + text come from your CSS variables via Tailwind tokens */}
+      <body className="min-h-screen bg-background-yellow-500 text-foreground antialiased">
+        <Navbar />
+        {/* spacer only needed if Navbar is fixed */}
+        <div className="pt-16">{children}</div>
       </body>
     </html>
   );

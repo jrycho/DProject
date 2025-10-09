@@ -12,6 +12,7 @@ db = client[MONGO_DB_NAME]
 
 users_collection = db["users"]
 meals_collection = db["meal_logs"]
+ingredients_collection = db["ingredients_collection"]
 
 def get_db():
     return db

@@ -1,7 +1,9 @@
 from fastapi import FastAPI, HTTPException
 import requests
 from app.models.ingredient import Ingredient
+from app.db_files.crud.ingredient_crud import get_or_fetch_ingredient_dict_sync
 
+#Deletable
 def build_ingredient_from_barcode(barcode: str, priority: int) -> Ingredient:
     """Builds an ingredient from a barcode.
 
@@ -40,3 +42,6 @@ def build_ingredient_from_barcode(barcode: str, priority: int) -> Ingredient:
 
     return Ingredient(nutrition_data, priority)
 
+async def build_ingredient_from_db(barcode: str, priority:int):
+    doc = await get_or_fetch_ingredient_dict_sync(barcode)
+    return Ingredient(doc, priority)
