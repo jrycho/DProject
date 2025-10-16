@@ -24,7 +24,7 @@ Raises:
 @router.post("/login") #!USED
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db=Depends(get_db)):
     user = await db["users"].find_one({"email": form_data.username.lower().strip()})
-    if not user or not verify_password(form_data.password, user["password"]):
+    if not user or not await verify_password(form_data.password, user["password"]):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     token = create_access_token(data={"sub": str(user["_id"])})

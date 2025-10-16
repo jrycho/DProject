@@ -9,7 +9,7 @@ export async function addIngredient(barcode, mealId) {
 
         try {
             console.log(API_ORIGIN+`/logs/add_ingredient${encodeURIComponent(barcode)}?meal_id=${encodeURIComponent(mealId)}`)
-            const res = await authFetch(`http://localhost:8000/logs/add_ingredient${encodeURIComponent(barcode)}?meal_id=${encodeURIComponent(mealId)}`,
+            const res = await authFetch(`http://localhost:8000/logs/add_ingredient/${encodeURIComponent(barcode)}?meal_id=${encodeURIComponent(mealId)}`,
                 {method : 'POST',
                 headers: { 'Content-Type': 'application/json' },
             }

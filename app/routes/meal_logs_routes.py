@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
-from app.db_files.crud.meal_logs import create_meal_log, get_all_meal_logs, add_ingredient_to_log, delete_ingredient_from_meal_log
+from app.db_files.crud.meal_logs import create_meal_log, get_all_meal_logs, add_ingredient_to_log, delete_ingredient_from_meal_log, return_ingredients_button
 from app.db_files.crud.meal_logs import get_meal_by_date
 from app.db_files.crud.ingredient_crud import get_or_fetch_ingredient_dict_sync, doc_to_ingredient_entry
 from app.utils.build_ingredient_from_barcode import build_ingredient_from_barcode
@@ -141,13 +141,11 @@ Returns: message
 calls crud function to remove ingredient from log
 removes ingredient if in state
 """
-@router.delete("/meal/{meal_id}/ingredient") #!UNUSED
-async def remove_ingredient_by_barcode(meal_id: str, barcode: str):
-    await delete_ingredient_from_meal_log(meal_id, barcode)
+@router.delete("/meal/{meal_id}/ingredient") #!USED
+async def remove_ingredient_by_barcode(meal_id: str, barcode: str, user_id: str = Depends(get_current_user_id)):
+    res = await delete_ingredient_from_meal_log(meal_id, barcode, user_id)
+    return res
 
-    if meal_id in active_meals:
-        input_object = active_meals[meal_id]
-        input_object.remove_ingredient_by_barcode(barcode)
 
 @router.get("/fetch_meal_by_date") #!USED
 async def fetch_meal_by_date(current_user_id: str = Depends(get_current_user_id), date: str = None):
@@ -164,7 +162,7 @@ async def fetch_meal_by_date(current_user_id: str = Depends(get_current_user_id)
     return await get_meal_by_date(current_user_id, date)
 
 
-@router.post("/add_ingredient{barcode}") #!USED
+@router.post("/add_ingredient/{barcode}") #!USED
 async def add_ingredient(barcode: str, meal_id: str, user_id: str = Depends(get_current_user_id)):
     if not user_id:
         return  {
@@ -182,4 +180,10 @@ async def add_ingredient(barcode: str, meal_id: str, user_id: str = Depends(get_
             "message": f"Ingredient added successfully.",
             
         }
+
+@router.get("/return_ingredients_for_buttons/{meal_id}")
+async def return_ingredients_for_buttons(meal_id: str, user_id: str = Depends(get_current_user_id)):
+    print("entered function")
+    data = await return_ingredients_button(meal_id, user_id)
+    return data
 

@@ -16,7 +16,7 @@ export default function Navbar() {
                         {/* Menu button  */}
         <button
           onClick={() => setOpen(true)}
-          className="inline-flex items-center gap-2 rounded-md px-3 py-2 hover:bg-gray-100"
+          className="inline-flex items-center gap-2 rounded-md px-3 py-2 hover:bg-gray-500"
           aria-label="Open menu"
         >
           <span className="text-sm">Menu</span>
@@ -48,8 +48,8 @@ export default function Navbar() {
           </button>
         </div>
         <nav className="p-4 space-y-2">
-          <a href="/login" className="block px-2 py-1 hover:bg-gray-900 rounded">Log in</a>
-          <a href="/signup" className="block px-2 py-1 hover:bg-gray-900 rounded">Sign up</a>
+          <a href="/login" className="block px-2 py-1 hover:bg-gray-500 rounded">Log in</a>
+          <a href="/signup" className="block px-2 py-1 hover:bg-gray-500 rounded">Sign up</a>
         </nav>
       </aside>
     </>

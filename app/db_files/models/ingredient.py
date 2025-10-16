@@ -251,3 +251,17 @@ def off_to_minimal(product: dict) -> IngredientDoc:
             sodium_100g=n.get("sodium_100g"),
         ),
     )
+
+def ingredient_doc_to_button_item(doc: IngredientDoc, grams: float = 100.0) -> dict:
+    # If you store per-100g in OFF, scale to the portion used in the meal if you know grams.
+    scale = (grams / 100.0) if grams else 1.0
+    n = doc.nutrients
+    return {
+        "id": str(doc.code),  # or your ingredient_in_meal_id
+        "name": doc.product_name,
+        "kcal": (n.energy_kcal_100g or 0) * scale,
+        "protein": (n.protein_100g or 0) * scale,
+        "carbs": (n.carbs_100g or 0) * scale,
+        "fats": (n.fat_100g or 0) * scale,
+        "barcode": doc.code,
+    }

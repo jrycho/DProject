@@ -2,7 +2,8 @@ import { addIngredient } from "@/utils/ingredientAdd";
 import { authFetch } from "@/utils/authFetch";
 import { useEffect, useState } from "react";
 
-export default function IngredientSearchBar({ isActive = true, mealId}) {
+
+export default function IngredientSearchBar({ isActive = true, mealId, onAdded}) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   const [fullSearch, setFullSearch] = useState(false);
@@ -122,10 +123,12 @@ export default function IngredientSearchBar({ isActive = true, mealId}) {
               onClick={async () =>{ const data = await fetchProductDetails(product.code)
                 console.log("LOOK HERE:" + data.barcode)
                 await addIngredient(data.barcode, mealId)
+                setQuery("")
+                onAdded?.();  
               }}
               className="border p-2 rounded cursor-pointer hover:bg-gray-100 transition"
             >
-              <strong>{product.product_name || "Unnamed product"}</strong>
+          <strong>{product.product_name || "Unnamed product"}</strong>
               <br />
               <span className="text-sm text-gray-600">
                 Barcode: {product.code}
@@ -133,7 +136,7 @@ export default function IngredientSearchBar({ isActive = true, mealId}) {
             </li>
           ))}
         </ul>
-
+{/*
         {loadingDetails && <div className="mt-2">Loading details…</div>}
         {selectedProduct && (
           <div className="mt-3 p-3 border rounded">
@@ -144,8 +147,8 @@ export default function IngredientSearchBar({ isActive = true, mealId}) {
               {selectedProduct.brands}{" "}
               {selectedProduct.quantity ? `• ${selectedProduct.quantity}` : ""}
             </div>
-          </div>
-        )}
+          </div> 
+        )}*/}
       </div>
     </div>
   );

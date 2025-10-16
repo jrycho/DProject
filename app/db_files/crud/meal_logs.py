@@ -7,11 +7,12 @@ from fastapi import HTTPException
 from fastapi.encoders import jsonable_encoder
 from bson import ObjectId
 from app.models.input_obj import InputObject
-from app.utils.build_ingredient_from_barcode import build_ingredient_from_barcode
+from app.utils.build_ingredient_from_barcode import build_ingredient_from_barcode, build_ingredient_from_db
 from anyio.to_thread import run_sync
 from uuid import uuid4
 from pymongo.errors import DuplicateKeyError
 from pydantic import Field
+from app.db_files.crud.ingredient_crud import get_or_fetch_ingredient_dict_sync
 # MongoDB database and 
 collection = db["meal_logs"]  # MongoDB collection
 
@@ -135,8 +136,9 @@ Uses $pull to remove ingredient from log
 Raises 500 if update fails
 Returns success message
 """
-async def delete_ingredient_from_meal_log(meal_id, barcode):
-    doc = await meal_logs.find_one({"meal_id": meal_id})
+async def delete_ingredient_from_meal_log(meal_id, barcode, user_id):
+    doc = await meal_logs.find_one({"meal_id": meal_id,
+                                    "user_id": user_id,})
     if not doc:
         raise HTTPException(status_code=404, detail="Meal log not found")
     
@@ -145,7 +147,8 @@ async def delete_ingredient_from_meal_log(meal_id, barcode):
         raise HTTPException(status_code=404, detail="Ingredient not found in the log")
     
     result = await meal_logs.update_one(
-        {"meal_id": meal_id},
+        {"meal_id": meal_id,
+        "user_id": user_id},
         {"$pull": {"ingredients": {"barcode": barcode}}}
     )
     #HTTP messages wanking
@@ -164,3 +167,44 @@ async def get_meal_by_date(user_id: str, date: str) -> List[MealLogModel]: #! US
     }).to_list(length=None)
 
     return jsonable_encoder(logs, custom_encoder={ObjectId: str})  # List of meal logs for that user and date
+
+
+async def fetch_ingredients_list(meal_id: str, user_id: str):
+
+    data = await meal_logs.find_one({"meal_id": meal_id,
+                                    "user_id": user_id,})
+    if not data:
+        raise HTTPException(status_code=404, detail="Failed to fetch ingredient list")
+    
+    ingredidents = data["ingredients"]
+    return ingredidents
+
+async def return_ingredients_button(meal_id: str, user_id: str):
+    barcodes_list = await fetch_ingredients_list(meal_id, user_id)
+    ingredients_list = []
+    ret_list = []
+    for item in barcodes_list:
+        ing = await get_or_fetch_ingredient_dict_sync(item["barcode"])
+        ret_ing = ingredient_doc_to_button_json(ing)
+        print(f"ret ing {ret_ing}")
+        ret_list.append(ret_ing)
+    return ret_list
+
+def ingredient_doc_to_button_json(ingredient):
+    
+        ret_dict = {
+        "name": ingredient.get("product_name") or "Unnamed",
+        "kcal": proofing(ingredient.get("energy_kcal")),
+        "protein":proofing(ingredient.get("proteins_100g")),
+        "carbs": proofing(ingredient.get("carbohydrates_100g")),
+        "fat": proofing(ingredient.get("fat_100g")),
+        "barcode": ingredient.get("barcode"),}
+        return ret_dict
+
+def proofing(x):
+    if x is None or x =="":
+        return 0.0
+    try:
+        return float(x)
+    except (TypeError, ValueError):
+        return 0.0

@@ -18,5 +18,5 @@ async def create_user(db, user):
     return await db["users"].insert_one(user_data)
 
 async def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return await pwd_context.verify(plain_password, hashed_password)
+    return  pwd_context.verify(plain_password, hashed_password)
 
