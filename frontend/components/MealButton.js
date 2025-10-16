@@ -53,7 +53,7 @@ export default function MealButton({ meal, isLogged, onClick, isActive , mealId}
       
       onClick={onClick}
       className={`w-150 ml-10 mr-10 px-4 py-2  text-white transition duration-300 border 
-        ${isActive ? 'pt-2 pb-00 bg-gray-600  hover:bg-gray-500 rounded-t-xl border-green-600 border-b-0 '  
+        ${isActive ? 'pt-2 pb-00 bg-gray-600  hover:bg-gray-500 rounded-t-xl border-green-600  '  
           : isLogged ? 'py-2 bg-gray-600  hover:bg-gray-500 rounded-xl border-green-600' 
           : 'py-2  bg-gray-700 hover:bg-gray-500 rounded-xl  border-green-600'}
       `}
@@ -61,11 +61,11 @@ export default function MealButton({ meal, isLogged, onClick, isActive , mealId}
       {isLogged ? `${meal} (Logged)` : meal}
     </button>
          <div
-            className={`overflow-hidden transition-all duration-300 ml-10 mr-10 w-150 rounded-br-bl  bg-yellow-500 rounded-b-2xl
+            className={`overflow-hidden transition-all duration-300 ml-10 mr-10 w-150 rounded-br-bl  bg-gray-500 rounded-b-2xl
               ${isActive ? 'min-h-30 max-h-90 opacity-100' : 'max-h-0 opacity-0  '}
             `}>
 
-            <div className={`  text-white transition duration-300  bg-yellow-500`}>
+            <div className={`  text-white transition duration-300  bg-gray-500`}>
               <div>
           <IngredientSearchBar 
               isActive={isActive}

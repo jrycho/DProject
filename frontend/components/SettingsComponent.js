@@ -128,7 +128,7 @@ export default function OptimizationSettingsForm({ properties = PROPS, onChange,
 
 
 
-  return (<div className="rounded-xl bg-gray-700 w-180 p-6 shadow ml-16"><div className="grid gap  ">
+  return (<div className="rounded-xl bg-gray-700 w-180 p-6 shadow ml-0"><div className="grid gap  ">
   {properties.map((p, i) => {
     const active = isActive(i);
     return (
@@ -141,34 +141,37 @@ export default function OptimizationSettingsForm({ properties = PROPS, onChange,
           type="button"
           onClick={() => toggle(i)}
           className={active
-            ? "bg-green-600 text-white px-3 py-2 rounded w-64 h-32 "
+            ? "bg-green-600 text-white px-3 py-2 rounded w-64 h-16 "
             : "bg-green-600 text-black px-3 py-2 rounded w-64"}
         >
-          {active ? "ON" : "OFF"} — {p}
+          {active ? "✔" : "●"} {p}
         </button>
 
         {/* Right: inputs for this prop (only when active) */}
         {active ? (
-          <div className="grid gap-2 ">
-            <strong className="text-white">{propSel[i]}</strong>
+          <div className="flex items-start gap-1 ">
+            {/* <strong className="text-white">{propSel[i]}</strong>*/}
 
             <input
               type="number"
+              min="1"
               value={target_goal[i] ?? ""}
               onChange={(e) => setAt(setTargetGoal, i, e.target.value)}
               onFocus={(e) => e.target.select()}
               onMouseUp={(e) => e.preventDefault()} 
-              className="border rounded px-2 py-1 bg-white text-black w-56 mt-0"
+              className="border rounded px-2 py-1 bg-white text-black w-20 mt-3"
             />
-
+            <span className="w-12 text-right text-sm mt-3">excess</span>
             <input
               type="range"
               min="0"
               max="10"
               value={excess_weights[i] ?? ""}
               onChange={(e) => setAt(setExcessWeights, i, e.target.value)}
-              className="w-56"
+              className="w-13 rotate-270 mt-3"
+              
             />
+            <span className="w-12 text-right text-sm mt-3">slack</span>
 
             <input
               type="range"
@@ -176,7 +179,7 @@ export default function OptimizationSettingsForm({ properties = PROPS, onChange,
               max="10"
               value={slack_weights[i] ?? ""}
               onChange={(e) => setAt(setSlackWeights, i, e.target.value)}
-              className="w-56"
+              className="w-13 rotate-270 mt-3"
             />
           </div>
         ) : (

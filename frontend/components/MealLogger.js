@@ -98,7 +98,8 @@ export default function MealLogger() {
     </div>
 
 
-
+<div
+className='grid w-1/2 grid-cols-1 md:grid-cols-2 gap-100'>
     {/* Meal buttons */}
             <div className='flex flex-col gap-2'>
                 {MEAL_TYPES.map(mealType => {
@@ -119,7 +120,7 @@ export default function MealLogger() {
             <details>
     {/* Settings */}            
   <summary className=' flex cursor-pointer list-none items-center  gap-0 rounded-xl px-4 py-3
-               text-sm font-medium bg-gray-400 min-h-7 text-gray-900 hover:bg-gray-500 w-180 mt-10 ml-22
+               text-sm font-medium bg-gray-400 min-h-7 text-gray-900 hover:bg-gray-500 w-60 mt-0
                focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500'>
     ⚙️ Settings
   </summary>
@@ -143,6 +144,7 @@ export default function MealLogger() {
             }}
       />
     </div></details>
+    </div>
     <div >
             <button 
             onClick={() => console.log(settingsObj)} 

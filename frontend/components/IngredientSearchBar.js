@@ -87,14 +87,14 @@ export default function IngredientSearchBar({ isActive = true, mealId, onAdded})
     // search bar component
     <div>
       <div className="mt-6 w-140">
-        <h2 className="text-lg font-semibold mb-2">Search Food:</h2>
+        <h2 className="text-lg font-semibold mb-2 ml-4">Search Food:</h2>
         <div className="flex items-center">
           <input
             type="text"
             placeholder="Search food..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full p-2 border rounded-md shadow-md"
+            className="w-full p-2 border ml-2 rounded-md shadow-md"
           />
           <button
             onClick={async () => {
