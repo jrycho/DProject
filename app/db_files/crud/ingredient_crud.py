@@ -34,6 +34,8 @@ async def off_to_ingredient_dict(barcode: str) -> dict:
 
     data = response.json()
     product = data.get("product")
+    print("look here:")
+    print(data)
 
     if not product:
         raise HTTPException(status_code=404, detail="Product not found.")

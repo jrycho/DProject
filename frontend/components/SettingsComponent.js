@@ -5,7 +5,7 @@ import { saveSettings } from '@/utils/saveSettings';
 import {useDebouncedEffect} from '@/utils/useDebouncedEffect';
 import { getLastSettings } from '@/utils/getLastSettings';
 
-const PROPS = ['calories', 'protein', 'carbs', 'fats', 'saturated_fats', 'salt', 'test'];
+const PROPS = ['calories', 'protein', 'carbs', 'fats', 'saturated_fat', 'salt'];
 
 // If you want to pass `properties` from a parent, keep the prop.
 // Otherwise, it will default to PROPS.

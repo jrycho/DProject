@@ -186,7 +186,7 @@ async def return_ingredients_button(meal_id: str, user_id: str):
     for item in barcodes_list:
         ing = await get_or_fetch_ingredient_dict_sync(item["barcode"])
         ret_ing = ingredient_doc_to_button_json(ing)
-        print(f"ret ing {ret_ing}")
+        #print(f"ret ing {ret_ing}")
         ret_list.append(ret_ing)
     return ret_list
 

@@ -2,12 +2,14 @@
 
 import {useState} from 'react';
 import Navbar from '@/components/Navbar';
+import { useRouter } from "next/navigation";
 
 
 export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
+    const router = useRouter();
     
 
     const handleLogin = async() => {
@@ -39,7 +41,7 @@ export default function Login() {
         const data = await response.json();
         localStorage.setItem('token', data.access_token);
         setMessage('Login successful! Redirecting...');
-        //router.push('/workplace');
+        router.push('/home');
         } catch (error) {
         setMessage('Login failed. Check your connection or credentials.');
         }
