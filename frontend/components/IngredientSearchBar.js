@@ -1,3 +1,4 @@
+'use client'
 import { addIngredient } from "@/utils/ingredientAdd";
 import { authFetch } from "@/utils/authFetch";
 import { useEffect, useState } from "react";

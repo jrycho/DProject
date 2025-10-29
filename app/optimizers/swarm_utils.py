@@ -256,14 +256,22 @@ class BaseOptimizer(AbstractOptimizerBase):
             self.solve()
 
         rounded_solution = 0.05* np.round(self.solution/0.05)
-        json_ingredient_weights = {}
+        json_ingredient_weights = []
         json_total_macros = {}
         for iterator in range(len(self.input_list)):
-            json_ingredient_weights[self.input_list[iterator].name] = rounded_solution[iterator] * 100
-        print(json_ingredient_weights)
+            barcode = self.input_list[iterator].barcode
+            name = self.input_list[iterator].name
+            grams = float(rounded_solution[iterator] * 100)
+            json_ingredient_weights.append({
+            "barcode": barcode,
+            "name": name,
+            "grams": grams,})
+        
+        
+        #print(json_ingredient_weights)
         total_macros = np.matmul(self.A_matrix, rounded_solution)
         for iterator in range(len(total_macros)):
-            json_total_macros[self.settings.get_optimized_properties()[iterator]] = total_macros[iterator]
+            json_total_macros[self.settings.get_optimized_properties()[iterator]] = float(total_macros[iterator])
 
 
 

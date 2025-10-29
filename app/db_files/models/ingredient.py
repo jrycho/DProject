@@ -1,11 +1,11 @@
-from pydantic import BaseModel, Field
-from typing import Optional
+from pydantic import BaseModel, Field, AliasChoices
+from typing import Optional, List, ClassVar, Set
 
 
 class Nutrients(BaseModel):
         # --- Energy (kJ + kcal) ---
-    energy_kj_100g: Optional[float] = None
-    energy_kcal_100g: Optional[float] = None
+    energy_kj_100g: Optional[float] = None 
+    energy_kcal_100g: Optional[float] = Field(None, validation_alias=AliasChoices("energy-kcal_100g", "energy_kcal_100g", "calories"))
     energy_kj_serving: Optional[float] = None
     energy_kcal_serving: Optional[float] = None
 
@@ -214,10 +214,32 @@ class Nutrients(BaseModel):
 class IngredientDoc(BaseModel):
     barcode: str = Field(..., alias="code", min_length=4)
     name: Optional[str] = Field(default=None, alias="product_name")
-    nutrients: Nutrients
+    nutrients: Nutrients = Field(..., alias="nutriments") 
+    categories_tags: List[str] = []
+    pnns_groups_1: Optional[str] = None
+    pnns_groups_2: Optional[str] = None
+    nova_group: Optional[int] = None
+
+    priority_user: Optional[int] = None
+    priority_auto: Optional[int] = None
+
+    PRIORITY_TAGS: ClassVar[Set[str]] = {
+            # veggies & fruit
+            "vegetables","vegetable","root-vegetables","leaf-vegetables","fruits","fruit",
+            # legumes / pulses
+            "legumes","pulses","beans","lentils","peas","chickpeas",
+            # sensible sides / staples
+            "cereals","grains","rice","oats","buckwheat","barley","quinoa","potatoes","sweet-potatoes","pasta",
+            # meats / animal proteins
+            "meats","meat","fish","seafood","eggs","poultry","beef","pork","lamb",
+            # tofu / vege replacements
+            "tofu","tempeh","seitan","plant-based-meats","meat-substitutes","vegetarian-meat-substitutes",
+        }
+    PRIORITY_PNNS: ClassVar[Set[str]] = {
+            "vegetables","fruits","legumes","cereals and potatoes","fish meat eggs"
+        }
 
     class Config:
-        allow_population_by_field_name = True
         populate_by_name = True
         extra = "ignore"
 
@@ -231,6 +253,55 @@ class IngredientDoc(BaseModel):
         d["_id"] = d.pop("barcode")
         return d
 
+
+    """ For getting tags 
+        Input: ["categories_en:Vegetables", "categories_fr:legumes", "tofu"]
+        Output: ["vegetables", "legumes", "tofu"] 
+    """
+    def _norm(self, xs: List[str]):
+        #crash protection
+        if not xs:
+            return [] 
+        normalized = []
+        for x in xs:
+            #string check
+            if not isinstance(x, str):
+                continue
+            #getting the last part of tags
+            parts = x.split(":")
+            tag = parts[-1].lower()
+
+            normalized.append(tag)
+        return normalized
+
+    def compute_priority_auto(self) -> int:
+        tags = set(self._norm(self.categories_tags))
+        #cuz a list of tags
+        if tags & self.PRIORITY_TAGS:
+            return 1
+        #cuz single value
+        p1 = (self.pnns_groups_1 or "").lower()
+        if p1 in self.PRIORITY_PNNS:
+            return 1
+        return 0
+    
+    def to_runtime(self) -> dict:
+        n = self.nutrients or {}
+        return {
+                "product_name": self.name,
+                "barcode": self.barcode,
+                "energy_kcal": n.energy_kcal_100g,
+                "proteins_100g": n.proteins_100g,
+                "carbohydrates_100g": n.carbohydrates_100g,
+                "fat_100g": n.fat_100g,
+                "saturated_fat_100g": n.saturated_fat_100g,
+                "sugars_100g": n.sugars_100g,
+                "fiber_100g": n.fiber_100g,
+                "salt_100g": n.salt_100g,
+                "priority": self.priority_auto,
+            }
+
+"""  
 # --- OFF → minimal IngredientDoc mapper ---
 def off_to_minimal(product: dict) -> IngredientDoc:
     n = product.get("nutriments") or {}
@@ -251,7 +322,7 @@ def off_to_minimal(product: dict) -> IngredientDoc:
             sodium_100g=n.get("sodium_100g"),
         ),
     )
-
+"""
 def ingredient_doc_to_button_item(doc: IngredientDoc, grams: float = 100.0) -> dict:
     # If you store per-100g in OFF, scale to the portion used in the meal if you know grams.
     scale = (grams / 100.0) if grams else 1.0
@@ -265,3 +336,4 @@ def ingredient_doc_to_button_item(doc: IngredientDoc, grams: float = 100.0) -> d
         "fats": (n.fat_100g or 0) * scale,
         "barcode": doc.code,
     }
+

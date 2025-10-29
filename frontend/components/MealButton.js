@@ -1,3 +1,4 @@
+'use client'
 import { useEffect, useState } from "react";
 import IngredientSearchBar from '@/components/IngredientSearchBar';
 import { deleteIngredient } from "@/utils/deleteIngredient";

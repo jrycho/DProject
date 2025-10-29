@@ -7,12 +7,14 @@ from fastapi import HTTPException
 from fastapi.encoders import jsonable_encoder
 from bson import ObjectId
 from app.models.input_obj import InputObject
-from app.utils.build_ingredient_from_barcode import build_ingredient_from_barcode, build_ingredient_from_db
+
 from anyio.to_thread import run_sync
 from uuid import uuid4
 from pymongo.errors import DuplicateKeyError
 from pydantic import Field
-from app.db_files.crud.ingredient_crud import get_or_fetch_ingredient_dict_sync
+from app.db_files.crud.ingredient_crud import get_or_fetch_ingredient_dict_sync, build_ingredient
+
+from app.models.ingredient import Ingredient
 # MongoDB database and 
 collection = db["meal_logs"]  # MongoDB collection
 
@@ -119,12 +121,19 @@ async def build_input_object_from_meal_log(meal_id: str, user_id: str) -> InputO
 
     log = await get_meal_log_by_meal_id(meal_id, user_id) #loads meal
     input_object = InputObject() #object creation
+    issue_list = []
 
     for entry in log.ingredients: #forcycle on ingredients
-        ingredient = await run_sync(build_ingredient_from_barcode, entry.barcode, entry.priority) #calls function that fetches it from OpenFoodFacts API and build to obj needed
-        input_object.add_ingredient(ingredient) #input object method
+        ingredient = await build_ingredient(entry.barcode, entry.priority) #calls function that fetches it from OpenFoodFacts API and build to obj needed
+        cal = getattr(ingredient, "calories")
+        print(cal)
+        is_numeric = isinstance(cal, (int, float)) and not isinstance(cal, bool)
+        if not is_numeric or cal <= 0:
+            issue_list.append(getattr(ingredient, "name"))
+        else:
+            input_object.add_ingredient(ingredient) #input object method
 
-    return input_object
+    return input_object, issue_list
         
 """  
 Delete an ingredient from a meal log
@@ -188,17 +197,27 @@ async def return_ingredients_button(meal_id: str, user_id: str):
         ret_ing = ingredient_doc_to_button_json(ing)
         #print(f"ret ing {ret_ing}")
         ret_list.append(ret_ing)
+        print(ret_list)
     return ret_list
 
 def ingredient_doc_to_button_json(ingredient):
-    
+        nutr = ingredient.get("nutrients")
+        name = ingredient.get("name") or ingredient.get("product_name") or "Unnamed"
+        barcode = ingredient.get("barcode") or ingredient.get("_id") or ingredient.get("code")
+
+        kcal    = nutr.get("energy_kcal_100g") or nutr.get("energy-kcal_100g") or nutr.get("energy_kcal") or nutr.get("energy-kcal") or 0
+        protein = nutr.get("proteins_100g")    or nutr.get("protein_100g")      or nutr.get("proteins")     or 0
+        carbs   = nutr.get("carbohydrates_100g") or nutr.get("carbs_100g")     or nutr.get("carbohydrates") or 0
+        fat     = nutr.get("fat_100g")         or nutr.get("fats_100g")         or nutr.get("fat")  
+        
         ret_dict = {
-        "name": ingredient.get("product_name") or "Unnamed",
-        "kcal": proofing(ingredient.get("energy_kcal")),
-        "protein":proofing(ingredient.get("proteins_100g")),
-        "carbs": proofing(ingredient.get("carbohydrates_100g")),
-        "fat": proofing(ingredient.get("fat_100g")),
-        "barcode": ingredient.get("barcode"),}
+        "name": name,
+        "kcal": (kcal),
+        "protein": (protein),
+        "carbs": (carbs),
+        "fat": (fat),
+        "barcode": barcode,
+    }
         return ret_dict
 
 def proofing(x):

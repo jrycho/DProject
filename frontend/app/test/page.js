@@ -1,53 +1,138 @@
-"use client";
-import IngredientButton from "@/components/IngredientButton";
-import { fetchIngredientButtons } from "@/utils/fetchIngredientButtons";
-import { useEffect, useState } from "react";
-import { deleteIngredient } from "@/utils/deleteIngredient";
+'use client'
+import MagicBento from '@/components/MagicBento'
+import MealButton from '@/components/MealButton';
+import { useState, useEffect , createContext, useContext} from 'react';
+import { logMeal, getLogsByDate } from '@/utils/log_meal';
+import SettingsComponent from '@/components/SettingsComponent';
+import { fetchLogs} from "@/utils/fetchLogs"
+import { getLastSettings } from '@/utils/getLastSettings';
+import Threads from '@/components/Threads'
 
 
-export default function TestPage() {
-  const data = { id: 1, name: "Chicken breast 100g", kcal: 165, protein: 31, carbs: 0, fat: 3.6 };
-  const label = `${data.kcal} kcal • ${data.protein}P/${data.carbs}C/${data.fat}F`;
-  const mealId = "8432904e-186c-4119-a094-d3c7d910014b";
-  const [items, setItems] = useState([]);
-  const [error, setError] = useState(null);
-   console.log("[TestPage] render")
 
 
+
+const MEAL_TYPES = ['Breakfast', 'Snack 1', 'Lunch', 'Snack 2', 'Dinner', 'Snack 3'];
+export default function testPage() {
+    const [selectedDate, setSelectedDate] = useState(new Date());
+    const [logs, setLogs] = useState([]);
+    const [activeMealLog, setActiveMealLog] = useState(false);
+    const [activeMealId, setActiveMealId] = useState(null);
+
+    const [settingsObj, setSettingsObj] = useState(null); 
+    const [LastSettings, setLastSettings] = useState(null);
+    const [ready, setReady] = useState(false)
+
+
+    const dateKey = selectedDate.toISOString().split('T')[0]
+
+
+    function changeDay(days) {
+        const newDate = new Date(selectedDate);
+        newDate.setDate(newDate.getDate() + days);
+        setSelectedDate(newDate);
+    }
 
 
     useEffect(() => {
-      console.log("effect")
-    let cancelled = false;
-    (async () => {
-      try {
-        const data = await fetchIngredientButtons(mealId)
-        console.log(data);
-        if (!cancelled) setItems(data);
-      } catch (e) {
-        if (!cancelled) setError(e);
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [mealId]);
 
 
-    const handleRemove = async (barcode) => {
-    // optional: optimistic UI
-    setItems((prev) => prev.filter((x) => x.barcode !== barcode));
-    try {
-      await deleteIngredient(mealId, barcode);
-    } finally {
-; // ensure fresh list from server
+        fetchLogs(dateKey, setLogs);}, [dateKey]);
+        console.log(logs);
+
+
+
+
+    //function if not logged, log, if logged, find and set to active
+    async function mealButtonClick(mealType, isLogged) {
+    
+    if (activeMealLog?.type_of_meal === mealType) {
+    setActiveMealLog(null);
+    setActiveMealId(null);
+    return;
     }
-  };
+   
+    if (!isLogged) {
+    const newLog = await  logMeal(mealType, dateKey);
 
-  return (
-    <div className="flex flex-col gap-2 ">
-      {items.map(it => (
-        <IngredientButton key={it.name} data={it} onRemove={()=>handleRemove(it.barcode)}/>
-      ))}
-      {items.length === 0 && <p className="text-sm text-gray-500">No ingredients.</p>}
-    </div>
-  );
+    setLogs(prev => [...prev, newLog]);
+    
+
+    await fetchLogs(dateKey, setLogs);
+    
+
+    setActiveMealLog(newLog);
+    setActiveMealId(newLog.meal_id);
+    
+
+    } else { 
+        const existingLog = logs.find(log => log.date === dateKey && log.type_of_meal === mealType);
+        setActiveMealLog(existingLog);
+        setActiveMealId(existingLog.meal_id);
+        console.log('active meal log:' +  activeMealLog?.meal_id ?? '(none)');
+    }
+    }
+
+return(
+  <>
+          <div
+          className="fixed inset-0 -z-10 pointer-events-none"
+          aria-hidden
+        >
+  <div style={{ width: '100%', height: '600px', position: 'relative' }}>
+  <Threads
+    amplitude={1}
+    distance={0}
+    enableMouseInteraction={true}
+  /></div></div>
+
+<MagicBento 
+  textAutoHide={true}
+  enableStars={true}
+  enableSpotlight={true}
+  enableBorderGlow={true}
+  enableTilt={true}
+  enableMagnetism={true}
+  clickEffect={true}
+  spotlightRadius={3}
+  particleCount={12}
+  glowColor="0, 255, 136"
+>
+        <div className="card-grid"
+          style={{
+    width: 'min(1200px, 95vw)',
+    height: '2000px',
+    margin: '0 auto',
+    display: 'grid',
+    gap: '0.5em',
+    padding: '0.75em',
+    gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', // 4 tracks to span across
+    gridAutoRows: '200px', // base row height so row spans have meaning
+  }}>
+        <div className="magic-bento-card magic-bento-card--border-glow">
+          <div className="magic-bento-card__header">
+            <h3 className="magic-bento-card__title">Meals</h3>
+          </div>
+          <div className="magic-bento-card__content" style={{ overflow: 'auto' }}>
+            <div className="flex flex-col gap-2">
+                  {MEAL_TYPES.map(mealType => {
+                      const log = logs.find(log => log.type_of_meal === mealType);
+                        const isActive = activeMealLog && log?.meal_id && activeMealLog.meal_id === log.meal_id;
+                      return (
+                          <MealButton
+                              key={mealType}
+                              meal={mealType}
+                              mealId = {activeMealId}
+                              isLogged={!!log}
+                              isActive={  activeMealLog  != null && log?.meal_id != null && activeMealLog.meal_id === log.meal_id}
+                              onClick={() => mealButtonClick(mealType, !!log)}
+                          />
+                      );
+                  })}            
+            </div>
+          </div>
+        </div>
+              </div>
+  </MagicBento></>
+);
 }

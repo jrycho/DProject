@@ -27,10 +27,6 @@ async def create_settings(input: SettingsPayload, user_id: str = Depends(get_cur
         optimized_properties=input.optimized_properties,
     )
     print(settings_obj)
-
-    # Save to memory #!DELETABLE THINGY
-    state.session_settings = settings_obj
-
     # Save to MongoDB
     try:
         await save_user_settings(user_id, settings_obj.model_dump())
@@ -55,7 +51,6 @@ async def get_settings(user_id: str = Depends(get_current_user_id)):
 
         # Convert to Settings object
         settings_obj = Settings(**db_data)
-        state.session_settings = settings_obj  # Save in memory
         return settings_obj.model_dump()  # Return as JSON
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

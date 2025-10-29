@@ -145,12 +145,7 @@ className='grid w-1/2 grid-cols-1 md:grid-cols-2 gap-100'>
       />
     </div></details>
     </div>
-    <div >
-            <button 
-            onClick={() => console.log(settingsObj)} 
-            className='w-30 bg-amber-300 ml-30 h-10 rounded mt-5'
-            ></button>
-    </div>
+
 
             <OptimizeButton
             mealId = {activeMealId}/>
