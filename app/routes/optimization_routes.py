@@ -39,7 +39,7 @@ async def optimize_meal(meal_id: str, user_id: str = Depends(get_current_user_id
     print(json_total_macros)
     await save_optimization_macros_crud(meal_id, user_id, json_total_macros)
     await save_optimization_weights_crud(meal_id, user_id, json_ingredient_weights)
-    return json_ingredient_weights, json_total_macros
+    return {"weights": json_ingredient_weights, "macros": json_total_macros}
 
 
 

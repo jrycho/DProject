@@ -3,6 +3,7 @@
 import { useState } from 'react';
 
 
+
 export default function SignupPage() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -17,7 +18,8 @@ export default function SignupPage() {
     });
 
     if (res.ok) {
-      setMessage('Signup successful. You can now login.');
+      setMessage('Signup successful. You can now login.')
+      ;
     } else {
       const err = await res.json();
       setMessage(`Error: ${err.detail || 'Signup failed'}`);

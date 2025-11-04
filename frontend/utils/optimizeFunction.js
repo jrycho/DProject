@@ -12,7 +12,8 @@ export async function optimizeFunction(mealId) {
   )
              
 
-        console.log(res)
+
+        return res.json();
     } catch (error) {
         
     }

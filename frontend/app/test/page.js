@@ -7,6 +7,7 @@ import SettingsComponent from '@/components/SettingsComponent';
 import { fetchLogs} from "@/utils/fetchLogs"
 import { getLastSettings } from '@/utils/getLastSettings';
 import Threads from '@/components/Threads'
+import React from 'react';
 
 
 
@@ -79,11 +80,11 @@ return(
           className="fixed inset-0 -z-10 pointer-events-none"
           aria-hidden
         >
-  <div style={{ width: '100%', height: '600px', position: 'relative' }}>
-  <Threads
-    amplitude={1}
-    distance={0}
-    enableMouseInteraction={true}
+          <div style={{ width: '100%', height: '600px', position: 'relative' }}>
+          <Threads
+            amplitude={1}
+            distance={0}
+            enableMouseInteraction={true}
   /></div></div>
 
 <MagicBento 

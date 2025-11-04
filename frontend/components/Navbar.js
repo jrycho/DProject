@@ -19,7 +19,7 @@ export default function Navbar() {
           className="inline-flex items-center gap-2 rounded-md px-3 py-2 hover:bg-gray-500"
           aria-label="Open menu"
         >
-          <span className="text-sm">Menu</span>
+          <span className="text-sm text-white">Menu</span>
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
              </svg>
@@ -42,14 +42,14 @@ export default function Navbar() {
         }`}
       >
         <div className="flex items-center justify-between p-4 border-b">
-          <span className="font-semibold">Menu</span>
+          <span className="font-semibold text-white">Menu</span>
           <button onClick={() => setOpen(false)} className="p-2 hover:bg-gray-100 rounded">
             ✕
           </button>
         </div>
         <nav className="p-4 space-y-2">
-          <a href="/login" className="block px-2 py-1 hover:bg-gray-500 rounded">Log in</a>
-          <a href="/signup" className="block px-2 py-1 hover:bg-gray-500 rounded">Sign up</a>
+          <a href="/login" className="block px-2 py-1 hover:bg-gray-500 rounded text-white">Log in</a>
+          <a href="/signup" className="block px-2 py-1 hover:bg-gray-500 rounded text-white">Sign up</a>
         </nav>
       </aside>
     </>

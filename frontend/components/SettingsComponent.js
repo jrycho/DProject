@@ -128,13 +128,14 @@ export default function OptimizationSettingsForm({ properties = PROPS, onChange,
 
 
 
-  return (<div className="rounded-xl bg-gray-700 w-180 p-6 shadow ml-0"><div className="grid gap  ">
+  return (<div className="rounded-l-xl bg-gray-700 w-180 fixed right-0 shadow ml-0
+  "><div className="grid gap  ">
   {properties.map((p, i) => {
     const active = isActive(i);
     return (
       <div
         key={p}
-        className="items-start gap-3 flex mb-3 ml-30" 
+        className="items-start gap-3 flex mt-3 mb-3 ml-30" 
       >
         {/* Left: the toggle button */}
         <button

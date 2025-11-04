@@ -271,7 +271,7 @@ class BaseOptimizer(AbstractOptimizerBase):
         #print(json_ingredient_weights)
         total_macros = np.matmul(self.A_matrix, rounded_solution)
         for iterator in range(len(total_macros)):
-            json_total_macros[self.settings.get_optimized_properties()[iterator]] = float(total_macros[iterator])
+            json_total_macros[self.settings.get_optimized_properties()[iterator]] = int(total_macros[iterator])
 
 
 

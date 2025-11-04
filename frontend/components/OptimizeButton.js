@@ -1,31 +1,37 @@
 import { optimizeFunction } from "@/utils/optimizeFunction"
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import {useMealId} from '@/utils/mealIdCtx'
 
 
-export default function OptimizeButton({mealId}){
+export default function OptimizeButton({mealId, onResults}){
       const [busy, setBusy] = useState(false)
       const disabled = busy || !mealId
+      const [ mealWeights, setMealWeights ] = useState({})
+      const [ mealMacros, setMealMacros ] = useState({})
 
 
-        const handleOptimize = async () => {
+        const handleOptimize = useCallback(async () => {
             if (!mealId || busy) return
             const id = mealId;       // prefer context, fallback to prop
             if (!id || busy) return;                 // guard: no id or already running
 
             try {
             setBusy(true);
-            await optimizeFunction(id);        
+            const { weights, macros } = await optimizeFunction(id);
+            setMealMacros(macros);
+            setMealWeights(weights);
+            console.log(mealMacros, mealWeights)
+            onResults?.({ mealWeights: weights, mealMacros: macros });        
             } finally {
             setBusy(false);
             }
-        };
+        });
     return(
         <div>
             <button
                 
-                className={"ml-30 w-40 min-h-10 bg-green-600 rounded-2xl "}
-                onClick = {handleOptimize} //THIS WILL NEED SOME SAFETY SO SPAMMING IT WONT DO ANYTHING 
+                className={"ml-30 w-40 min-h-10 bg-green-600 rounded-2xl hover:bg-amber-600 disabled:bg-amber-900"}
+                onClick = {handleOptimize} 
                 disabled={disabled}
                 
                 >
