@@ -53,16 +53,19 @@ export default function Login() {
     return (
         <>
         <Navbar/>
-                  <div
-          className="fixed inset-0 -z-10 pointer-events-none"
-          aria-hidden
-        >
-          <div style={{ width: '100%', height: '600px', position: 'relative' }}>
-          <Threads
-            amplitude={1}
-            distance={0}
-            enableMouseInteraction={true}
-  /></div></div>
+            <div
+                className="fixed inset-0 -z-10 pointer-events-none"
+                aria-hidden
+                >
+                    <div className="absolute inset-0">
+                        <div style={{ width: '100%', height: '600px', position: 'relative' }}>
+                        <Threads
+                            amplitude={1}
+                            distance={0}
+                            enableMouseInteraction={true}
+                        /></div>
+                    </div>
+            </div>
 
         <div className="p-4 max-w-md mx-auto mt-20">
             <h2 className="text-xl font-bold mb-4">Log In</h2>

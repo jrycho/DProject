@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Threads from '@/components/Threads';
 
 
 
@@ -27,6 +28,20 @@ export default function SignupPage() {
   };
 
   return (
+    <>
+                <div
+                className="fixed inset-0 -z-10 pointer-events-none"
+                aria-hidden
+                >
+                    <div className="absolute inset-0">
+                        <div style={{ width: '100%', height: '600px', position: 'relative' }}>
+                        <Threads
+                            amplitude={1}
+                            distance={0}
+                            enableMouseInteraction={true}
+                        /></div>
+                    </div>
+            </div>
     <div className="p-4 max-w-md mx-auto">
       <h2 className="text-xl font-bold mb-4">Sign Up</h2>
       <input 
@@ -54,6 +69,6 @@ export default function SignupPage() {
         Sign Up
       </button>
       {message && <p className="mt-2 text-sm">{message}</p>}
-    </div>
+    </div></>
   );
 }

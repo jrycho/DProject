@@ -130,7 +130,7 @@ const Threads = ({ color = [0, 100, 0], amplitude = 1, distance = 0, enableMouse
 
     const renderer = new Renderer({ alpha: true });
     const gl = renderer.gl;
-    gl.clearColor(0, 0, 0, 0);
+    gl.clearColor(0.04, 0.05, 0.08, 1);
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     container.appendChild(gl.canvas);

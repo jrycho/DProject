@@ -83,14 +83,14 @@ export default function MealLogger( {onChange}) {
         <>
 
     {/* Day navigation */}
-    <div className='flex justify-center gap-4 mb-4 bg-gray-600 min-h-10'>
+    <div className='flex justify-center gap-4 mb-4 bg-gray-600 min-h-10 '>
         <button onClick={() => changeDay(-1)} 
-                className="bg-gray-700 px-3 py-1 rounded hover:bg-gray-300 "
+                className="bg-gray-700 px-3 py-1 rounded hover:bg-gray-300 text-white "
     >
         ◀ Previous
         </button>
 
-        <div className='font-semibold text-lg flex justify-center mt-1.5'>
+        <div className='font-semibold text-lg flex justify-center mt-1.5 text-white'>
                 {selectedDate.toLocaleDateString('en-EU', {
         weekday: 'long',
         month: 'short',
@@ -99,7 +99,7 @@ export default function MealLogger( {onChange}) {
         </div>
 
         <button onClick={() => changeDay(1)}
-        className='bg-gray-700 px-3 py-1 rounded hover:bg-gray-300'>
+        className='bg-gray-700 px-3 py-1 rounded hover:bg-gray-300 text-white'>
         Next ▶
     </button>
     </div>

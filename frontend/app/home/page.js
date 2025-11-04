@@ -37,20 +37,27 @@ export default function Page() {
   }, []);
 
   return (
-    
+
     <ProtectedPage>
       <main className="p-4">
       <Navbar />
-                <div
+      
+        <div
           className="fixed inset-0 -z-10 pointer-events-none"
           aria-hidden
-        >
-          <div style={{ width: '100%', height: '600px', position: 'relative' }}>
-          <Threads
-            amplitude={1}
-            distance={0}
-            enableMouseInteraction={true}
-  /></div></div>
+                >
+                    
+  {/* threads on top */}
+          <div className="absolute inset-0">
+              <div style={{ width: '100%', height: '600px', position: 'relative' }}>
+              <Threads
+                amplitude={1}
+                distance={0}
+                enableMouseInteraction={true}
+              />
+              </div>
+          </div>
+        </div>
 <div class="grid grid-cols-3 grid-rows-2 gap-6">
   <div className='col-start-1 col-end-4'>
       <MealLogger onChange={handleChange} />
@@ -64,6 +71,7 @@ export default function Page() {
         <div className='col-start-3 row-start-2'><JsonTextViewerMacros inputText={mealMacros} /></div>
   </div>
     </main>
+    
     </ProtectedPage>
 
   );
