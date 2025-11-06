@@ -87,7 +87,7 @@ export default function IngredientSearchBar({ isActive = true, mealId, onAdded})
   return (
     // search bar component
     <div>
-      <div className="mt-6 w-140">
+      <div className="mt-6 w-110">
         <h2 className="text-lg font-semibold mb-2 ml-4">Search Food:</h2>
         <div className="flex items-center">
           <input
@@ -113,7 +113,7 @@ export default function IngredientSearchBar({ isActive = true, mealId, onAdded})
           </button>
         </div>
 
-        <ul className="mt-4 space-y-2">
+        <ul className="mt-4 ml-2 space-y-2">
           {loadingSearch && <li>Searching...</li>}
           {!loadingSearch && results.length === 0 && query && (
             <li>No results found.</li>

@@ -9,6 +9,7 @@ import OptimizeButton from './OptimizeButton';
 
 
 
+
 const MEAL_TYPES = ['Breakfast', 'Snack 1', 'Lunch', 'Snack 2', 'Dinner', 'Snack 3'];
 
 export default function MealLogger( {onChange}) {
@@ -25,11 +26,6 @@ export default function MealLogger( {onChange}) {
     const dateKey = selectedDate.toISOString().split('T')[0]
 
 
-    function changeDay(days) {
-        const newDate = new Date(selectedDate);
-        newDate.setDate(newDate.getDate() + days);
-        setSelectedDate(newDate);
-    }
 
 
     useEffect(() => {
@@ -81,28 +77,8 @@ export default function MealLogger( {onChange}) {
 
     return (
         <>
+    
 
-    {/* Day navigation */}
-    <div className='flex justify-center gap-4 mb-4 bg-gray-600 min-h-10 '>
-        <button onClick={() => changeDay(-1)} 
-                className="bg-gray-700 px-3 py-1 rounded hover:bg-gray-300 text-white "
-    >
-        ◀ Previous
-        </button>
-
-        <div className='font-semibold text-lg flex justify-center mt-1.5 text-white'>
-                {selectedDate.toLocaleDateString('en-EU', {
-        weekday: 'long',
-        month: 'short',
-        day: 'numeric',
-        })}
-        </div>
-
-        <button onClick={() => changeDay(1)}
-        className='bg-gray-700 px-3 py-1 rounded hover:bg-gray-300 text-white'>
-        Next ▶
-    </button>
-    </div>
 
 
 <div

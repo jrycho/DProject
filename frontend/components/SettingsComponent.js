@@ -142,8 +142,8 @@ export default function OptimizationSettingsForm({ properties = PROPS, onChange,
           type="button"
           onClick={() => toggle(i)}
           className={active
-            ? "bg-green-600 text-white px-3 py-2 rounded w-64 h-16 "
-            : "bg-green-600 text-black px-3 py-2 rounded w-64"}
+            ? "bg-green-600 text-white px-3 py-2 rounded w-64 h-12 "
+            : "bg-green-600 text-black px-3 py-2 rounded w-64 h-12"}
         >
           {active ? "✔" : "●"} {p}
         </button>

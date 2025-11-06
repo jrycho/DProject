@@ -9,6 +9,7 @@ import {MealIdCtx} from '@/utils/mealIdCtx'
 import ProtectedPage from '@/components/ProtectedPage';
 import Threads from '@/components/Threads';
 import { useState, useCallback} from 'react';
+import DateSelector from '@/components/DayNavigation';
 
 export default function Page() {
 
@@ -20,20 +21,26 @@ export default function Page() {
     "grams": "-"
   }]);
   const [ mealMacros, setMealMacros ] = useState({"No macros yet":"-"});
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
 
-  // One callback that receives both
-  const handleChange = useCallback(({ activeMealId, settingsObj }) => {
-    setActiveMealId(activeMealId);
-    setSettingsObj(settingsObj);
-    console.log("Parent activeMealId:", activeMealId)
-  }, []);
+    // One callback that receives both
+    const handleChange = useCallback(({ activeMealId, settingsObj }) => {
+      setActiveMealId(activeMealId);
+      setSettingsObj(settingsObj);
+      console.log("Parent activeMealId:", activeMealId)
+    }, []);
 
     const handleOptimizeResults = useCallback(({ mealWeights, mealMacros }) => {
       setMealWeights(Array.isArray(mealWeights) ? [...mealWeights] : []);
       console.log(mealWeights)
       setMealMacros(mealMacros ? { ...mealMacros } : {});
       console.log(mealMacros)
+  }, []);
+
+    const handleChangeDay = useCallback(({selectedDate }) => {
+      setSelectedDate(selectedDate)
+      console.log("THE DATE IS NOW: "+selectedDate)
   }, []);
 
   return (
@@ -58,7 +65,8 @@ export default function Page() {
               </div>
           </div>
         </div>
-<div class="grid grid-cols-3 grid-rows-2 gap-6">
+<DateSelector onClickDays={handleChangeDay}/>        
+<div className="grid grid-cols-3 grid-rows-2 gap-6">
   <div className='col-start-1 col-end-4'>
       <MealLogger onChange={handleChange} />
         <div className='mt-3'>

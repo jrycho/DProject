@@ -1,13 +1,14 @@
 'use client'
 import MagicBento from '@/components/MagicBento'
 import MealButton from '@/components/MealButton';
-import { useState, useEffect , createContext, useContext} from 'react';
+import { useState, useEffect , createContext, useContext, useCallback} from 'react';
 import { logMeal, getLogsByDate } from '@/utils/log_meal';
 import SettingsComponent from '@/components/SettingsComponent';
 import { fetchLogs} from "@/utils/fetchLogs"
 import { getLastSettings } from '@/utils/getLastSettings';
 import Threads from '@/components/Threads'
 import React from 'react';
+import DateSelector from '@/components/DayNavigation';
 
 
 
@@ -28,12 +29,10 @@ export default function testPage() {
     const dateKey = selectedDate.toISOString().split('T')[0]
 
 
-    function changeDay(days) {
-        const newDate = new Date(selectedDate);
-        newDate.setDate(newDate.getDate() + days);
-        setSelectedDate(newDate);
-    }
-
+    const handleChangeDay = useCallback(({selectedDate }) => {
+      setSelectedDate(selectedDate)
+      console.log("THE DATE IS NOW: "+selectedDate)
+  }, []);
 
     useEffect(() => {
 
@@ -86,7 +85,8 @@ return(
             distance={0}
             enableMouseInteraction={true}
   /></div></div>
-
+<DateSelector
+  onClickDays={handleChangeDay}/>
 <MagicBento 
   textAutoHide={true}
   enableStars={true}
