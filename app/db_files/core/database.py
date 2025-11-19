@@ -16,6 +16,8 @@ ingredients_collection = db["ingredients_collection"]
 user_settings = db["user_settings"]
 optimized_weights_collection = db["optimized_weights_collection "]
 optimized_macros_collection = db["optimized_macros_collection"] 
+user_inggredients_collection = db["user_ingredients_collection"]
+user_meals_collection = db["user_meals_collection"]
 
 def get_db():
     return db

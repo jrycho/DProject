@@ -16,10 +16,10 @@ export default function Page() {
   const [activeMealId, setActiveMealId] = useState(null);
   const [settingsObj, setSettingsObj] = useState(null);
   const [ mealWeights, setMealWeights ] = useState([  {
-    "barcode": "Placeholder",
-    "name": "No items",
-    "grams": "-"
-  }]);
+      "barcode": "Placeholder",
+      "name": "No items",
+      "grams": "-"
+    }]);
   const [ mealMacros, setMealMacros ] = useState({"No macros yet":"-"});
   const [selectedDate, setSelectedDate] = useState(new Date());
 
@@ -67,7 +67,7 @@ export default function Page() {
         </div>
 <DateSelector onClickDays={handleChangeDay}/>        
 <div className="grid grid-cols-3 grid-rows-2 gap-6">
-  <div className='col-start-1 col-end-4'>
+  <div className='col-start-1 col-end-1 row-start-1 row-end-3' >
       <MealLogger onChange={handleChange} />
         <div className='mt-3'>
         <OptimizeButton
@@ -75,8 +75,12 @@ export default function Page() {
             mealId = {activeMealId}/>
         </div>            
   </div>
-        <div className='col-start-2 row-start-2'><JsonTextViewerIngredients inputText={mealWeights} /></div>
-        <div className='col-start-3 row-start-2'><JsonTextViewerMacros inputText={mealMacros} /></div>
+        <div className='col-start-2 col-end-3 row-start-2 row-end-3'>
+          <JsonTextViewerIngredients inputText={mealWeights} />
+        </div>
+        <div className='col-start-3 col-end-4 row-start-2'>
+          <JsonTextViewerMacros inputText={mealMacros} />
+        </div>
   </div>
     </main>
     

@@ -8,7 +8,7 @@ import React, { useEffect, useState } from "react";
 export default function JsonTextViewerMacros({inputText = {}}) {
   const items = Object.entries(inputText)
   return (
-    <div className="max-w-2xl overflow-hidden rounded-2xl border border-green-500 shadow bg-gray-500 mt-2">
+    <div className="max-w-130 overflow-hidden rounded-2xl border border-green-500 shadow bg-gray-500 mt-2">
       <table className="w-full text-sm">
         <thead className="bg-gray-600 text-white">
           <tr>

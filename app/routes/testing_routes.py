@@ -1,7 +1,9 @@
 from fastapi import APIRouter, HTTPException
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
+from app.logging_config import get_logger 
 
+log = get_logger()
 router = APIRouter(prefix="/Testing", tags=["Testing"])
 
 MONGO_URL = os.getenv("MONGO_URI", "mongodb://localhost:27017")
@@ -20,3 +22,7 @@ async def delete_database():
         return {"message": f"Database '{DB_NAME}' deleted."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+@router.get("/logging_test")
+async def get_logging_test():
+    log.debug("got some log")

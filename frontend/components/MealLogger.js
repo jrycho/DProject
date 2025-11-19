@@ -53,16 +53,16 @@ export default function MealLogger( {onChange}) {
         }
    
         if (!isLogged) {
-        const newLog = await  logMeal(mealType, dateKey);
+            const newLog = await  logMeal(mealType, dateKey);
 
-        setLogs(prev => [...prev, newLog]);
+            setLogs(prev => [...prev, newLog]);
         
 
-        await fetchLogs(dateKey, setLogs);
+            await fetchLogs(dateKey, setLogs);
         
 
-        setActiveMealLog(newLog);
-        setActiveMealId(newLog.meal_id);
+            setActiveMealLog(newLog);
+            setActiveMealId(newLog.meal_id);
         
 
         } else { 
@@ -76,11 +76,7 @@ export default function MealLogger( {onChange}) {
 
 
     return (
-        <>
-    
-
-
-
+<>
 <div
 className='grid w-1/2 grid-cols-1 md:grid-cols-2 gap-100'>
     {/* Meal buttons */}
@@ -141,11 +137,7 @@ className='grid w-1/2 grid-cols-1 md:grid-cols-2 gap-100'>
             </div>
     </details>
     </div>
-
-       
-
-        </>
-    );
-
+</>
+  );
 }
 
