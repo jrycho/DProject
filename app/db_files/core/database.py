@@ -4,7 +4,7 @@ import os
 
 load_dotenv()  # Load variables from .env
 
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+MONGO_URI = os.getenv("MONGO_URI") #, "mongodb://localhost:27017")
 MONGO_DB_NAME = os.getenv("MONGO_DB_NAME", "nutrition_app")
 
 client = AsyncIOMotorClient(MONGO_URI)
