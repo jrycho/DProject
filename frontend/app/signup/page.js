@@ -12,7 +12,7 @@ export default function SignupPage() {
   const [message, setMessage] = useState('');
 
   const handleSignup = async () => {
-    const res = await fetch('http://localhost:8000/Signup/signup', {
+    const res = await fetch(`${API_ORIGIN}/Signup/signup`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, email, password }),

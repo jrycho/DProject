@@ -4,6 +4,7 @@ import {useState} from 'react';
 import Navbar from '@/components/Navbar';
 import { useRouter } from "next/navigation";
 import Threads from '@/components/Threads';
+const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL;
 
 
 export default function Login() {
@@ -20,7 +21,7 @@ export default function Login() {
             body.append('username', email);
             body.append('password', password);
 
-            const response = await fetch('http://localhost:8000/Auth/login', {
+            const response = await fetch(`${API_ORIGIN}/Auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded'},
             body: body.toString(),
