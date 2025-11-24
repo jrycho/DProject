@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Threads from '@/components/Threads';
-
+const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL;
 
 
 export default function SignupPage() {
