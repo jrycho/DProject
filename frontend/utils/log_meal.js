@@ -1,6 +1,6 @@
 import { authFetch } from '@/utils/authFetch';
-import { API_ORIGIN } from '@/utils/apiConfig';
-//const API_ORIGIN = 'http://localhost:8000'
+
+const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL;
 
 
 

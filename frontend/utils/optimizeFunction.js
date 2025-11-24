@@ -1,6 +1,5 @@
 import { authFetch } from "./authFetch";
-import { API_ORIGIN } from "./apiConfig";
-const API_BASE_URL = `http://localhost:8000`;
+const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL;;
 
 export async function optimizeFunction(mealId) {
     try {

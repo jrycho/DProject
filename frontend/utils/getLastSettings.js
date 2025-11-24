@@ -1,10 +1,10 @@
 import { authFetch } from './authFetch';
 
-const API_BASE_URL = `http://localhost:8000`;
-
+const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL;
+//TODO: API_ORIGIN
 export async function getLastSettings() {
     try {        
-        const response = await authFetch(API_BASE_URL+`/settings/get_settings`,
+        const response = await authFetch(`${API_ORIGIN}/settings/get_settings`,
             {method : 'GET',
              headers: { 'Content-Type': 'application/json' },
              

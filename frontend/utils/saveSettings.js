@@ -1,11 +1,11 @@
 import { authFetch } from './authFetch';
-
-const API_BASE_URL = `http://localhost:8000`;
+//TODO: API_ORIGIN
+const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL;;
 
 
 export async function saveSettings(settings) {
     try {        
-        const response = await authFetch(API_BASE_URL+`/settings/save_settings`,
+        const response = await authFetch(`${API_ORIGIN}/settings/save_settings`,
             {method : 'POST',
              headers: { 'Content-Type': 'application/json' },
              body: JSON.stringify(settings),
