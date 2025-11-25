@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Threads from '@/components/Threads';
 const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL;
 
@@ -26,6 +26,12 @@ export default function SignupPage() {
       setMessage(`Error: ${err.detail || 'Signup failed'}`);
     }
   };
+
+
+  useEffect(() => {
+    console.log("NEXT_PUBLIC_API_URL in browser:", process.env.NEXT_PUBLIC_API_URL);
+  }, []);
+
 
   return (
     <>
