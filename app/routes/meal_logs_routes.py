@@ -21,8 +21,8 @@ log = logging.getLogger(__name__)
 router = APIRouter(prefix="/logs", tags=["Meal Logs"])
 
 
-@router.post("/log_custom_id/{meal_id}") #!UNUSED, testable
-async def log_meal_with_id(meal_id: str): 
+@router.post("/log_custom_id") #!UNUSED, testable
+async def log_meal_with_id(meal_type:str, date:str, meal_id:str, user_id: str = Depends(get_current_user_id)): 
     """
     Log a meal by its ID.
     Calls create_meal_log function from crud.py
@@ -30,10 +30,19 @@ async def log_meal_with_id(meal_id: str):
     """
 
     try:
+
+        date = str(date)
         meal_id = str(meal_id)
-        user_id = str("test")
-        log_id = await create_meal_log(meal_id, user_id, "test")
-        return {"message": "Meal logged", "log_id": log_id}
+        user_id = str(user_id)
+        meal_type = str(meal_type)
+    
+        log_id = await create_meal_log(
+            meal_id=meal_id,
+            user_id=user_id,
+            type_of_meal=meal_type,
+            date=date,
+            )
+        return {"message": "Meal logged", "meal id":meal_id, "user id":user_id ,"log_id":log_id}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
@@ -143,6 +152,7 @@ removes ingredient if in state
 """
 @router.delete("/meal/{meal_id}/ingredient") #!USED
 async def remove_ingredient_by_barcode(meal_id: str, barcode: str, user_id: str = Depends(get_current_user_id)):
+    print("right before delete")
     res = await delete_ingredient_from_meal_log(meal_id, barcode, user_id)
     return res
 

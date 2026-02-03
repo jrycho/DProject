@@ -3,12 +3,13 @@ from fastapi import FastAPI, HTTPException
 import requests
 import os
 from typing import List
+from contextlib import asynccontextmanager
 
 from app.models.ingredient import Ingredient
 from app.models.input_obj import InputObject
 from app.models.settings import Settings, SettingsInput
 
-
+from app.db_files.core.database import unique_share_key_init
 
 from uuid import uuid4
 from pydantic import BaseModel
@@ -16,7 +17,7 @@ from app.optimizers.gwo_optimizer import gwo_optimizer
 from fastapi.middleware.cors import CORSMiddleware
 
 from app import routes
-from app.routes import meal_logs_routes, settings_routes, optimization_routes, testing_routes, users_routes, login_routes
+from app.routes import meal_logs_routes, settings_routes, optimization_routes, testing_routes, users_routes, login_routes, user_functions_routes
 from app.state.state import active_meals
 import app.state.state as state
 
@@ -59,9 +60,13 @@ app.include_router(optimization_routes.router)
 app.include_router(testing_routes.router)
 app.include_router(users_routes.router)
 app.include_router(login_routes.router)
+app.include_router(user_functions_routes.router)
 
 
-
+@asynccontextmanager
+async def lifespan():
+    await unique_share_key_init()
+    yield
 
 """ RUNNING ON TURN ON """
 

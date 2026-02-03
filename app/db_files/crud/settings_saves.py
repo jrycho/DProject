@@ -5,6 +5,8 @@ from pymongo import errors as mongo_errors
 print("settings_saves loaded")
 print("Available symbols:", dir())
 
+settings_collection = db.user_settings
+
 default_settings = {  "excess_weights": [10,10,8,5],
   "optimized_properties": ["calories","protein","carbs","fats"],
   "slack_weights": [0,0,0,10],
@@ -15,7 +17,7 @@ args: user_id: str, settings: dict; will be passed via frontend as JSON
 rewrites settings to db
 """
 async def save_user_settings(user_id: str, settings: dict): #!USED
-    return await db.user_settings.update_one(
+    return await settings_collection.update_one(
         {"user_id": user_id},
         {"$set":  settings, 
          "$setOnInsert": {"user_id": user_id}},
@@ -28,11 +30,11 @@ args: user_id: str
 """
 async def get_user_settings(user_id: str): #!USED
     try:
-        data = await db.user_settings.find_one({"user_id": user_id},
+        data = await settings_collection.find_one({"user_id": user_id},
                                                 projection={"_id": 0, "user_id": 0})
         if data is None:
             await save_user_settings(user_id, default_settings)
-            data = await db.user_settings.find_one({"user_id": user_id},
+            data = await settings_collection.find_one({"user_id": user_id},
                                                 projection={"_id": 0, "user_id": 0})
         return data
     

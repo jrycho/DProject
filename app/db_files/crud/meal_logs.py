@@ -13,9 +13,10 @@ from uuid import uuid4
 from pymongo.errors import DuplicateKeyError
 from pydantic import Field
 from app.db_files.crud.ingredient_crud import get_or_fetch_ingredient_dict_sync, build_ingredient
-
+from typing import Optional
 from app.models.ingredient import Ingredient
 # MongoDB database and 
+
 collection = db["meal_logs"]  # MongoDB collection
 
 meal_logs = db.meal_logs
@@ -27,7 +28,7 @@ creates meal log via MealLogModel class
 returns: str (id of the new meal log)
 
 """
-async def create_meal_log(meal_id: str | None, user_id:str, type_of_meal: str, date:str )-> str:
+async def create_meal_log(meal_id: Optional[str], user_id:str, type_of_meal: str, date:str )-> str:
  while True:
         internal_meal_id = meal_id or str(uuid4())
         meal_log = MealLogModel(
@@ -38,7 +39,7 @@ async def create_meal_log(meal_id: str | None, user_id:str, type_of_meal: str, d
             ingredients= [],
         )
         try:
-            result = await collection.insert_one(meal_log.model_dump(by_alias=True, exclude_unset=True)) #insert_one, model_dump for MDB savable collection, await for work in async 
+            result = await meal_logs.insert_one(meal_log.model_dump(by_alias=True, exclude_unset=True)) #insert_one, model_dump for MDB savable collection, await for work in async 
             return str(result.inserted_id) #Returning the ID of the newly inserted document as a string.
         except DuplicateKeyError:
             if meal_id:
@@ -57,7 +58,7 @@ returns it
 
 async def get_all_meal_logs() -> List[MealLogModel]:
     logs = []
-    cursor = collection.find({}) 
+    cursor = meal_logs.find({}) 
     async for doc in cursor:
         doc["_id"] = str(doc["_id"]) 
         logs.append(MealLogModel(**doc))

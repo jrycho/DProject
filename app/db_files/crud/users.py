@@ -1,5 +1,6 @@
 from passlib.context import CryptContext
 from datetime import datetime
+from uuid import uuid4
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -13,7 +14,8 @@ async def create_user(db, user):
         "email": user.email,
         "password": hash_password(user.password),
         "is_admin": False,
-        "created_at": datetime.now()
+        "created_at": datetime.now(),
+        "share_key": uuid4().hex,
     }
     return await db["users"].insert_one(user_data)
 

@@ -1,10 +1,14 @@
+from __future__ import annotations
 from pydantic import BaseModel, Field, model_validator
 
+""" 
+Form shape expected from frontend
+"""
 class SettingsPayload(BaseModel):
-    optimized_properties: list[str] = Field(..., min_items=1)
-    target_goal: list[float] = Field(..., min_items=1)
-    excess_weights: list[float] = Field(..., min_items=1)
-    slack_weights: list[float] = Field(..., min_items=1)
+    optimized_properties: list[str] = Field(..., min_length=1)
+    target_goal: list[float] = Field(..., min_length=1)
+    excess_weights: list[float] = Field(..., min_length=1)
+    slack_weights: list[float] = Field(..., min_length=1)
 
     #check for same lengths
     @model_validator(mode="after")

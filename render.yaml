@@ -1,0 +1,26 @@
+mongodb+srv://asgardplays_db_user:DS4t5Xk2f51AnLJf@cluster0.0znn5yl.mongodb.net/
+
+fastapi:
+  image: jrycho/diplomka-fastapi:latest  
+  command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 1
+  ports:
+    - "8000:8000"
+  environment:
+    - MONGO_URI=mongodb://mongo:27017
+    - MONGO_DB_NAME=nutrition_app
+  depends_on:
+    - mongo
+
+services:
+  - type: web
+    name: dproject-api
+    env: python
+    rootDir: backend
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    envVars:
+      - key: MONGO_URI
+        sync: false        # we’ll fill this in the dashboard
+      - key: MONGO_DB_NAME
+        value: nutrition_app

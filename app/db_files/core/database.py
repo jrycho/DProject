@@ -9,11 +9,11 @@ MONGO_URI = os.getenv("MONGO_URI") #, "mongodb://localhost:27017")
 MONGO_DB_NAME = os.getenv("MONGO_DB_NAME", "nutrition_app")
 
 if MONGO_URI.startswith("mongodb://"):
-    client = AsyncIOMotorClient(MONGO_URI)
+    client = AsyncIOMotorClient(MONGO_URI) #if localhost skip certificates
 else:
     client = AsyncIOMotorClient(MONGO_URI,
-                                tlsCAFile=certifi.where(),  # <- key bit
-                                serverSelectionTimeoutMS=5000,)
+                                tlsCAFile=certifi.where(),  
+                                serverSelectionTimeoutMS=5000,) #certificates for mongo hosting
 db = client[MONGO_DB_NAME]
 
 users_collection = db["users"]
@@ -27,3 +27,6 @@ user_meals_collection = db["user_meals_collection"]
 
 def get_db():
     return db
+
+async def unique_share_key_init():
+    await users_collection.create_index("share_key", unique=True)

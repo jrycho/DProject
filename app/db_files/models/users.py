@@ -21,6 +21,7 @@ class User(BaseModel):
     email: EmailStr
     is_admin: bool = False
     created_at: Optional[datetime] = Field(default=datetime.now())
+    share_key: str = Field(default_factory=lambda: uuid4().hex)
 
     class Config:
         populate_by_name = True

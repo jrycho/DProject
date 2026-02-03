@@ -128,7 +128,7 @@ export default function OptimizationSettingsForm({ properties = PROPS, onChange,
 
 
 
-  return (<div className="rounded-l-xl bg-gray-700 w-180 fixed right-0 shadow ml-0
+  return (<div className="rounded-l-xl bg-gray-700 w-180 fixed right-0 top-1/3 shadow ml-0 
   "><div className="grid gap  ">
   {properties.map((p, i) => {
     const active = isActive(i);

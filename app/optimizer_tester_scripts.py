@@ -5,9 +5,9 @@ from app.optimizers.pso_optimizer import pso_optimizer
 from app.optimizers.genetic_optimizer import genetic_optimizer
 from app.optimizers.greedy_optimizer import greedy_optimizer
 from mealpy import FloatVar, PSO, GWO, WOA
-from models.ingredient import Ingredient
-from models.settings import Settings
-from models.input_obj import InputObject
+from app.models.ingredient import Ingredient
+from app.models.settings import Settings
+from app.models.input_obj import InputObject
 import copy
 import time
 #print("mealpy done")
@@ -147,7 +147,15 @@ excess_weights = np.array([10,10,0,10, 5]) #going over
 slack_weights = np.array([0,4,10,0, 0])  #going under
 optimized_properties = ["calories", "carbs", "protein", "fats", "sugars" ]
 
-settings1 = Settings(excess_weights, slack_weights, target_goal, optimized_properties)
+db_data = {
+    "target_goal": [1200, 150, 80, 40, 10],
+    "excess_weights": [10, 10, 0, 10, 5],
+    "slack_weights": [0, 4, 10, 0, 0],
+    "optimized_properties": ["calories", "carbs", "protein", "fats", "sugars"],
+}
+
+
+settings1 = Settings(**db_data)
 settings2 = copy.deepcopy(settings1)
 target_goal_2 = np.array([1000, 100, 60, 30, 10])
 settings2.set_target_goal(target_goal_2)
@@ -178,7 +186,15 @@ print("solved and printed")
 gwo_obj.set_settings(settings2)
 gwo_obj.print_solution()
 print("printed, check for recalculated")
-
+print("***********************************")
+gwo_json_ingredient_weights, gwo_json_total_macros = gwo_obj.get_json_results()
+print(gwo_json_ingredient_weights)
+print(gwo_json_total_macros)
+assert isinstance(gwo_json_ingredient_weights, list)
+assert len(gwo_json_ingredient_weights) == len(input_list) -1  # same as number of ingredients -1 for repeating
+assert all(isinstance(w, (dict)) for w in gwo_json_ingredient_weights)
+assert all(w['grams'] >= 0 for w in gwo_json_ingredient_weights)
+assert len(gwo_json_total_macros) == len(optimized_properties)
 #res = woa_optimizer(settings1, input_list)
 #res = pso_optimizer(settings1, input_list)
 """

@@ -43,7 +43,6 @@ returns Settings object
 """
 @router.get("/get_settings") #! USED
 async def get_settings(user_id: str = Depends(get_current_user_id)):
-    try:
         # Get from MongoDB
         db_data = await get_user_settings(user_id)
         if not db_data:
@@ -52,5 +51,3 @@ async def get_settings(user_id: str = Depends(get_current_user_id)):
         # Convert to Settings object
         settings_obj = Settings(**db_data)
         return settings_obj.model_dump()  # Return as JSON
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
