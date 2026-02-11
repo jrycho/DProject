@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
-from app.db_files.crud.users import create_user
+from app.db_files.crud.users import create_user, find_user_by_email
 from app.db_files.core.database import get_db
 from app.db_files.models.users import UserCreate
 
@@ -38,3 +38,11 @@ async def signup(user: UserCreate, db=Depends(get_db)):
 
     
     return {"message": "User created", "user_id": str(result.inserted_id)}
+
+@router.post("/forgotten_password"):
+async def forgotten_password(email: str, db=Depends(get_db)):
+    resp = await find_user_by_email(db, email)
+    if not resp:
+        raise HTTPException(status_code=400, detail="Email not found")
+    
+    return {"message": "Password reset link sent to your email"}

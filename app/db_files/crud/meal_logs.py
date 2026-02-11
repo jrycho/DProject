@@ -202,9 +202,10 @@ async def return_ingredients_button(meal_id: str, user_id: str):
     return ret_list
 
 def ingredient_doc_to_button_json(ingredient):
-        nutr = ingredient.get("nutrients")
+        nutr = ingredient.get("nutrients") or ingredient.get("nutriments")
         name = ingredient.get("name") or ingredient.get("product_name") or "Unnamed"
-        barcode = ingredient.get("barcode") or ingredient.get("_id") or ingredient.get("code")
+        raw = ingredient.get("barcode") or ingredient.get("code") or ingredient.get("_id") 
+        barcode = str(raw)
 
         kcal    = nutr.get("energy_kcal_100g") or nutr.get("energy-kcal_100g") or nutr.get("energy_kcal") or nutr.get("energy-kcal") or 0
         protein = nutr.get("proteins_100g")    or nutr.get("protein_100g")      or nutr.get("proteins")     or 0

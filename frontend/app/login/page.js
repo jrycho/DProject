@@ -4,6 +4,7 @@ import {useState} from 'react';
 import Navbar from '@/components/Navbar';
 import { useRouter } from "next/navigation";
 import Threads from '@/components/Threads';
+import ThreadsBackground from '@/components/ThreadsBackground';
 const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL;
 
 
@@ -60,7 +61,7 @@ export default function Login() {
                 >
                     <div className="absolute inset-0">
                         <div style={{ width: '100%', height: '600px', position: 'relative' }}>
-                        <Threads
+                        <ThreadsBackground
                             amplitude={1}
                             distance={0}
                             enableMouseInteraction={true}

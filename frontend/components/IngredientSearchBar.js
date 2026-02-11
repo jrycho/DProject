@@ -89,10 +89,10 @@ export default function IngredientSearchBar({ isActive = true, mealId, onAdded})
     <div>
       <div className="mt-6 w-110">
         <h2 className="text-lg font-semibold mb-2 ml-4">Search Food:</h2>
-        <div className="flex items-center">
+        <div className="flex items-center gap-2">
           <input
             type="text"
-            placeholder="Search food..."
+            placeholder="Search for ingredients..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="w-full p-2 border ml-2 rounded-md shadow-md"
@@ -121,15 +121,16 @@ export default function IngredientSearchBar({ isActive = true, mealId, onAdded})
           {results.map((product) => (
             <li
               key={product.code}
-              onClick={async () =>{ const data = await fetchProductDetails(product.code)
-                console.log("LOOK HERE:" + data.barcode)
-                await addIngredient(data.barcode, mealId)
-                setQuery("")
-                onAdded?.();  
+              onClick={async () => {
+                const data = await fetchProductDetails(product.code);
+                console.log("LOOK HERE:" + data.barcode);
+                await addIngredient(data.barcode, mealId);
+                setQuery("");
+                onAdded?.();
               }}
               className="border p-2 rounded cursor-pointer hover:bg-gray-100 transition"
             >
-          <strong>{product.product_name || "Unnamed product"}</strong>
+              <strong>{product.product_name || "Unnamed product"}</strong>
               <br />
               <span className="text-sm text-gray-600">
                 Barcode: {product.code}
@@ -137,7 +138,7 @@ export default function IngredientSearchBar({ isActive = true, mealId, onAdded})
             </li>
           ))}
         </ul>
-{/*
+        {/*
         {loadingDetails && <div className="mt-2">Loading details…</div>}
         {selectedProduct && (
           <div className="mt-3 p-3 border rounded">

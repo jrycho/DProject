@@ -22,3 +22,6 @@ async def create_user(db, user):
 async def verify_password(plain_password: str, hashed_password: str) -> bool:
     return  pwd_context.verify(plain_password, hashed_password)
 
+async def get_user_by_email(db, email: str):
+    user = await db["users"].find_one({"email": email})
+    return user
