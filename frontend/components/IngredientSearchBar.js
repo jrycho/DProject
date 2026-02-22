@@ -1,10 +1,14 @@
-'use client'
+"use client";
 import { addIngredient } from "@/utils/ingredientAdd";
 import { authFetch } from "@/utils/authFetch";
 import { useEffect, useState } from "react";
 
-
-export default function IngredientSearchBar({ isActive = true, mealId, onAdded, addIngredientFunction}) {
+export default function IngredientSearchBar({
+  isActive = true,
+  mealId,
+  onAdded,
+  addIngredientFunction,
+}) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   const [fullSearch, setFullSearch] = useState(false);
@@ -12,7 +16,6 @@ export default function IngredientSearchBar({ isActive = true, mealId, onAdded, 
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [ingredientId, setIngredientId] = useState(null);
-
 
   // if none active clear query
   useEffect(() => {
@@ -46,8 +49,8 @@ export default function IngredientSearchBar({ isActive = true, mealId, onAdded, 
       console.log("Searching for:", query);
       const res = await fetch(
         `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(
-          query
-        )}&search_simple=1&action=process&json=1&page_size=${full ? 20 : 5}`
+          query,
+        )}&search_simple=1&action=process&json=1&page_size=${full ? 20 : 5}`,
       );
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
@@ -63,7 +66,9 @@ export default function IngredientSearchBar({ isActive = true, mealId, onAdded, 
   const fetchProductDetails = async (barcode) => {
     setLoadingDetails(true);
     try {
-      const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
+      const res = await fetch(
+        `https://world.openfoodfacts.org/api/v0/product/${barcode}.json`,
+      );
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       if (data.product) {
@@ -71,8 +76,8 @@ export default function IngredientSearchBar({ isActive = true, mealId, onAdded, 
         setFullSearch(searchProducts._id);
         setIngredientId(data.code);
         console.log("product details on set:", data.product); // log fresh value
-        console.log("product barcode:" + data.code );
-        return {ok: true, product: data.product, barcode:data.code}
+        console.log("product barcode:" + data.code);
+        return { ok: true, product: data.product, barcode: data.code };
       } else {
         setSelectedProduct(null);
       }
@@ -95,7 +100,7 @@ export default function IngredientSearchBar({ isActive = true, mealId, onAdded, 
             placeholder="Search for ingredients..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full p-2 border ml-2 rounded-md shadow-md"
+            className="w-full p-2 border ml-2 rounded-md shadow-md overflow-auto"
           />
           <button
             onClick={async () => {
@@ -112,39 +117,45 @@ export default function IngredientSearchBar({ isActive = true, mealId, onAdded, 
             Search
           </button>
         </div>
+        <div
+          className="mt-4 ml-2 max-h-64 overflow-y-auto custom-scrollbar
+ "
+        >
+          <ul className="mt-4 ml-2 space-y-2">
+            {loadingSearch && <li>Searching...</li>}
+            {!loadingSearch && results.length === 0 && query && (
+              <li>No results found.</li>
+            )}
+            {results.map((product) => (
+              <li
+                key={product.code}
+                onClick={async () => {
+                  const item = await fetchProductDetails(product.code);
+                  console.log("LOOK HERE:" + item.barcode);
+                  try {
+                    await addIngredientFunction(item.barcode, mealId);
 
-        <ul className="mt-4 ml-2 space-y-2">
-          {loadingSearch && <li>Searching...</li>}
-          {!loadingSearch && results.length === 0 && query && (
-            <li>No results found.</li>
-          )}
-          {results.map((product) => (
-            <li
-              key={product.code}
-              onClick={async () => {
-                const item = await fetchProductDetails(product.code);
-                console.log("LOOK HERE:" + item.barcode);
-                try {await addIngredientFunction(item.barcode ,mealId);
+                    setQuery("");
+                    setResults([]);
 
-                setQuery("");
-                setResults([]);
-
-                onAdded?.();} catch (err) {
-                  console.log(err);
-                }
-                setQuery("");
-                onAdded?.();
-              }}
-              className="border p-2 rounded cursor-pointer hover:bg-gray-100 transition"
-            >
-              <strong>{product.product_name || "Unnamed product"}</strong>
-              <br />
-              <span className="text-sm text-gray-600">
-                Barcode: {product.code}
-              </span>
-            </li>
-          ))}
-        </ul>
+                    onAdded?.();
+                  } catch (err) {
+                    console.log(err);
+                  }
+                  setQuery("");
+                  onAdded?.();
+                }}
+                className="border p-2 rounded cursor-pointer hover:bg-gray-100 transition"
+              >
+                <strong>{product.product_name || "Unnamed product"}</strong>
+                <br />
+                <span className="text-sm text-gray-600">
+                  Barcode: {product.code}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
         {/*
         {loadingDetails && <div className="mt-2">Loading details…</div>}
         {selectedProduct && (

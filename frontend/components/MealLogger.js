@@ -75,7 +75,7 @@ export default function MealLogger({ onChange }) {
     <>
       <div className="grid w-1/2 grid-cols-1 md:grid-cols-2 gap-100">
         {/* Meal buttons */}
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 ">
           {MEAL_TYPES.map((mealType) => {
             const log = logs.find((log) => log.type_of_meal === mealType);
             const isActive =

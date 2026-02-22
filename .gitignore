@@ -7,4 +7,5 @@
 .vscode/
 .env
 .Throwaways.txt/
-.gitignore
+
+node_modules/

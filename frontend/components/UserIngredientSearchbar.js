@@ -64,8 +64,8 @@ export default function UserIngredientSearchbarComponent({
           </button>
         </form></div>
       </div></div>
-      <div>
-        <ul className="mt-4 space-y-2">
+      <div className="mt-4 ml-2 max-h-64 overflow-y-auto custom-scrollbar">
+        <ul className="space-y-2 p-2">
           {results.map((item) => (
             <li
               key={item._id}
