@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field, model_validator
 Form shape expected from frontend
 """
 class SettingsPayload(BaseModel):
+    meal_type: str
     optimized_properties: list[str] = Field(..., min_length=1)
     target_goal: list[float] = Field(..., min_length=1)
     excess_weights: list[float] = Field(..., min_length=1)

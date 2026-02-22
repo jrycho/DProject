@@ -28,6 +28,8 @@ export default function MealLogger({ onChange }) {
 
   const dateKey = selectedDate.toISOString().split("T")[0];
 
+  const [activeMealType, setActiveMealType] = useState("Breakfast");
+
   // fetch logs if date changes
   useEffect(() => {
     fetchLogs(dateKey, setLogs);
@@ -51,6 +53,7 @@ export default function MealLogger({ onChange }) {
       setActiveMealId(null);
       return;
     }
+    setActiveMealType(mealType);
 
     if (!isLogged) {
       const newLog = await logMeal(mealType, dateKey);
@@ -127,6 +130,7 @@ export default function MealLogger({ onChange }) {
               onChange={(payload) => {
                 setSettingsObj(payload);
               }}
+              meal_type={activeMealType}
               onSubmit={(payload) => {
                 // click “Save” in the component
                 console.log("onSubmit payload:", payload);

@@ -28,8 +28,9 @@ async def create_settings(input: SettingsPayload, user_id: str = Depends(get_cur
     )
     print(settings_obj)
     # Save to MongoDB
+    meal_type = input.meal_type.strip()
     try:
-        await save_user_settings(user_id, settings_obj.model_dump())
+        await save_user_settings(user_id=user_id,meal_type=meal_type, settings= settings_obj.model_dump())
         return {"message": "Settings saved", "user_id": user_id}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -41,13 +42,16 @@ args: user_id: str
 if not in DB HTTPException 404
 returns Settings object
 """
-@router.get("/get_settings") #! USED
-async def get_settings(user_id: str = Depends(get_current_user_id)):
+@router.post("/get_settings") #! USED
+async def get_settings(payload: dict, user_id: str = Depends(get_current_user_id)):
         # Get from MongoDB
-        db_data = await get_user_settings(user_id)
+        print(payload)
+        meal_type = payload.get("meal_type").strip()
+        db_data = await get_user_settings(user_id=user_id,meal_type=meal_type)
         if not db_data:
             raise HTTPException(status_code=404, detail="Settings not found")
 
         # Convert to Settings object
         settings_obj = Settings(**db_data)
         return settings_obj.model_dump()  # Return as JSON
+ 

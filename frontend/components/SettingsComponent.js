@@ -9,7 +9,7 @@ const PROPS = ['calories', 'protein', 'carbs', 'fats', 'saturated_fat', 'salt'];
 
 // If you want to pass `properties` from a parent, keep the prop.
 // Otherwise, it will default to PROPS.
-export default function OptimizationSettingsForm({ properties = PROPS, onChange, onSubmit}) {
+export default function OptimizationSettingsForm({ properties = PROPS, meal_type, onChange, onSubmit}) {
   
   const N = properties.length;
 
@@ -28,7 +28,7 @@ export default function OptimizationSettingsForm({ properties = PROPS, onChange,
     let cancel = false; //set flags
     (async () => {
       try {
-        const saved = await getLastSettings(); // await the data
+        const saved = await getLastSettings(meal_type); // await the data
         if (cancel || !saved) return;
 
         // expand compact saved payload into per-index arrays
@@ -68,7 +68,7 @@ export default function OptimizationSettingsForm({ properties = PROPS, onChange,
     })();
     return () => { cancel = true; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [N]); // re-hydrate if properties length changes
+  }, [N, meal_type]); // re-hydrate if properties length changes
 
 
 
@@ -113,8 +113,9 @@ export default function OptimizationSettingsForm({ properties = PROPS, onChange,
 
   useDebouncedEffect(()=> {
     if (!autosaveOn) return
+    if (!meal_type) return;
     if (settings.optimized_properties.length === 0) return 
-    saveSettings(settings)},[autosaveOn, settings], 500);
+    saveSettings(settings, meal_type)},[autosaveOn, settings, meal_type], 500);
 
 
 
