@@ -1,7 +1,9 @@
 from fastapi import APIRouter, HTTPException, Depends
-from app.db_files.crud.users import create_user, find_user_by_email
+from app.db_files.crud.users import create_user, get_user_by_email, update_reset_hashes, clear_reset_hashes, get_user_by_token, hash_password, change_password
 from app.db_files.core.database import get_db
 from app.db_files.models.users import UserCreate
+from app.utils.forgotten_password import get_reset_token, send_reset_email, hash_token
+from datetime import datetime, timezone
 
 
 router = APIRouter(prefix="/Signup", tags=["Signup"])
@@ -39,10 +41,38 @@ async def signup(user: UserCreate, db=Depends(get_db)):
     
     return {"message": "User created", "user_id": str(result.inserted_id)}
 
-@router.post("/forgotten_password"):
+
+#NOT YET DONE:
+@router.post("/forgotten_password")
 async def forgotten_password(email: str, db=Depends(get_db)):
-    resp = await find_user_by_email(db, email)
+    resp = await get_user_by_email(db, email)
     if not resp:
-        raise HTTPException(status_code=400, detail="Email not found")
+        return {"message": "If email exists, reset link was sent"}
     
+    token, token_hash, expires_at = get_reset_token()
+    await update_reset_hashes(db = Depends(get_db), email=email, token_hash=token_hash, expires_at=expires_at)
+
+    reset_link = f"http://localhost:3000/reset-password?token={token}"
+    send_reset_email(email, reset_link)
+    
+
     return {"message": "Password reset link sent to your email"}
+
+
+
+
+
+@router.post("/reset_password")
+async def reset_password(token: str, password: str, db=Depends(get_db)):
+    token_hash = hash_token(token)
+    new_pw_hash = hash_password(password)
+
+    success = await change_password(db, token_hash, new_pw_hash)
+
+    if not success:
+        raise HTTPException(status_code=400, detail="Invalid or expired token")
+
+    return {"message": "Password reset successful"}
+
+
+

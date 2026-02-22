@@ -22,6 +22,7 @@ async def get_user_shared_keys(user_id: str):
     return user_shared_keys
 
 async def add_user_shared_keys(user_id: str, shared_key: str):
+    await find_key(share_key=shared_key)
     resp = await users_collection.update_one({"_id": await str_to_OID(user_id)}, {"$addToSet": {"shared_keys": shared_key}})
 
     if resp.modified_count == 0:
@@ -113,4 +114,10 @@ async def get_user_ingredient_secure(barcode):
     doc = await user_ingredients_collection.find_one({"code": barcode})
     if doc is None:
         raise HTTPException(status_code=404, detail="Ingredient not found")
+    return doc
+
+async def find_key(share_key:str):
+    doc = await users_collection.find_one({"share_key": share_key})
+    if doc is None:
+        raise HTTPException(status_code=404, detail="Invalid key")
     return doc

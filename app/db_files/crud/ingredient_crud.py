@@ -1,4 +1,5 @@
 import requests
+import httpx
 from app.db_files.core.database import ingredients_collection
 from fastapi import HTTPException
 from app.db_files.models.ingredient_entry import IngredientEntry
@@ -35,13 +36,16 @@ async def off_fetch_product(barcode: str) -> dict: #! USED
         So we use `httpx.AsyncClient()` instead.
     """
     url = f"https://world.openfoodfacts.org/api/v0/product/{barcode}.json"
-    response = requests.get(url)
-
+    barcode = str(barcode).strip()
+    
+    async with httpx.AsyncClient(timeout=10) as client:
+        response = await client.get(url)
     if response.status_code != 200:
         raise HTTPException(status_code=response.status_code, detail="Open Food Facts API failed")
 
     data = response.json()
     product = data.get("product")
+    print(data)
 
 
     if not product:
@@ -87,11 +91,13 @@ async def get_or_fetch_ingredient_dict_sync( barcode: str) -> dict: #! USED
     compute priority, store in DB, and return the stored dict.
 
     """
-    
+    print("fetching")
     if barcode.startswith("custom"):
         res = await get_user_ingredient_secure(barcode)
+        print("custom")
+        print(res)
         return res
-
+    
 
     cached = await get_ingredient(barcode)
     
@@ -100,6 +106,8 @@ async def get_or_fetch_ingredient_dict_sync( barcode: str) -> dict: #! USED
         If we already have it in Mongo, return immediately.
         `cached` already has `_id` removed due to projection.
         """
+        print("cached")
+        print(cached)
         return cached
     
 
@@ -111,6 +119,7 @@ async def get_or_fetch_ingredient_dict_sync( barcode: str) -> dict: #! USED
     4) Compute priority
     5) Dump to dict and store
     """
+    print("should start off fetching")
     product = await off_fetch_product(barcode)
     doc_model = IngredientDoc.model_validate(product)     # your function
 
@@ -127,6 +136,8 @@ async def get_or_fetch_ingredient_dict_sync( barcode: str) -> dict: #! USED
     doc["priority_auto"] = priority
     doc["_id"] = doc["barcode"]
     await ingredients_collection.update_one({"_id": doc["_id"]}, {"$set": doc}, upsert=True)
+    print("on the right place inside fetcher")
+    print(doc)
     return doc
 
 async def doc_to_ingredient_entry(doc, priority): #! USED
@@ -141,7 +152,7 @@ async def doc_to_ingredient_entry(doc, priority): #! USED
     entry = IngredientEntry(barcode=barcode, priority=priority)
     return entry
 
-async def build_ingredient(barcode, priority): #!USED
+async def build_ingredient(barcode, priority, set_amount, piece_weights): #!USED
         """
         Build the runtime Ingredient object used by your app.
 
@@ -168,7 +179,10 @@ async def build_ingredient(barcode, priority): #!USED
             "sugars_100g":        float(n.get("sugars_100g") or 0),
             "fiber_100g":         float(n.get("fiber_100g") or 0),
             "salt_100g":          float(n.get("salt_100g") or 0),
-            "priority":           doc.get("priority_auto")
+            "priority":           doc.get("priority_auto"),
+            "piece_weight":       float(piece_weights or 0),        # e.g. 60g egg
+            "user_designated_value": float(set_amount or 0), # e.g. 150g
             }
         return Ingredient(data, data["priority"])
+
 

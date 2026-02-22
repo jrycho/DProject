@@ -158,7 +158,7 @@ export default function AddMacrosSimple() {
               className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:ring-blue-200"
             />
 
-            {/* ✅ NEW: Total weight */}
+            {/* NEW: Total weight */}
             <input
               type="number"
               min="1"
@@ -198,21 +198,7 @@ export default function AddMacrosSimple() {
             </button>
           </form>
 
-          {/* Preview */}
-          <h2 className="mt-5 text-lg font-semibold">Payload</h2>
 
-          <pre className="mt-2 bg-gray-900 text-gray-100 p-3 rounded text-sm overflow-auto">
-            {JSON.stringify(
-              {
-                product_name: name,
-                priority_user: priorityUser,
-                nutriments: buildNutrimentsNormalized(), // ✅ preview shows normalized per 100g
-                categories_tags: ["custom"],
-              },
-              null,
-              2,
-            )}
-          </pre>
 
           {/* Error */}
           {error && (

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import SharePopup from "./UserPopup";
 
 export default function Navbar() {
     const [open, setOpen] = useState(false);
@@ -73,6 +74,7 @@ export default function Navbar() {
             >
               Sign up
             </a>
+            <SharePopup/>
             <a
               href="/add_ingredients"
               className="block px-2 py-1 hover:bg-gray-500 rounded text-white"

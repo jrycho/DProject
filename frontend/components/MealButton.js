@@ -5,6 +5,7 @@ import { deleteIngredient } from "@/utils/deleteIngredient";
 import { fetchIngredientButtons } from "@/utils/fetchIngredientButtons";
 import IngredientButton from "./IngredientButton";
 import UserIngredientSearchbarComponent from "./UserIngredientSearchbar";
+import { addIngredient } from "@/utils/ingredientAdd";
 
 export default function MealButton({
   meal,
@@ -109,12 +110,20 @@ export default function MealButton({
                 isActive={isActive}
                 mealId={mealId}
                 onAdded={() => setReloadTick((t) => t + 1)}
+                addIngredientFunction={async (item, mealIdArg) => {
+                  // map your search result → barcode/code
+                  await addIngredient(item.code, mealIdArg);
+                }}
               />
             ) : (
               <IngredientSearchBar
                 isActive={isActive}
                 mealId={mealId}
                 onAdded={() => setReloadTick((t) => t + 1)}
+                addIngredientFunction={async (barcode, mealIdArg) => {
+                  // map your search result → barcode/code
+                  await addIngredient(barcode, mealIdArg);
+                }}
               />
             )}
             {/*ingredients buttons */}
@@ -123,6 +132,7 @@ export default function MealButton({
                 <IngredientButton
                   key={it.name}
                   data={it}
+                  mealId={mealId}
                   onRemove={() => handleRemove(it.barcode)}
                 />
               ))}

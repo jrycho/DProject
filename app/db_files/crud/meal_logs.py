@@ -125,7 +125,7 @@ async def build_input_object_from_meal_log(meal_id: str, user_id: str) -> InputO
     issue_list = []
 
     for entry in log.ingredients: #forcycle on ingredients
-        ingredient = await build_ingredient(entry.barcode, entry.priority) #calls function that fetches it from OpenFoodFacts API and build to obj needed
+        ingredient = await build_ingredient(barcode=entry.barcode, priority=entry.priority, piece_weights=entry.piece_weight, set_amount=entry.set_amount) #calls function that fetches it from OpenFoodFacts API and build to obj needed
         cal = getattr(ingredient, "calories")
         print(cal)
         is_numeric = isinstance(cal, (int, float)) and not isinstance(cal, bool)
@@ -135,7 +135,7 @@ async def build_input_object_from_meal_log(meal_id: str, user_id: str) -> InputO
             input_object.add_ingredient(ingredient) #input object method
 
     return input_object, issue_list
-        
+
 """  
 Delete an ingredient from a meal log
 Finds meal log by meal_id
@@ -195,13 +195,13 @@ async def return_ingredients_button(meal_id: str, user_id: str):
     ret_list = []
     for item in barcodes_list:
         ing = await get_or_fetch_ingredient_dict_sync(item["barcode"])
-        ret_ing = ingredient_doc_to_button_json(ing)
+        ret_ing = ingredient_doc_to_button_json(ing, item.get("piece_weight", 0), item.get("set_amount", 0))
         #print(f"ret ing {ret_ing}")
         ret_list.append(ret_ing)
         print(ret_list)
     return ret_list
 
-def ingredient_doc_to_button_json(ingredient):
+def ingredient_doc_to_button_json(ingredient, piece_weight, set_amount):
         nutr = ingredient.get("nutrients") or ingredient.get("nutriments")
         name = ingredient.get("name") or ingredient.get("product_name") or "Unnamed"
         raw = ingredient.get("barcode") or ingredient.get("code") or ingredient.get("_id") 
@@ -219,8 +219,38 @@ def ingredient_doc_to_button_json(ingredient):
         "carbs": (carbs),
         "fat": (fat),
         "barcode": barcode,
+
+        "piece_weight": piece_weight,
+        "set_amount": set_amount
     }
         return ret_dict
+
+async def update_set_and_piece_weights_crud(
+    meal_id: str,
+    user_id: str,
+    barcode: str,
+    set_amount: float | None = None,
+    piece_weight: float | None = None,
+):
+
+    result = await meal_logs.update_one(
+        {
+            "meal_id": meal_id,
+            "user_id": user_id,
+            "ingredients.barcode": barcode,
+        },
+        {
+            "$set": {
+                "ingredients.$.set_amount": set_amount,
+                "ingredients.$.piece_weight": piece_weight,
+            }
+        },
+    )
+
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Meal or ingredient not found")
+
+    return {"ok": True}
 
 def proofing(x):
     if x is None or x =="":

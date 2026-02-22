@@ -3,9 +3,10 @@ from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import JSONResponse
 from app.db_files.core.database import get_db
 from app.db_files.models.users import UserPublic
-from app.db_files.crud.users import verify_password
+from app.db_files.crud.users import verify_password, change_username_crud
 from app.security.security import create_access_token
 from app.security.security import get_current_user
+from datetime import timezone, datetime
 
 router = APIRouter(prefix="/Auth", tags=["Auth"])
 
@@ -60,3 +61,11 @@ Returns:
 async def get_me(current_user=Depends(get_current_user)):
 
     return UserPublic(**current_user)
+
+
+@router.post("/change_username")
+async def change_username( new_username: str, current_user=Depends(get_current_user), db=Depends(get_db)):
+    data = current_user
+    resp = await change_username_crud(db=db, data=data, new_username=new_username)
+    return resp
+    

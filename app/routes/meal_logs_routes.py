@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
-from app.db_files.crud.meal_logs import create_meal_log, get_all_meal_logs, add_ingredient_to_log, delete_ingredient_from_meal_log, return_ingredients_button
+from app.db_files.crud.meal_logs import create_meal_log, get_all_meal_logs, add_ingredient_to_log, delete_ingredient_from_meal_log, return_ingredients_button, update_set_and_piece_weights_crud
 from app.db_files.crud.meal_logs import get_meal_by_date
 from app.db_files.crud.ingredient_crud import get_or_fetch_ingredient_dict_sync, doc_to_ingredient_entry
 from app.utils.build_ingredient_from_barcode import build_ingredient_from_barcode
@@ -197,3 +197,8 @@ async def return_ingredients_for_buttons(meal_id: str, user_id: str = Depends(ge
     data = await return_ingredients_button(meal_id, user_id)
     return data
 
+
+@router.post("/update_set_and_piece_weights")
+async def update_set_and_piece_weights(barcode: str, meal_id: str, set_amount: float, piece_weight: float, user_id: str = Depends(get_current_user_id)):
+    data = await update_set_and_piece_weights_crud(barcode=barcode, meal_id=meal_id, user_id=user_id, set_amount=set_amount, piece_weight=piece_weight)
+    return data

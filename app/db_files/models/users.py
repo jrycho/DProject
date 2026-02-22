@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field, EmailStr, GetCoreSchemaHandler, GetJsonSchemaHandler
 from pydantic_core import core_schema
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 from bson import ObjectId
 from typing import Any
 
@@ -20,8 +20,11 @@ class User(BaseModel):
     password: str
     email: EmailStr
     is_admin: bool = False
-    created_at: Optional[datetime] = Field(default=datetime.now())
+    created_at: Optional[datetime] = Field(default=datetime.now(timezone.utc))
     share_key: str = Field(default_factory=lambda: uuid4().hex)
+    reset_hash: Optional[str] = None
+    reset_hash_expires: Optional[datetime] = None
+    last_username_change: Optional[datetime] = None
 
     class Config:
         populate_by_name = True
@@ -51,16 +54,8 @@ class UserPublic(BaseModel):
     id: str = Field(alias="_id")
     username: str
     email: EmailStr
-
-
-    """
-    #!! DELETABLE  
-    @classmethod
-    def from_mongo(cls, doc: dict) -> "UserPublic":
-        doc = doc.copy()
-        doc["_id"] = str(doc["_id"])
-        return cls(**doc)
-    """   
+    my_share_key: str = Field(alias="share_key")
+    
         
     class Config:
         populate_by_name = True

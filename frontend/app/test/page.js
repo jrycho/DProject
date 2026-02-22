@@ -1,12 +1,11 @@
 'use client';
-
-import UserIngredientSearchbarComponent from "@/components/UserIngredientSearchbar";
+import SharePopup from "@/components/UserPopup";
 
 export default function Page() {
   return (
     <>
       <div>
-        <UserIngredientSearchbarComponent />
+        <SharePopup />
       </div>
     </>
   );

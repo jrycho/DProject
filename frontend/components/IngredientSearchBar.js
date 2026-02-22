@@ -4,7 +4,7 @@ import { authFetch } from "@/utils/authFetch";
 import { useEffect, useState } from "react";
 
 
-export default function IngredientSearchBar({ isActive = true, mealId, onAdded}) {
+export default function IngredientSearchBar({ isActive = true, mealId, onAdded, addIngredientFunction}) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   const [fullSearch, setFullSearch] = useState(false);
@@ -122,9 +122,16 @@ export default function IngredientSearchBar({ isActive = true, mealId, onAdded})
             <li
               key={product.code}
               onClick={async () => {
-                const data = await fetchProductDetails(product.code);
-                console.log("LOOK HERE:" + data.barcode);
-                await addIngredient(data.barcode, mealId);
+                const item = await fetchProductDetails(product.code);
+                console.log("LOOK HERE:" + item.barcode);
+                try {await addIngredientFunction(item.barcode ,mealId);
+
+                setQuery("");
+                setResults([]);
+
+                onAdded?.();} catch (err) {
+                  console.log(err);
+                }
                 setQuery("");
                 onAdded?.();
               }}

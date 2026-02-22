@@ -9,9 +9,10 @@ export default function IngredientModeSwitcher() {
   const isSimple = pathname === "/add_ingredients";
   const isBatch =
     pathname === "/add_ingredients/add_ingredients_total_batch";
+    const isMeal = pathname === "/add_ingredients/add_ingredients_from_db"
 
   return (
-    <div className="flex gap-2 mb-4 mt-2">
+    <div className="flex gap-2 mb-4">
       {/* Simple */}
       <Link
         href="/add_ingredients"
@@ -36,6 +37,19 @@ export default function IngredientModeSwitcher() {
         ].join(" ")}
       >
         Total batch
+      </Link>
+      
+      {/* As meal */}
+      <Link
+        href="/add_ingredients/add_ingredients_from_db"
+        className={[
+          "px-4 py-2 rounded border text-sm font-medium transition",
+          isMeal
+            ? "bg-gray-200 text-gray-900 border-gray-300"
+            : "bg-gray-700 text-gray-200 border-gray-600 hover:bg-gray-600",
+        ].join(" ")}
+      >
+        As meal
       </Link>
     </div>
   );

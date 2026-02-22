@@ -187,24 +187,7 @@ export default function AddMacrosSimple() {
         </button>
       </form>
 
-      {/* Preview */}
-      <h2 className="mt-5 text-lg font-semibold">
-        Payload
-      </h2>
 
-      <pre className="mt-2 bg-gray-900 text-gray-100 p-3 rounded text-sm overflow-auto">
-        {JSON.stringify(
-          {
-            product_name: name,
-            nutriments: selected.reduce((acc, k) => {
-              acc[k] = values[k] ?? "";
-              return acc;
-            }, {}),
-          },
-          null,
-          2
-        )}
-      </pre>
 
       {/* Error */}
       {error && (

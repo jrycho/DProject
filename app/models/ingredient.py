@@ -27,8 +27,8 @@ class Ingredient():
         self.salt = data.get("salt_100g", 0.0)
 
         self.priority = priority
-        self.piece_weight = 0.0
-        self.user_designated_value = 0.0
+        self.piece_weight = float(data.get("piece_weight", 0.0)/100)
+        self.user_designated_value = float(data.get("user_designated_value", 0.0)/100)
         self.barcode = data.get("barcode") 
 
     

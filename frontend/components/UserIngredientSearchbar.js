@@ -4,12 +4,13 @@ import { useState } from "react";
 import { getUserIngredientsSearch } from "@/utils/userIngredientsSearch";
 import IngredientButton from "./IngredientButton";
 import { useDebouncedEffect } from "@/utils/useDebouncedEffect";
-import { addIngredient } from "@/utils/ingredientAdd";
+
 
 export default function UserIngredientSearchbarComponent({
   isActive = true,
   mealId,
   onAdded,
+  addIngredientFunction
 }) {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
@@ -69,15 +70,17 @@ export default function UserIngredientSearchbarComponent({
             <li
               key={item._id}
               onClick={async () => {
-                if (!mealId) return;
-                console.log(item);
+                //if (!mealId) return;
+                //console.log(item);s
                 const code =  item.code 
-                await addIngredient(code, mealId);
+                try {await addIngredientFunction(item, mealId);
 
                 setQuery("");
                 setResults([]);
 
-                onAdded?.();
+                onAdded?.();} catch (err) {
+                  console.log(err);
+                }
               }}
               className="border p-2 rounded cursor-pointer hover:bg-gray-100 transition"
             >
