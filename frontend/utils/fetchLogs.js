@@ -1,6 +1,5 @@
 import { authFetch } from './authFetch';
 
-//TODO: fetching in backend
 
 const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL;
 /**

@@ -21,6 +21,8 @@ export default function Calendar({ value, onChange }) {
     return () => document.removeEventListener("mousedown", handleClick);
   }, [open]);
 
+
+
   return (
     <div>
       <button
@@ -52,11 +54,13 @@ export default function Calendar({ value, onChange }) {
             >
               <DayPicker
                 mode="single"
+                required
                 selected={value}
-                onSelect={(date) => {
-                  onChange(date); // <-- update parent
-                  setOpen(false);
-                }}
+  onSelect={(date) => {
+    if (!date) return;     // ✅ ignore undefined
+    onChange(date);        // ✅ always Date
+    setOpen(false);
+  }}
               />
             </div>
           </div>

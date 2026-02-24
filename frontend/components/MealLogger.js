@@ -16,8 +16,8 @@ const MEAL_TYPES = [
   "Snack 3",
 ];
 
-export default function MealLogger({ onChange }) {
-  const [selectedDate, setSelectedDate] = useState(new Date());
+export default function MealLogger({ onChange, selectedDate }) {
+
   const [logs, setLogs] = useState([]);
   const [activeMealLog, setActiveMealLog] = useState(false);
   const [activeMealId, setActiveMealId] = useState(null);

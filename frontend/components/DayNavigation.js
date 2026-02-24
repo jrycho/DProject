@@ -18,7 +18,7 @@ const changeDay = useCallback((days)=> {
         }, [onClickDays, setSelectedDate]);
 
     useEffect(() => {
-        onClickDays?.({ selectedDate });
+        onClickDays?.({selectedDate} );
     }, [selectedDate, onClickDays]);
         return (
           <>

@@ -66,7 +66,7 @@ export default function Page() {
         <DateSelector onClickDays={handleChangeDay} />
         <div className="grid grid-cols-3 grid-rows-2 gap-6">
           <div className="col-start-1 col-end-1 row-start-1 row-end-3">
-            <MealLogger onChange={handleChange} />
+            <MealLogger onChange={handleChange} selectedDate={selectedDate} />
             <div className="mt-3">
               <OptimizeButton
                 onResults={handleOptimizeResults}

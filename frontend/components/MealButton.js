@@ -67,14 +67,13 @@ export default function MealButton({
     <div className="w-full">
       <button
         onClick={onClick}
-        className={`w-130 ml-10 mr-10 px-4 py-2 text-white transition duration-300 border 
+        className={`w-130 ml-10 mr-10 px-4 py-2 text-white transition duration-300 border  
         ${
           isActive
-            ? // ✅ CHANGED: pb-00 -> pb-0, and remove bottom rounding so it touches the panel
-              "pt-2 pb-0 bg-gray-600 hover:bg-gray-500 rounded-t-xl rounded-b-none border-green-600"
+            ? "pt-2 pb-0 bg-gray-600 hover:bg-gray-500 rounded-b-none border-green-600 border-b-0 rounded-tl-xl" //always
             : isLogged
-              ? "py-2 bg-gray-600 hover:bg-gray-500 rounded-xl border-green-600"
-              : "py-2 bg-gray-700 hover:bg-gray-500 rounded-xl border-green-600"
+              ? "py-2 bg-gray-600 hover:bg-gray-500 rounded-br-2xl rounded-tl-2xl rounded-b-none border-green-600" //logged
+              : "py-2 bg-gray-700 hover:bg-gray-500 rounded-br-2xl rounded-tl-2xl border-green-600" //basic
         }
       `}
       >
@@ -82,7 +81,7 @@ export default function MealButton({
       </button>
 
       <div
-        className={`ml-10 mr-10 w-130 bg-gray-500 border border-green-600 rounded-b-2xl
+        className={`ml-10 mr-10 w-130 bg-gray-500 border border-green-600 rounded-br-2xl
     transition-[height,opacity] duration-300
     ${isActive ? "h-[26rem] opacity-100 -mt-px" : "h-0 opacity-0"}
     overflow-hidden
@@ -136,7 +135,7 @@ export default function MealButton({
 
           {/* ingredients buttons */}
 
-          <div className="mt-2 flex-1 min-h-0 overflow-y-auto overflow-x-visible flex flex-col gap-2 pr-2 pt-2 custom-scrollbar">
+          <div className="mt-0 flex-1 min-h-0 overflow-y-auto overflow-x-visible flex flex-col gap-2 pr-2 pt-2 custom-scrollbar">
             {items.map((it) => (
               <IngredientButton
                 key={it.name}
