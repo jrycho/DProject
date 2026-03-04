@@ -17,7 +17,7 @@ from app.optimizers.gwo_optimizer import gwo_optimizer
 from fastapi.middleware.cors import CORSMiddleware
 
 from app import routes
-from app.routes import meal_logs_routes, settings_routes, optimization_routes, testing_routes, users_routes, login_routes, user_functions_routes
+from app.routes import meal_logs_routes, settings_routes, optimization_routes, testing_routes, users_routes, login_routes, user_functions_routes, tracker_routes
 from app.state.state import active_meals
 import app.state.state as state
 
@@ -29,6 +29,7 @@ import app.state.state as state
 """ Global vars for meals "db" and session settings, should be both loaded from db. TODO: DO IT """
 #active_meals = {}
 
+#Creation of application instance
 app = FastAPI()
 
 
@@ -40,8 +41,8 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,          # don't use "*" if you send credentials/cookies
-    allow_credentials=True,         # True if you use cookies/session
+    allow_origins=origins,          
+    allow_credentials=True,         # True if usage cookies/session
     allow_methods=["*"],            # or ["GET","POST","OPTIONS",...]
     allow_headers=["*"],            # include "Authorization" for bearer tokens
 )
@@ -49,11 +50,8 @@ app.add_middleware(
 OPEN_FOOD_FACTS_URL = "https://world.openfoodfacts.org/cgi/search.pl"
 
 """  
-Include router for meal log
+Include routers
 """
-
-
-
 app.include_router(meal_logs_routes.router)
 app.include_router(settings_routes.router)   
 app.include_router(optimization_routes.router)
@@ -61,8 +59,11 @@ app.include_router(testing_routes.router)
 app.include_router(users_routes.router)
 app.include_router(login_routes.router)
 app.include_router(user_functions_routes.router)
+app.include_router(tracker_routes.router)
 
-
+"""
+Lifeteime events
+"""
 @asynccontextmanager
 async def lifespan():
     await unique_share_key_init()
@@ -75,6 +76,6 @@ if __name__ == "__main__":
     uvicorn.run(
         "app.main:app",        # "<module>:<app-instance>"
         host="0.0.0.0",     # or "127.0.0.1"
-        port=8000,          # pick your port
+        port=8000,          # pick port
         reload=True         # auto‑reload on code changes
     )

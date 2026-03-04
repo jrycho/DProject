@@ -8,12 +8,14 @@ import OptimizeButton from "@/components/OptimizeButton";
 import { MealIdCtx } from "@/utils/mealIdCtx";
 import ProtectedPage from "@/components/ProtectedPage";
 import Threads from "@/components/Threads";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import DateSelector from "@/components/DayNavigation";
 import ThreadsBackground from "@/components/ThreadsBackground";
+import Dashboard from "@/components/Dashboard";
 
 export default function Page() {
   const [activeMealId, setActiveMealId] = useState(null);
+  const [activeMealType, setActiveMealType] = useState(null);
   const [settingsObj, setSettingsObj] = useState(null);
   const [mealWeights, setMealWeights] = useState([
     {
@@ -25,12 +27,16 @@ export default function Page() {
   const [mealMacros, setMealMacros] = useState({ "No macros yet": "-" });
   const [selectedDate, setSelectedDate] = useState(new Date());
 
-  // One callback that receives both
-  const handleChange = useCallback(({ activeMealId, settingsObj }) => {
-    setActiveMealId(activeMealId);
-    setSettingsObj(settingsObj);
-    console.log("Parent activeMealId:", activeMealId);
-  }, []);
+  // One callback that receives both, Callback memorizes between reloads
+  const handleChange = useCallback(
+    ({ activeMealId, activeMealType, settingsObj }) => {
+      setActiveMealId(activeMealId);
+      setSettingsObj(settingsObj);
+      setActiveMealType(activeMealType);
+      console.log("Parent activeMealId:", activeMealId);
+    },
+    [],
+  );
 
   const handleOptimizeResults = useCallback(({ mealWeights, mealMacros }) => {
     setMealWeights(Array.isArray(mealWeights) ? [...mealWeights] : []);
@@ -43,6 +49,8 @@ export default function Page() {
     setSelectedDate(selectedDate);
     console.log("THE DATE IS NOW: " + selectedDate);
   }, []);
+
+  
 
   return (
     <ProtectedPage>
@@ -66,13 +74,22 @@ export default function Page() {
         <DateSelector onClickDays={handleChangeDay} />
         <div className="grid grid-cols-3 grid-rows-2 gap-6">
           <div className="col-start-1 col-end-1 row-start-1 row-end-3">
-            <MealLogger onChange={handleChange} selectedDate={selectedDate} />
+            <MealLogger
+              onChange={handleChange}
+              selectedDate={selectedDate}
+              setMealWeights={setMealWeights}
+              setMealMacros={setMealMacros}
+            />
             <div className="mt-3">
               <OptimizeButton
                 onResults={handleOptimizeResults}
                 mealId={activeMealId}
+                mealType={activeMealType}
               />
             </div>
+          </div>
+          <div className="col-start-2 col-end-4 row-start-1 row-end-2">
+            <Dashboard date={selectedDate} />
           </div>
           <div className="col-start-2 col-end-3 row-start-2 row-end-3">
             <JsonTextViewerIngredients inputText={mealWeights} />

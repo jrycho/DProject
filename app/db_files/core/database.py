@@ -25,6 +25,7 @@ optimized_macros_collection = db["optimized_macros_collection"]
 user_ingredients_collection = db["user_ingredients_collection"]
 user_meals_collection = db["user_meals_collection"]
 temp_ingredients_collection = db["temp_ingredients_collection"]
+user_goals_collection = db["user_goals_collection"]
 
 def get_db():
     return db

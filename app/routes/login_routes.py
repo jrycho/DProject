@@ -68,4 +68,3 @@ async def change_username( new_username: str, current_user=Depends(get_current_u
     data = current_user
     resp = await change_username_crud(db=db, data=data, new_username=new_username)
     return resp
-    

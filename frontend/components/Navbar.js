@@ -4,85 +4,112 @@ import { useState } from "react";
 import SharePopup from "./UserPopup";
 
 export default function Navbar() {
-    const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
-    return (
-      <>
-        <header className="fixed top-0 inset-x-0 z-50 bg-gray-600 border-b border-green-600 shadow-sm">
-          <div className="mx-auto flex h-14 max-w-7x1 items-center justify-between px-4">
-            {/* logo */}
-            <a href="/home" className="text-lg  text-white">
-              HomePage
-            </a>
-            {/* Menu button  */}
-            <button
-              onClick={() => setOpen(true)}
-              className="inline-flex items-center gap-2 rounded-md px-3 py-2 hover:bg-gray-500"
-              aria-label="Open menu"
+  const handleLogout = () => {
+    console.log("logout");
+    localStorage.removeItem("token");
+  };
+
+  return (
+    <>
+      <header className="fixed top-0 inset-x-0 z-50 bg-gray-600 border-b border-green-600 shadow-sm">
+        <div className="mx-auto flex h-14 max-w-7x1 items-center justify-between px-4">
+          {/* logo */}
+          <a href="/home" className="text-lg  text-white">
+            HomePage
+          </a>
+          {/* Menu button  */}
+          <button
+            onClick={() => setOpen(true)}
+            className="inline-flex items-center gap-2 rounded-md px-3 py-2 hover:bg-gray-500"
+            aria-label="Open menu"
+          >
+            <span className="text-sm text-white">Menu</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
             >
-              <span className="text-sm text-white">Menu</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-            </button>
-          </div>
-        </header>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          </button>
+        </div>
+      </header>
 
-        {open && (
-          <div
+      {open && (
+        <div
+          onClick={() => setOpen(false)}
+          className="fixed inset-0 u-40 bg-black/40"
+        />
+      )}
+
+      {/* Right drawer */}
+      <aside
+        className={`fixed right-0 top-0 z-50 h-full w-64 bg-gray-600 shadow-lg transform transition-transform ${
+          open ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        <div className="flex items-center justify-between p-4 border-b">
+          <span className="font-semibold text-white">Menu</span>
+          <button
             onClick={() => setOpen(false)}
-            className="fixed inset-0 u-40 bg-black/40"
-          />
-        )}
-
-        {/* Right drawer */}
-        <aside
-          className={`fixed right-0 top-0 z-50 h-full w-64 bg-gray-600 shadow-lg transform transition-transform ${
-            open ? "translate-x-0" : "translate-x-full"
-          }`}
-        >
-          <div className="flex items-center justify-between p-4 border-b">
-            <span className="font-semibold text-white">Menu</span>
+            className="p-2 hover:bg-gray-100 rounded"
+          >
+            ✕
+          </button>
+        </div>
+        <nav className="p-4 space-y-2">
+          <a
+            href="/signup"
+            className="block px-2 py-1 hover:bg-gray-500 rounded text-white"
+          >
+            Sign up
+          </a>
+          <a
+            href="/login"
+            className="block px-2 py-1 hover:bg-gray-500 rounded text-white"
+          >
+            Log in
+          </a>
+          <div>
             <button
-              onClick={() => setOpen(false)}
-              className="p-2 hover:bg-gray-100 rounded"
+              onClick={handleLogout}
+              className="block px-2 py-1 hover:bg-gray-500 rounded text-white w-full text-left"
             >
-              ✕
+              Log out
             </button>
+            <a
+              href="/home"
+              className="block px-2 py-1 hover:bg-gray-500 rounded text-white"
+            >
+              Home
+            </a>
           </div>
-          <nav className="p-4 space-y-2">
+          <div className="items-center justify-between border-t ">
+            <SharePopup className="mt-1.5" />
             <a
-              href="/login"
+              href="/set_up_my_account"
               className="block px-2 py-1 hover:bg-gray-500 rounded text-white"
             >
-              Log in
+              Set up my goals
             </a>
-            <a
-              href="/signup"
-              className="block px-2 py-1 hover:bg-gray-500 rounded text-white"
-            >
-              Sign up
-            </a>
-            <SharePopup/>
             <a
               href="/add_ingredients"
               className="block px-2 py-1 hover:bg-gray-500 rounded text-white"
             >
               Add custom ingredients
             </a>
-          </nav>
-        </aside>
-      </>
-    );
+          </div>
+        </nav>
+      </aside>
+    </>
+  );
 }

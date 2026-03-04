@@ -94,8 +94,6 @@ async def get_or_fetch_ingredient_dict_sync( barcode: str) -> dict: #! USED
     print("fetching")
     if barcode.startswith("custom"):
         res = await get_user_ingredient_secure(barcode)
-        print("custom")
-        print(res)
         return res
     
 
@@ -106,8 +104,7 @@ async def get_or_fetch_ingredient_dict_sync( barcode: str) -> dict: #! USED
         If we already have it in Mongo, return immediately.
         `cached` already has `_id` removed due to projection.
         """
-        print("cached")
-        print(cached)
+
         return cached
     
 
@@ -119,7 +116,6 @@ async def get_or_fetch_ingredient_dict_sync( barcode: str) -> dict: #! USED
     4) Compute priority
     5) Dump to dict and store
     """
-    print("should start off fetching")
     product = await off_fetch_product(barcode)
     doc_model = IngredientDoc.model_validate(product)     # your function
 
@@ -136,8 +132,7 @@ async def get_or_fetch_ingredient_dict_sync( barcode: str) -> dict: #! USED
     doc["priority_auto"] = priority
     doc["_id"] = doc["barcode"]
     await ingredients_collection.update_one({"_id": doc["_id"]}, {"$set": doc}, upsert=True)
-    print("on the right place inside fetcher")
-    print(doc)
+
     return doc
 
 async def doc_to_ingredient_entry(doc, priority): #! USED

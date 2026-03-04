@@ -6,6 +6,11 @@ import SettingsComponent from "@/components/SettingsComponent";
 import { fetchLogs } from "@/utils/fetchLogs";
 import { getLastSettings } from "@/utils/getLastSettings";
 import OptimizeButton from "./OptimizeButton";
+import {
+  getOptimizationMacros,
+  getOptimizationWeights,
+} from "@/utils/getResults";
+import { getOptimizationWeightsAndMacros } from "@/utils/getResults";
 
 const MEAL_TYPES = [
   "Breakfast",
@@ -16,8 +21,12 @@ const MEAL_TYPES = [
   "Snack 3",
 ];
 
-export default function MealLogger({ onChange, selectedDate }) {
-
+export default function MealLogger({
+  onChange,
+  selectedDate,
+  setMealWeights,
+  setMealMacros,
+}) {
   const [logs, setLogs] = useState([]);
   const [activeMealLog, setActiveMealLog] = useState(false);
   const [activeMealId, setActiveMealId] = useState(null);
@@ -38,13 +47,46 @@ export default function MealLogger({ onChange, selectedDate }) {
 
   //exposing state to parent component
   useEffect(() => {
-    onChange?.({ activeMealId, settingsObj });
+    onChange?.({ activeMealId, activeMealType, settingsObj });
   }, []); // run once on mount
 
   //expose state to parent component when activeMealId or settingsObj change
   useEffect(() => {
-    onChange?.({ activeMealId, settingsObj }); // expose multiple consts on every change
-  }, [activeMealId, settingsObj, onChange]);
+    onChange?.({ activeMealId, activeMealType, settingsObj }); // expose multiple consts on every change
+  }, [activeMealId, activeMealType, settingsObj, onChange]);
+
+  useEffect(() => {
+    async function loadOptimization() {
+      if (!activeMealId) {
+        setMealWeights([
+          { barcode: "Placeholder", name: "No items", grams: "-" },
+        ]);
+        setMealMacros({ "No macros yet": "-" });
+        return;
+      }
+
+      try {
+        const { weights, macros } =
+          await getOptimizationWeightsAndMacros(activeMealId);
+
+        console.log(weights);
+        console.log(macros);
+
+        setMealWeights(weights);
+
+        setMealMacros(macros);
+      } catch (err) {
+        console.error("Failed to load optimization:", err);
+
+        setMealWeights([
+          { barcode: "Placeholder", name: "No items", grams: "-" },
+        ]);
+        setMealMacros({ "No macros yet": "-" });
+      }
+    }
+
+    loadOptimization();
+  }, [activeMealId]);
 
   //function if not logged, log, if logged, find and set to active
   async function mealButtonClick(mealType, isLogged) {

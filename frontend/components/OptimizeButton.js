@@ -3,7 +3,7 @@ import { useState, useCallback } from 'react'
 import {useMealId} from '@/utils/mealIdCtx'
 
 
-export default function OptimizeButton({mealId, onResults}){
+export default function OptimizeButton({mealId, mealType, onResults}){
       const [busy, setBusy] = useState(false)
       const disabled = busy || !mealId
       const [ mealWeights, setMealWeights ] = useState({})
@@ -17,7 +17,7 @@ export default function OptimizeButton({mealId, onResults}){
 
             try {
             setBusy(true);
-            const { weights, macros } = await optimizeFunction(id);
+            const { weights, macros } = await optimizeFunction(id, mealType);
             setMealMacros(macros);
             setMealWeights(weights);
             console.log(mealMacros, mealWeights)
@@ -26,18 +26,17 @@ export default function OptimizeButton({mealId, onResults}){
             setBusy(false);
             }
         });
-    return(
-        <div>
-            <button
-                
-                className={"ml-30 w-40 min-h-10 bg-green-600 rounded-2xl hover:bg-amber-600 disabled:bg-amber-900"}
-                onClick = {handleOptimize} 
-                disabled={disabled}
-                
-                >
-                    Optimize
-            </button>
-            
-        </div>
-    )
+    return (
+      <div>
+        <button
+          className={
+            "ml-30 w-90 min-h-10 bg-green-600 border border-green-900 rounded-tl-xl rounded-br-xl hover:bg-green-700 disabled:bg-green-900 "
+          }
+          onClick={handleOptimize}
+          disabled={disabled}
+        >
+          Optimize
+        </button>
+      </div>
+    );
 }

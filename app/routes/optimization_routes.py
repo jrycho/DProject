@@ -19,7 +19,7 @@ calls solver
 returns results in JSON form, not saved, user result, if needed could be optimized again for same result
 """
 @router.get("/optimize/{meal_id}")
-async def optimize_meal(meal_id: str, user_id: str = Depends(get_current_user_id)):
+async def optimize_meal(meal_id: str, meal_type: str, user_id: str = Depends(get_current_user_id)):
     input_obj, issue_list = await build_input_object_from_meal_log(meal_id, user_id) 
     print("got somewhere 1")
     print(issue_list)
@@ -27,7 +27,7 @@ async def optimize_meal(meal_id: str, user_id: str = Depends(get_current_user_id
     if issue_list != []:   # any invalid ingredients? return early
         return {"issues": issue_list}
     
-    settings_obj = await get_settings_obj(user_id)
+    settings_obj = await get_settings_obj(user_id=user_id, meal_type=meal_type)
     if settings_obj is None:
         raise HTTPException(status_code=404, detail="User settings not found")
     
@@ -58,16 +58,28 @@ async def save_optimization_macros(meal_id, json, user_id: str = Depends(get_cur
         raise HTTPException(status_code=404, detail="Meal optimization macros saving error")
     return res
 
+
+MACROS_PLACEHOLDER = {"No macros yet": "-"}
+
 @router.get("/optimize/get_optimization_macros/{meal_id}")
 async def get_optimization_macros(meal_id, user_id: str = Depends(get_current_user_id) ):
     res = await get_optimization_macros_crud(meal_id, user_id)
-    if not res:
-        raise HTTPException(status_code=404, detail="Meal optimization macros not found")
+
     return res
 
+WEIGHTS_PLACEHOLDER = [
+    { "name": "No items", "grams": "-"}
+]
 @router.get("/optimize/get_optimization_weights/{meal_id}")
 async def get_optimization_weights(meal_id, user_id: str = Depends(get_current_user_id) ):
     res = await get_optimization_weights_crud(meal_id, user_id)
-    if not res:
-        raise HTTPException(status_code=404, detail="Meal optimization macros not found")
+
     return res
+
+@router.get("/optimize/get_optimization_macros_and_weights/{meal_id}")
+async def get_optimization_macros(meal_id, user_id: str = Depends(get_current_user_id) ):
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    res_weights = await get_optimization_weights_crud(meal_id, user_id)
+    res_macros = await get_optimization_macros_crud(meal_id, user_id)
+    return {"weights": res_weights, "macros": res_macros}

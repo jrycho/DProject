@@ -261,7 +261,7 @@ class BaseOptimizer(AbstractOptimizerBase):
         for iterator in range(len(self.input_list)):
             barcode = self.input_list[iterator].barcode
             name = self.input_list[iterator].name
-            grams = float(rounded_solution[iterator] * 100)
+            grams = int(float(rounded_solution[iterator] * 100))
             json_ingredient_weights.append({
             "barcode": barcode,
             "name": name,

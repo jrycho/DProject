@@ -79,7 +79,6 @@ async def fetch_temp_ingredients_list(user_id: str):
     return ingredidents
 
 def ingredient_doc_to_button_json(ingredient, amount):
-        print(ingredient)
         nutr = ingredient.get("nutrients") or ingredient.get("nutriments")
         name = ingredient.get("name") or ingredient.get("product_name") or "Unnamed"
         raw = ingredient.get("barcode") or ingredient.get("code") or ingredient.get("_id") 
@@ -108,10 +107,7 @@ async def return_temp_ingredients_button( user_id: str):
 
     ret_list = []
     for item in barcodes_list:
-        print(item)
         ing = await get_or_fetch_ingredient_dict_sync(item["barcode"])
-
-        print(item.get("amount"))
         ret_ing = ingredient_doc_to_button_json(ing, item.get("amount", 0))
         #print(f"ret ing {ret_ing}")
         ret_list.append(ret_ing)
@@ -126,13 +122,13 @@ async def get_total_normalized_temp_nutrients(user_id: str):
     amounts_list = []
     for item in barcodes_list:
         ing = await get_or_fetch_ingredient_dict_sync(item["barcode"])
-        print(ing)
+
         ingredients_list.append(ing)
         amounts_list.append(item.get("amount"))
     
     # 2 add up nutriments
     total_macros = sum_all_nutrients(ingredients_list, amounts_list)
-    print(total_macros)
+
     # 3 add up amounts
     total_amount = sum(amounts_list)
     # 4 save to permanent collection
@@ -143,7 +139,7 @@ async def get_total_normalized_temp_nutrients(user_id: str):
         except (TypeError, ValueError):
             continue
     # 5 save to permanent collection
-    print(ret_dict)
+
     return ret_dict
 
 def sum_all_nutrients(ingredients_list, amounts_list):

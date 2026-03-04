@@ -56,8 +56,8 @@ async def get_user_settings(user_id: str, meal_type:str): #!USED
 
     
 
-async def get_settings_obj(user_id: str): #!USED
-        db_data = await get_user_settings(user_id)
+async def get_settings_obj(user_id: str, meal_type:str): #!USED
+        db_data = await get_user_settings(user_id=user_id, meal_type=meal_type)
         if not db_data:
             raise HTTPException(status_code=404, detail="Data not found")
         # Convert to Settings object
