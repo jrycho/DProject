@@ -85,7 +85,7 @@ export default function AddMacrosSimple() {
 
   return (
 <ProtectedPage>
-  <main className="relative min-h-screen p-4">
+  <main className="relative min-h-screen p-4 ">
     <Navbar />
     <IngredientModeSwitcher/>
 

@@ -54,7 +54,7 @@ export default function Page() {
 
   return (
     <ProtectedPage>
-      <main className="p-4">
+      <main className="p-4 pt-10">
         <Navbar />
 
         <div className="fixed inset-0 -z-10 pointer-events-none" aria-hidden>
@@ -72,8 +72,8 @@ export default function Page() {
           </div>
         </div>
         <DateSelector onClickDays={handleChangeDay} />
-        <div className="grid grid-cols-3 grid-rows-2 gap-6">
-          <div className="col-start-1 col-end-1 row-start-1 row-end-3">
+        <div className="md:grid grid-cols-3 grid-rows-2 gap-6">
+          <div className="md:col-start-1 col-end-1 row-start-1 row-end-3 z-[100]">
             <MealLogger
               onChange={handleChange}
               selectedDate={selectedDate}
@@ -88,13 +88,13 @@ export default function Page() {
               />
             </div>
           </div>
-          <div className="col-start-2 col-end-4 row-start-1 row-end-2">
+          <div className="md:col-start-2 col-end-4 row-start-1 row-end-2">
             <Dashboard date={selectedDate} />
           </div>
-          <div className="col-start-2 col-end-3 row-start-2 row-end-3">
+          <div className="md:col-start-2 col-end-3 row-start-2 row-end-3">
             <JsonTextViewerIngredients inputText={mealWeights} />
           </div>
-          <div className="col-start-3 col-end-4 row-start-2">
+          <div className="md:col-start-3 col-end-4 row-start-2">
             <JsonTextViewerMacros inputText={mealMacros} />
           </div>
         </div>

@@ -121,3 +121,16 @@ async def find_key(share_key:str):
     if doc is None:
         raise HTTPException(status_code=404, detail="Invalid key")
     return doc
+
+
+async def delete_user_ingredient_secure(barcode, user_id: str):
+    doc = await user_ingredients_collection.find_one({"code": barcode,})
+    if doc is None:
+        raise HTTPException(status_code=404, detail="Ingredient not found")
+    if doc["user_id"] != user_id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    user_key = await get_user_key(user_id)
+    if doc["share_key"] != user_key:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    await user_ingredients_collection.delete_one({"code": barcode})
+    return {"message": "Ingredient deleted"}

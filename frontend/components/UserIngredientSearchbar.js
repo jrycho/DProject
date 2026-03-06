@@ -10,7 +10,8 @@ export default function UserIngredientSearchbarComponent({
   isActive = true,
   mealId,
   onAdded,
-  addIngredientFunction
+  addIngredientFunction,
+  onSelected
 }) {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
@@ -27,6 +28,8 @@ export default function UserIngredientSearchbarComponent({
     try {
       const results = await getUserIngredientsSearch(q);
       setResults(results);
+      console.log(results);
+      
     } finally {
       setLoading(false);
     }
@@ -69,9 +72,11 @@ export default function UserIngredientSearchbarComponent({
           {results.map((item) => (
             <li
               key={item._id}
+              
               onClick={async () => {
                 //if (!mealId) return;
-                //console.log(item);s
+                onSelected?.(item);
+                console.log(item);
                 const code =  item.code 
                 try {await addIngredientFunction(item, mealId);
 
@@ -86,8 +91,8 @@ export default function UserIngredientSearchbarComponent({
             >
               <strong>{item.product_name}</strong>
               <div className="text-sm opacity-80">
-                {item.kcal} kcal • P {item.protein} • C {item.carbs} • F{" "}
-                {item.fat}
+                {item.nutriments.energy_kcal_100g} kcal/100 g • Protein {item.nutriments.proteins_100g} g/100 g • Carbohydrates {item.nutriments.carbohydrates_100g} g/100 g • Fats{" "}
+                {item.nutriments.fat_100g} g/100 g
               </div>
             </li>
           ))}

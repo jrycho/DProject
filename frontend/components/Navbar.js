@@ -13,8 +13,8 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="fixed top-0 inset-x-0 z-50 bg-gray-600 border-b border-green-600 shadow-sm">
-        <div className="mx-auto flex h-14 max-w-7x1 items-center justify-between px-4">
+      <header className="fixed top-0 inset-x-0 z-50 bg-[#001303] border-b border-green-600 shadow-sm">
+        <div className="mx-auto flex h-25 max-w-7x1 items-center justify-between px-4">
           {/* logo */}
           <a href="/home" className="text-lg  text-white">
             HomePage
@@ -105,7 +105,13 @@ export default function Navbar() {
               href="/add_ingredients"
               className="block px-2 py-1 hover:bg-gray-500 rounded text-white"
             >
-              Add custom ingredients
+              Add my ingredients
+            </a>
+                        <a
+              href="/manage_my_ingredients"
+              className="block px-2 py-1 hover:bg-gray-500 rounded text-white"
+            >
+              Delete my ingredients
             </a>
           </div>
         </nav>

@@ -4,7 +4,7 @@ import ThreadsBackground from "@/components/ThreadsBackground";
 
 export default function AddIngredientsLayout({ children }) {
   return (
-    <div className="relative min-h-screen">
+    <div className="relative min-h-screen pt-10">
       {/* Persistent background */}
       <div className="fixed inset-0 -z-10 pointer-events-none">
         <div className="w-full h-[600px] relative">
