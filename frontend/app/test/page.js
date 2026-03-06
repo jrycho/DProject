@@ -1,27 +1,94 @@
-'use client';
+"use client";
 
-import GraphComponent from "@/components/GraphComponent";
+import MealLogger from "@/components/MealLogger";
+import Navbar from "@/components/Navbar";
+import JsonTextViewerIngredients from "@/components/JsonTextViewerIngredients";
+import JsonTextViewerMacros from "@/components/JsonTextViewerMacros";
+import ProtectedPage from "@/components/ProtectedPage";
+import { useState, useCallback } from "react";
+import DateSelector from "@/components/DayNavigation";
+import ThreadsBackground from "@/components/ThreadsBackground";
 import Dashboard from "@/components/Dashboard";
-import BarcodeScannerComponent from "@/components/BarcodeReader";
-import { useState } from "react";
-import Portal from "@/utils/portal"; 
-import { ScanLine } from "lucide-react";
-import BarcodeReaderMount from "@/components/BarcodeReaderFullMount";
 
 export default function Page() {
-  const [scanning, setScanning] = useState(false);
- const [barcode, setBarcode] = useState("")
+  const [activeMealId, setActiveMealId] = useState(null);
+  const [activeMealType, setActiveMealType] = useState(null);
+  const [settingsObj, setSettingsObj] = useState(null);
+  const [mealWeights, setMealWeights] = useState([
+    {
+      barcode: "Placeholder",
+      name: "No items",
+      grams: "-",
+    },
+  ]);
+  const [mealMacros, setMealMacros] = useState({ "No macros yet": "-" });
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
-  const handleScanning = () => {
-    setScanning(prev => !prev);
-  };
+  const handleChange = useCallback(
+    ({ activeMealId, activeMealType, settingsObj }) => {
+      setActiveMealId(activeMealId);
+      setSettingsObj(settingsObj);
+      setActiveMealType(activeMealType);
+    },
+    [],
+  );
 
-  return (<>
-    <BarcodeReaderMount onScan={setBarcode}/>
+  const handleOptimizeResults = useCallback(({ mealWeights, mealMacros }) => {
+    setMealWeights(Array.isArray(mealWeights) ? [...mealWeights] : []);
+    setMealMacros(mealMacros ? { ...mealMacros } : {});
+  }, []);
 
-      <div className="mt-4 text-lg">
-        <strong>Barcode:</strong> {barcode || "None"}
-      </div>
-    </>
+  const handleChangeDay = useCallback(({ selectedDate }) => {
+    setSelectedDate(selectedDate);
+  }, []);
+
+  return (
+    <ProtectedPage>
+      <main className="p-4 pt-10">
+        <Navbar className="relative z-[100]" />
+
+        <div className="fixed inset-0 -z-10 pointer-events-none" aria-hidden>
+          <div className="absolute inset-0">
+            <div
+              style={{ width: "100%", height: "600px", position: "relative" }}
+            >
+              <ThreadsBackground
+                amplitude={1}
+                distance={0}
+                enableMouseInteraction={true}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="justify-center">
+          <DateSelector onClickDays={handleChangeDay} />
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3 md:grid-rows-2">
+          <div className="order-2 justify-center md:col-start-2 md:col-end-4 md:row-start-1 md:row-end-2">
+            <Dashboard date={selectedDate} />
+          </div>
+
+          <div className="order-4 justify-center md:col-start-1 md:col-end-2 md:row-start-1 md:row-end-3 z-[90]">
+            <MealLogger
+              onChange={handleChange}
+              selectedDate={selectedDate}
+              setMealWeights={setMealWeights}
+              setMealMacros={setMealMacros}
+              onOptimizeResults={handleOptimizeResults}
+            />
+          </div>
+
+          <div className="order-5 justify-center md:col-start-2 md:col-end-3 md:row-start-2 md:row-end-3">
+            <JsonTextViewerIngredients inputText={mealWeights} />
+          </div>
+
+          <div className="order-6 justify-center md:col-start-3 md:col-end-4 md:row-start-2">
+            <JsonTextViewerMacros inputText={mealMacros} />
+          </div>
+        </div>
+      </main>
+    </ProtectedPage>
   );
 }

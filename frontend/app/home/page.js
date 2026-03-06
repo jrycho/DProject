@@ -4,11 +4,8 @@ import MealLogger from "@/components/MealLogger";
 import Navbar from "@/components/Navbar";
 import JsonTextViewerIngredients from "@/components/JsonTextViewerIngredients";
 import JsonTextViewerMacros from "@/components/JsonTextViewerMacros";
-import OptimizeButton from "@/components/OptimizeButton";
-import { MealIdCtx } from "@/utils/mealIdCtx";
 import ProtectedPage from "@/components/ProtectedPage";
-import Threads from "@/components/Threads";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import DateSelector from "@/components/DayNavigation";
 import ThreadsBackground from "@/components/ThreadsBackground";
 import Dashboard from "@/components/Dashboard";
@@ -27,38 +24,30 @@ export default function Page() {
   const [mealMacros, setMealMacros] = useState({ "No macros yet": "-" });
   const [selectedDate, setSelectedDate] = useState(new Date());
 
-  // One callback that receives both, Callback memorizes between reloads
   const handleChange = useCallback(
     ({ activeMealId, activeMealType, settingsObj }) => {
       setActiveMealId(activeMealId);
       setSettingsObj(settingsObj);
       setActiveMealType(activeMealType);
-      console.log("Parent activeMealId:", activeMealId);
     },
     [],
   );
 
   const handleOptimizeResults = useCallback(({ mealWeights, mealMacros }) => {
     setMealWeights(Array.isArray(mealWeights) ? [...mealWeights] : []);
-    console.log(mealWeights);
     setMealMacros(mealMacros ? { ...mealMacros } : {});
-    console.log(mealMacros);
   }, []);
 
   const handleChangeDay = useCallback(({ selectedDate }) => {
     setSelectedDate(selectedDate);
-    console.log("THE DATE IS NOW: " + selectedDate);
   }, []);
-
-  
 
   return (
     <ProtectedPage>
       <main className="p-4 pt-10">
-        <Navbar />
+        <Navbar className="relative z-[100]" />
 
         <div className="fixed inset-0 -z-10 pointer-events-none" aria-hidden>
-          {/* threads on top */}
           <div className="absolute inset-0">
             <div
               style={{ width: "100%", height: "600px", position: "relative" }}
@@ -71,30 +60,31 @@ export default function Page() {
             </div>
           </div>
         </div>
-        <DateSelector onClickDays={handleChangeDay} />
-        <div className="md:grid grid-cols-3 grid-rows-2 gap-6">
-          <div className="md:col-start-1 col-end-1 row-start-1 row-end-3 z-[100]">
+
+        <div className="justify-center">
+          <DateSelector onClickDays={handleChangeDay} />
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3 md:grid-rows-2">
+          <div className="order-2 justify-center md:col-start-2 md:col-end-4 md:row-start-1 md:row-end-2">
+            <Dashboard date={selectedDate} />
+          </div>
+
+          <div className="order-4 justify-center md:col-start-1 md:col-end-2 md:row-start-1 md:row-end-3 z-[90]">
             <MealLogger
               onChange={handleChange}
               selectedDate={selectedDate}
               setMealWeights={setMealWeights}
               setMealMacros={setMealMacros}
+              onOptimizeResults={handleOptimizeResults}
             />
-            <div className="mt-3">
-              <OptimizeButton
-                onResults={handleOptimizeResults}
-                mealId={activeMealId}
-                mealType={activeMealType}
-              />
-            </div>
           </div>
-          <div className="md:col-start-2 col-end-4 row-start-1 row-end-2">
-            <Dashboard date={selectedDate} />
-          </div>
-          <div className="md:col-start-2 col-end-3 row-start-2 row-end-3">
+
+          <div className="order-5 justify-center md:col-start-2 md:col-end-3 md:row-start-2 md:row-end-3">
             <JsonTextViewerIngredients inputText={mealWeights} />
           </div>
-          <div className="md:col-start-3 col-end-4 row-start-2">
+
+          <div className="order-6 justify-center md:col-start-3 md:col-end-4 md:row-start-2">
             <JsonTextViewerMacros inputText={mealMacros} />
           </div>
         </div>

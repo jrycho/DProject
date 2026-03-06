@@ -26,7 +26,6 @@ export default function MealLogger({
   selectedDate,
   setMealWeights,
   setMealMacros,
-  onOptimizeResults,
 }) {
   const [logs, setLogs] = useState([]);
   const [activeMealLog, setActiveMealLog] = useState(false);
@@ -40,17 +39,20 @@ export default function MealLogger({
 
   const [activeMealType, setActiveMealType] = useState("Breakfast");
 
+  // fetch logs if date changes
   useEffect(() => {
     fetchLogs(dateKey, setLogs);
   }, [dateKey]);
   console.log(logs);
 
+  //exposing state to parent component
   useEffect(() => {
     onChange?.({ activeMealId, activeMealType, settingsObj });
-  }, []);
+  }, []); // run once on mount
 
+  //expose state to parent component when activeMealId or settingsObj change
   useEffect(() => {
-    onChange?.({ activeMealId, activeMealType, settingsObj });
+    onChange?.({ activeMealId, activeMealType, settingsObj }); // expose multiple consts on every change
   }, [activeMealId, activeMealType, settingsObj, onChange]);
 
   useEffect(() => {
@@ -71,6 +73,7 @@ export default function MealLogger({
         console.log(macros);
 
         setMealWeights(weights);
+
         setMealMacros(macros);
       } catch (err) {
         console.error("Failed to load optimization:", err);
@@ -85,6 +88,7 @@ export default function MealLogger({
     loadOptimization();
   }, [activeMealId]);
 
+  //function if not logged, log, if logged, find and set to active
   async function mealButtonClick(mealType, isLogged) {
     if (activeMealLog?.type_of_meal === mealType) {
       setActiveMealLog(null);
@@ -115,7 +119,8 @@ export default function MealLogger({
   return (
     <>
       <div className="grid w-1/2 grid-cols-1 md:grid-cols-2 ">
-        <div className="mx-auto md:mx-0 flex flex-col gap-2 ">
+        {/* Meal buttons */}
+        <div className="flex flex-col gap-2 ">
           {MEAL_TYPES.map((mealType) => {
             const log = logs.find((log) => log.type_of_meal === mealType);
             const isActive =
@@ -126,7 +131,7 @@ export default function MealLogger({
               <MealButton
                 key={mealType}
                 meal={mealType}
-                mealId={log?.meal_id ?? null}
+                mealId={activeMealId}
                 isLogged={!!log}
                 isActive={
                   activeMealLog != null &&
@@ -137,29 +142,24 @@ export default function MealLogger({
               />
             );
           })}
-
-          <OptimizeButton
-            onResults={onOptimizeResults}
-            mealId={activeMealId}
-            mealType={activeMealType}
-          />
         </div>
 
         <details className="group">
+          {/* Settings */}
           <summary
             className="
-  fixed top-1/2 -translate-y-1/2 z-[90]
-  right-0
-  translate-x-0 group-open:-translate-x-120 md:group-open:-translate-x-180
-  transition-transform duration-180
-  [writing-mode:vertical-rl] rotate-180
-  cursor-pointer list-none
-  px-8 py-3
-  text-3xl font-medium text-white
-  bg-green-400 hover:bg-green-500
-  [--cut:12px]
-  [clip-path:polygon(0%_0,80%_0,100%_10%,100%_90%,80%_100%,100%_100%,0_100%,0_0%)]
-"
+            fixed  top-1/2 -translate-y-1/2 z-[20]
+            right-0
+            translate-x-0 group-open:-translate-x-180
+            transition-transform duration-180
+            [writing-mode:vertical-rl] rotate-180     /* vertical reading top→bottom */
+            cursor-pointer list-none
+            px-8 py-3
+            text-3xl font-medium text-white 
+            bg-green-400 hover:bg-green-500
+            [--cut:12px]
+            [clip-path:polygon(0%_0,80%_0,100%_10%,100%_90%,80%_100%,100%_100%,0_100%,0_0%)]
+            focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
           >
             Settings
           </summary>
@@ -174,7 +174,9 @@ export default function MealLogger({
               }}
               meal_type={activeMealType}
               onSubmit={(payload) => {
+                // click “Save” in the component
                 console.log("onSubmit payload:", payload);
+                // await fetch('/api/save', { method: 'POST', body: JSON.stringify(payload) })
               }}
             />
           </div>

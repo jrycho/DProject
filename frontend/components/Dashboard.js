@@ -27,6 +27,7 @@ export default function Dashboard({ date }) {
 
         const goalResp = await fetchTrackerData();
         const currentResp = await calculateDailyMacros(dateKey);
+        console.log("HERE" ,currentResp)
 
         if (cancelled) return;
 
@@ -45,7 +46,7 @@ export default function Dashboard({ date }) {
           calories: toNumber(curMacros?.calories),
           protein: toNumber(curMacros?.protein),
           carbs: toNumber(curMacros?.carbs),
-          fat: toNumber(curMacros?.fat),
+          fat: toNumber(curMacros?.fats),
         });
       } catch (e) {
         setError(e?.message || "Failed to load tracker data.");

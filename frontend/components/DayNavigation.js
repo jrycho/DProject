@@ -23,7 +23,8 @@ const changeDay = useCallback((days)=> {
         return (
           <>
             {/* Day navigation */}
-            <div className="flex justify-center gap-4 mb-4 bg-gray-600 min-h-10 ">
+<div className="relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen bg-gray-600">
+  <div className="flex justify-center mb-4 min-h-10 items-center">
               <button
                 onClick={() => changeDay(-1)}
                 className="bg-gray-700 px-3 py-1 rounded hover:bg-gray-300 text-white "
@@ -46,6 +47,6 @@ const changeDay = useCallback((days)=> {
               >
                 Next ▶
               </button>
-            </div>
+            </div></div>
           </>
         );}

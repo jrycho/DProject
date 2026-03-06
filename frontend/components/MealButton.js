@@ -64,7 +64,7 @@ export default function MealButton({
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full relative z-[89]">
       <button
         onClick={onClick}
         className={`w-130 ml-10 mr-10 px-4 py-2 text-white transition duration-300 border  

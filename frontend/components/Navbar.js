@@ -13,7 +13,7 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="fixed top-0 inset-x-0 z-50 bg-[#001303] border-b border-green-600 shadow-sm">
+      <header className="fixed top-0 inset-x-0 z-95 bg-[#001303] border-b border-green-600 shadow-sm">
         <div className="mx-auto flex h-25 max-w-7x1 items-center justify-between px-4">
           {/* logo */}
           <a href="/home" className="text-lg  text-white">
@@ -53,7 +53,7 @@ export default function Navbar() {
 
       {/* Right drawer */}
       <aside
-        className={`fixed right-0 top-0 z-50 h-full w-64 bg-gray-600 shadow-lg transform transition-transform ${
+        className={`fixed right-0 top-0 z-[100] h-full w-64 bg-gray-600 shadow-lg transform transition-transform ${
           open ? "translate-x-0" : "translate-x-full"
         }`}
       >
