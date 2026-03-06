@@ -87,140 +87,128 @@ export default function AddMacrosSimple() {
       setLoading(false);
     }
   }
+return (
+  <ProtectedPage>
+    <main className="relative min-h-screen p-4">
+      <Navbar />
+      <IngredientModeSwitcher />
 
-  return (
-    <ProtectedPage>
-      <main className="relative min-h-screen p-4">
-        <Navbar />
-        <IngredientModeSwitcher/>
+      {/* Background */}
+      <div className="fixed inset-0 -z-10 pointer-events-none">
+        <div className="absolute inset-0"></div>
+      </div>
 
-        {/* Background */}
-        <div className="fixed inset-0 -z-10 pointer-events-none">
-          <div className="absolute inset-0">
+      {/* Content */}
+      <div className="max-w-[520px] mx-auto p-6 bg-gray-700 border border-green-600 rounded-2xl shadow-lg text-white">
+        <h1 className="text-2xl font-semibold mb-4">
+          Add ingredient (macros)
+        </h1>
 
-          </div>
-        </div>
+        {/* Extras selector */}
+        <div className="mt-3">
+          <button
+            type="button"
+            onClick={() => setShowExtras((v) => !v)}
+            className="px-3 py-1.5 text-sm border border-green-600 rounded-lg bg-gray-600 hover:bg-gray-500 transition"
+          >
+            {showExtras ? "Hide extras" : "+ Add nutrients"}
+          </button>
 
-        {/* Content */}
-        <div className="max-w-[520px] mx-auto p-6 bg-gray-700 backdrop-blur rounded-lg shadow">
-          <h1 className="text-2xl font-semibold mb-4">Add ingredient (macros)</h1>
-
-          {/* Extras selector */}
-          <div className="mt-3">
-            <button
-              type="button"
-              onClick={() => setShowExtras((v) => !v)}
-              className="px-3 py-1.5 text-sm border rounded hover:bg-gray-600 transition"
-            >
-              {showExtras ? "Hide extras" : "+ Add nutrients"}
-            </button>
-
-            {showExtras && (
-              <div className="mt-2 border border-gray-300 p-3 rounded-md bg-gray-500 space-y-1">
-                {EXTRA_NUTRIENTS.map((n) => (
-                  <label
-                    key={n.key}
-                    className="flex items-center gap-2 cursor-pointer text-sm"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selected.includes(n.key)}
-                      onChange={() => toggleExtra(n.key)}
-                      className="accent-blue-600"
-                    />
-                    {n.label}
-                  </label>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Form */}
-          <form onSubmit={onSubmit} className="grid gap-3 mt-4">
-            {/* Name */}
-            <input
-              placeholder="Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:ring-blue-200"
-            />
-
-            {/* Priority */}
-            <input
-              type="number"
-              min="0"
-              step="1"
-              placeholder="Priority"
-              value={priorityUser}
-              onChange={(e) => setPriorityUser(e.target.value)}
-              required
-              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:ring-blue-200"
-            />
-
-            {/* NEW: Total weight */}
-            <input
-              type="number"
-              min="1"
-              step="any"
-              placeholder="Final meal weight (g)"
-              value={totalWeightG}
-              onChange={(e) => setTotalWeightG(e.target.value)}
-              required
-              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:ring-blue-200"
-            />
-
-            {/* Nutrient inputs (TOTALS) */}
-            {selected.map((key) => {
-              const meta = ALL.find((n) => n.key === key);
-
-              return (
-                <input
-                  key={key}
-                  type="number"
-                  min="0"
-                  step="any"
-                  placeholder={`${meta.label} (TOTAL)`}
-                  value={values[key] ?? ""}
-                  onChange={(e) => setNutrientValue(key, e.target.value)}
-                  required
-                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring focus:ring-blue-200"
-                />
-              );
-            })}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="mt-2 py-2 px-4 rounded bg-gray-600 border border-gray-200 text-white font-medium hover:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition"
-            >
-              {loading ? "Sending..." : "Send"}
-            </button>
-          </form>
-
-
-
-          {/* Error */}
-          {error && (
-            <>
-              <h2 className="mt-4 text-lg font-semibold text-red-600">Error</h2>
-              <pre className="mt-2 bg-red-100 text-red-800 p-3 rounded text-sm overflow-auto">
-                {error}
-              </pre>
-            </>
-          )}
-
-          {/* Result */}
-          {result && (
-            <>
-              <h2 className="mt-4 text-lg font-semibold text-green-600">Response</h2>
-              <pre className="mt-2 bg-green-100 text-green-800 p-3 rounded text-sm overflow-auto">
-                {JSON.stringify(result, null, 2)}
-              </pre>
-            </>
+          {showExtras && (
+            <div className="mt-3 border border-green-600 p-3 rounded-lg bg-gray-600 space-y-1">
+              {EXTRA_NUTRIENTS.map((n) => (
+                <label
+                  key={n.key}
+                  className="flex items-center gap-2 cursor-pointer text-sm"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selected.includes(n.key)}
+                    onChange={() => toggleExtra(n.key)}
+                    className="accent-green-600"
+                  />
+                  {n.label}
+                </label>
+              ))}
+            </div>
           )}
         </div>
-      </main>
-    </ProtectedPage>
-  );
-}
+
+        {/* Form */}
+        <form onSubmit={onSubmit} className="grid gap-3 mt-4">
+
+          {/* Name */}
+          <input
+            placeholder="Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            className="w-full px-3 py-2 bg-gray-800 border border-green-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+
+          {/* Priority */}
+          <input
+            type="number"
+            min="0"
+            step="1"
+            placeholder="Priority"
+            value={priorityUser}
+            onChange={(e) => setPriorityUser(e.target.value)}
+            required
+            className="w-full px-3 py-2 bg-gray-800 border border-green-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+
+          {/* Total weight */}
+          <input
+            type="number"
+            min="1"
+            step="any"
+            placeholder="Final meal weight (g)"
+            value={totalWeightG}
+            onChange={(e) => setTotalWeightG(e.target.value)}
+            required
+            className="w-full px-3 py-2 bg-gray-800 border border-green-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+
+          {/* Nutrient inputs */}
+          {selected.map((key) => {
+            const meta = ALL.find((n) => n.key === key);
+
+            return (
+              <input
+                key={key}
+                type="number"
+                min="0"
+                step="any"
+                placeholder={`${meta.label} (TOTAL)`}
+                value={values[key] ?? ""}
+                onChange={(e) => setNutrientValue(key, e.target.value)}
+                required
+                className="w-full px-3 py-2 bg-gray-800 border border-green-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              />
+            );
+          })}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="mt-2 py-2 px-4 rounded-lg bg-green-600 border border-green-600 text-white font-medium hover:bg-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition"
+          >
+            {loading ? "Sending..." : "Send"}
+          </button>
+        </form>
+
+        {/* Error */}
+        {error && (
+          <>
+            <h2 className="mt-4 text-lg font-semibold text-red-500">Error</h2>
+
+            <pre className="mt-2 bg-red-900/40 text-red-300 p-3 rounded text-sm overflow-auto">
+              {error}
+            </pre>
+          </>
+        )}
+      </div>
+    </main>
+  </ProtectedPage>
+);}

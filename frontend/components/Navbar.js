@@ -22,7 +22,7 @@ export default function Navbar() {
           {/* Menu button  */}
           <button
             onClick={() => setOpen(true)}
-            className="inline-flex items-center gap-2 rounded-md px-3 py-2 hover:bg-gray-500"
+            className="inline-flex items-center gap-2 rounded-md px-3 py-2 hover:bg-[#035811]"
             aria-label="Open menu"
           >
             <span className="text-sm text-white">Menu</span>
@@ -53,7 +53,7 @@ export default function Navbar() {
 
       {/* Right drawer */}
       <aside
-        className={`fixed right-0 top-0 z-[100] h-full w-64 bg-gray-600 shadow-lg transform transition-transform ${
+        className={`fixed right-0 top-0 z-[100] h-full w-64 bg-[#012006] shadow-lg transform transition-transform ${
           open ? "translate-x-0" : "translate-x-full"
         }`}
       >
@@ -61,7 +61,7 @@ export default function Navbar() {
           <span className="font-semibold text-white">Menu</span>
           <button
             onClick={() => setOpen(false)}
-            className="p-2 hover:bg-gray-100 rounded"
+            className="p-2 hover:bg-[#035811] rounded"
           >
             ✕
           </button>
@@ -69,26 +69,26 @@ export default function Navbar() {
         <nav className="p-4 space-y-2">
           <a
             href="/signup"
-            className="block px-2 py-1 hover:bg-gray-500 rounded text-white"
+            className="block px-2 py-1 hover:bg-[#035811] rounded text-white"
           >
             Sign up
           </a>
           <a
             href="/login"
-            className="block px-2 py-1 hover:bg-gray-500 rounded text-white"
+            className="block px-2 py-1 hover:bg-[#035811] rounded text-white"
           >
             Log in
           </a>
           <div>
             <button
               onClick={handleLogout}
-              className="block px-2 py-1 hover:bg-gray-500 rounded text-white w-full text-left"
+              className="block px-2 py-1 hover:bg-[#035811] rounded text-white w-full text-left"
             >
               Log out
             </button>
             <a
               href="/home"
-              className="block px-2 py-1 hover:bg-gray-500 rounded text-white"
+              className="block px-2 py-1 hover:bg-[#035811] rounded text-white"
             >
               Home
             </a>
@@ -97,19 +97,19 @@ export default function Navbar() {
             <SharePopup className="mt-1.5" />
             <a
               href="/set_up_my_account"
-              className="block px-2 py-1 hover:bg-gray-500 rounded text-white"
+              className="block px-2 py-1 hover:bg-[#035811] rounded text-white"
             >
               Set up my goals
             </a>
             <a
               href="/add_ingredients"
-              className="block px-2 py-1 hover:bg-gray-500 rounded text-white"
+              className="block px-2 py-1 hover:bg-[#035811] rounded text-white"
             >
               Add my ingredients
             </a>
                         <a
               href="/manage_my_ingredients"
-              className="block px-2 py-1 hover:bg-gray-500 rounded text-white"
+              className="block px-2 py-1 hover:bg-[#035811] rounded text-white"
             >
               Delete my ingredients
             </a>

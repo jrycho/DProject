@@ -90,88 +90,85 @@ export default function IngredientSearchBar({
     }
   };
 
-  return (
-    // search bar component
-    <div>
-      <div className="mt-6 w-110">
-        <h2 className="text-lg font-semibold mb-2 ml-4">Search Food:</h2>
-        <div className="flex items-center gap-2">
-          <input
-            type="text"
-            placeholder="Search for ingredients..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="w-full p-2 border ml-2 rounded-md shadow-md overflow-auto"
-          />
-          <button
-            onClick={async () => {
-              setFullSearch(true);
-              try {
-                await searchProducts(true);
-              } finally {
-                setFullSearch(false); // reset after full search completes
-              }
-            }}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            disabled={loadingSearch || !query.trim()}
-          >
-            Search
-          </button>
-          <BarcodeReaderMount onScan={setQuery}/>
-        </div>
-        <div
-          className="mt-4 ml-2 max-h-64 overflow-y-auto custom-scrollbar
- "
+return (
+  // search bar component
+  <div>
+    <div className="mt-6 w-110">
+      <h2 className="text-lg font-semibold mb-2 ml-4 text-white">
+        Search Food:
+      </h2>
+
+      <div className="flex items-center gap-2">
+        <input
+          type="text"
+          placeholder="Search for ingredients..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="w-full p-2 ml-2 bg-gray-800 border border-green-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+        />
+
+        <button
+          onClick={async () => {
+            setFullSearch(true);
+            try {
+              await searchProducts(true);
+            } finally {
+              setFullSearch(false);
+            }
+          }}
+          className="px-4 py-2 bg-green-600 border border-green-600 text-white rounded-lg hover:bg-green-500 transition disabled:opacity-50"
+          disabled={loadingSearch || !query.trim()}
         >
-          <ul className="mt-4 ml-2 space-y-2">
-            {loadingSearch && <li>Searching...</li>}
-            {!loadingSearch && results.length === 0 && query && (
-              <li>No results found.</li>
-            )}
-            {results.map((product) => (
-              <li
-                key={product.code}
-                onClick={async () => {
-                  const item = await fetchProductDetails(product.code);
-                  console.log("LOOK HERE:" + item.barcode);
-                  try {
-                    await addIngredientFunction(item.barcode, mealId);
+          Search
+        </button>
 
-                    setQuery("");
-                    setResults([]);
+        <BarcodeReaderMount onScan={setQuery} />
+      </div>
 
-                    onAdded?.();
-                  } catch (err) {
-                    console.log(err);
-                  }
+      <div className="mt-4 ml-2 max-h-64 overflow-y-auto custom-scrollbar">
+        <ul className="mt-4 ml-2 space-y-2">
+          {loadingSearch && (
+            <li className="text-gray-300">Searching...</li>
+          )}
+
+          {!loadingSearch && results.length === 0 && query && (
+            <li className="text-gray-400">No results found.</li>
+          )}
+
+          {results.map((product) => (
+            <li
+              key={product.code}
+              onClick={async () => {
+                const item = await fetchProductDetails(product.code);
+                console.log("LOOK HERE:" + item.barcode);
+
+                try {
+                  await addIngredientFunction(item.barcode, mealId);
+
                   setQuery("");
+                  setResults([]);
+
                   onAdded?.();
-                }}
-                className="border p-2 rounded cursor-pointer hover:bg-gray-100 transition"
-              >
-                <strong>{product.product_name || "Unnamed product"}</strong>
-                <br />
-                <span className="text-sm text-gray-600">
-                  Barcode: {product.code}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-        {/*
-        {loadingDetails && <div className="mt-2">Loading details…</div>}
-        {selectedProduct && (
-          <div className="mt-3 p-3 border rounded">
-            <div className="font-semibold">
-              {selectedProduct.product_name || "Product"}
-            </div>
-            <div className="text-sm text-gray-700">
-              {selectedProduct.brands}{" "}
-              {selectedProduct.quantity ? `• ${selectedProduct.quantity}` : ""}
-            </div>
-          </div> 
-        )}*/}
+                } catch (err) {
+                  console.log(err);
+                }
+
+                setQuery("");
+                onAdded?.();
+              }}
+              className="border border-green-600 bg-gray-700 p-2 rounded-lg cursor-pointer hover:bg-gray-600 transition text-white"
+            >
+              <strong>{product.product_name || "Unnamed product"}</strong>
+              <br />
+
+              <span className="text-sm text-gray-300">
+                Barcode: {product.code}
+              </span>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
-  );
+  </div>
+);
 }

@@ -125,186 +125,189 @@ export default function TrackerQuestioner() {
     return handleSubmitCustom();
   };
 
-  return (
-    <>
-      <Navbar />
 
-      <div className="fixed inset-0 -z-10 pointer-events-none" aria-hidden>
-        <div className="absolute inset-0">
-          <div style={{ width: "100%", height: "600px", position: "relative" }}>
-            <ThreadsBackground amplitude={1} distance={0} enableMouseInteraction={true} />
-          </div>
+  return (
+  <>
+    <Navbar />
+
+    <div className="fixed inset-0 -z-10 pointer-events-none" aria-hidden>
+      <div className="absolute inset-0">
+        <div style={{ width: "100%", height: "600px", position: "relative" }}>
+          <ThreadsBackground
+            amplitude={1}
+            distance={0}
+            enableMouseInteraction={true}
+          />
         </div>
       </div>
+    </div>
 
-      <div className="p-4 max-w-md mx-auto mt-20">
-        <h2 className="text-xl font-bold mb-4">Set your daily goals</h2>
+    <div className="max-w-md mx-auto mt-24 p-6 bg-gray-700 border border-green-600 rounded-2xl shadow-lg text-white">
 
-        {/* Mode switch */}
-        <div className="flex gap-2 mb-4">
-          <button
-            type="button"
-            onClick={() => {
-              setMode("estimate");
-              setMessage("");
-            }}
-            className={`w-full px-3 py-2 rounded border ${
-              mode === "estimate" ? "bg-blue-600 text-white border-blue-600" : "bg-transparent"
-            }`}
-            disabled={loading}
-          >
-            Smart estimate
-          </button>
+      <h2 className="text-2xl font-semibold mb-6 text-center">
+        Set your daily goals
+      </h2>
 
-          <button
-            type="button"
-            onClick={() => {
-              setMode("custom");
-              setMessage("");
-            }}
-            className={`w-full px-3 py-2 rounded border ${
-              mode === "custom" ? "bg-blue-600 text-white border-blue-600" : "bg-transparent"
-            }`}
-            disabled={loading}
-          >
-            Custom goals
-          </button>
-        </div>
-
-        {/* ESTIMATE FORM */}
-        {mode === "estimate" && (
-          <>
-            <label className="text-sm text-gray-400">Sex</label>
-            <select
-              value={sex}
-              onChange={(e) => setSex(e.target.value)}
-              className="border p-2 w-full mb-3"
-            >
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-            </select>
-
-            <label className="text-sm text-gray-400">Weight (kg)</label>
-            <input
-              type="number"
-              inputMode="decimal"
-              placeholder="e.g. 78"
-              value={weight}
-              onChange={(e) => setWeight(e.target.value)}
-              className="border p-2 w-full mb-3"
-            />
-
-            <label className="text-sm text-gray-400">Height (cm)</label>
-            <input
-              type="number"
-              inputMode="decimal"
-              placeholder="e.g. 180"
-              value={height}
-              onChange={(e) => setHeight(e.target.value)}
-              className="border p-2 w-full mb-3"
-            />
-
-            <label className="text-sm text-gray-400">Age</label>
-            <input
-              type="number"
-              inputMode="numeric"
-              placeholder="e.g. 24"
-              value={age}
-              onChange={(e) => setAge(e.target.value)}
-              className="border p-2 w-full mb-3"
-            />
-
-            <label className="text-sm text-gray-400">Activity level</label>
-            <select
-              value={activityLevel}
-              onChange={(e) => setActivityLevel(e.target.value)}
-              className="border p-2 w-full mb-3"
-            >
-              <option value="sedentary">Sedentary</option>
-              <option value="lightly_active">Lightly active</option>
-              <option value="moderately_active">Moderately active</option>
-              <option value="very_active">Very active</option>
-              <option value="athlete">Athlete</option>
-            </select>
-
-            <label className="text-sm text-gray-400">Goal</label>
-            <select
-              value={goal}
-              onChange={(e) => setGoal(e.target.value)}
-              className="border p-2 w-full mb-4"
-            >
-              <option value="weight_loss">Weight loss</option>
-              <option value="maintain">Maintain</option>
-              <option value="weight_gain">Weight gain</option>
-            </select>
-
-            <p className="mt-2 text-xs text-gray-400">
-              This will call <span className="text-gray-300">/Tracker/estimate_user_macros</span>{" "}
-              and store your computed goals.
-            </p>
-          </>
-        )}
-
-        {/* CUSTOM FORM */}
-        {mode === "custom" && (
-          <>
-            <label className="text-sm text-gray-400">Calories (kcal)</label>
-            <input
-              type="number"
-              inputMode="numeric"
-              placeholder="e.g. 2400"
-              value={calories}
-              onChange={(e) => setCalories(e.target.value)}
-              className="border p-2 w-full mb-3"
-            />
-
-            <label className="text-sm text-gray-400">Protein (g)</label>
-            <input
-              type="number"
-              inputMode="decimal"
-              placeholder="e.g. 160"
-              value={protein}
-              onChange={(e) => setProtein(e.target.value)}
-              className="border p-2 w-full mb-3"
-            />
-
-            <label className="text-sm text-gray-400">Carbs (g)</label>
-            <input
-              type="number"
-              inputMode="decimal"
-              placeholder="e.g. 250"
-              value={carbs}
-              onChange={(e) => setCarbs(e.target.value)}
-              className="border p-2 w-full mb-3"
-            />
-
-            <label className="text-sm text-gray-400">Fat (g)</label>
-            <input
-              type="number"
-              inputMode="decimal"
-              placeholder="e.g. 70"
-              value={fat}
-              onChange={(e) => setFat(e.target.value)}
-              className="border p-2 w-full mb-4"
-            />
-
-            <p className="mt-2 text-xs text-gray-400">
-              This will call <span className="text-gray-300">/Tracker/set_user_goals</span> and
-              store your custom goals.
-            </p>
-          </>
-        )}
-
+      {/* Mode Switch */}
+      <div className="flex gap-2 mb-6">
         <button
-          onClick={handleSubmit}
+          type="button"
+          onClick={() => {
+            setMode("estimate");
+            setMessage("");
+          }}
+          className={`w-full px-4 py-2 rounded-lg border transition
+            ${
+              mode === "estimate"
+                ? "bg-green-600 border-green-600"
+                : "bg-gray-600 hover:bg-gray-500 border-green-600"
+            }`}
           disabled={loading}
-          className="bg-blue-600 disabled:opacity-60 text-white px-4 py-2 w-full rounded mt-4"
         >
-          {loading ? "Saving..." : "Save goals"}
+          Smart estimate
         </button>
 
-        {message && <p className="mt-3 text-sm">{message}</p>}
+        <button
+          type="button"
+          onClick={() => {
+            setMode("custom");
+            setMessage("");
+          }}
+          className={`w-full px-4 py-2 rounded-lg border transition
+            ${
+              mode === "custom"
+                ? "bg-green-600 border-green-600"
+                : "bg-gray-600 hover:bg-gray-500 border-green-600"
+            }`}
+          disabled={loading}
+        >
+          Custom goals
+        </button>
       </div>
-    </>
-  );
+
+      {/* ESTIMATE FORM */}
+      {mode === "estimate" && (
+        <>
+          <label className="text-sm text-gray-300">Sex</label>
+          <select
+            value={sex}
+            onChange={(e) => setSex(e.target.value)}
+            className="w-full p-2 mb-3 bg-gray-800 border border-green-600 rounded-lg"
+          >
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+
+          <label className="text-sm text-gray-300">Weight (kg)</label>
+          <input
+            type="number"
+            placeholder="e.g. 78"
+            value={weight}
+            onChange={(e) => setWeight(e.target.value)}
+            className="w-full p-2 mb-3 bg-gray-800 border border-green-600 rounded-lg"
+          />
+
+          <label className="text-sm text-gray-300">Height (cm)</label>
+          <input
+            type="number"
+            placeholder="e.g. 180"
+            value={height}
+            onChange={(e) => setHeight(e.target.value)}
+            className="w-full p-2 mb-3 bg-gray-800 border border-green-600 rounded-lg"
+          />
+
+          <label className="text-sm text-gray-300">Age</label>
+          <input
+            type="number"
+            placeholder="e.g. 24"
+            value={age}
+            onChange={(e) => setAge(e.target.value)}
+            className="w-full p-2 mb-3 bg-gray-800 border border-green-600 rounded-lg"
+          />
+
+          <label className="text-sm text-gray-300">Activity level</label>
+          <select
+            value={activityLevel}
+            onChange={(e) => setActivityLevel(e.target.value)}
+            className="w-full p-2 mb-3 bg-gray-800 border border-green-600 rounded-lg"
+          >
+            <option value="sedentary">Sedentary</option>
+            <option value="lightly_active">Lightly active</option>
+            <option value="moderately_active">Moderately active</option>
+            <option value="very_active">Very active</option>
+            <option value="athlete">Athlete</option>
+          </select>
+
+          <label className="text-sm text-gray-300">Goal</label>
+          <select
+            value={goal}
+            onChange={(e) => setGoal(e.target.value)}
+            className="w-full p-2 mb-4 bg-gray-800 border border-green-600 rounded-lg"
+          >
+            <option value="weight_loss">Weight loss</option>
+            <option value="maintain">Maintain</option>
+            <option value="weight_gain">Weight gain</option>
+          </select>
+
+          
+        </>
+      )}
+
+      {/* CUSTOM FORM */}
+      {mode === "custom" && (
+        <>
+          <label className="text-sm text-gray-300">Calories (kcal)</label>
+          <input
+            type="number"
+            placeholder="e.g. 2400"
+            value={calories}
+            onChange={(e) => setCalories(e.target.value)}
+            className="w-full p-2 mb-3 bg-gray-800 border border-green-600 rounded-lg"
+          />
+
+          <label className="text-sm text-gray-300">Protein (g)</label>
+          <input
+            type="number"
+            placeholder="e.g. 160"
+            value={protein}
+            onChange={(e) => setProtein(e.target.value)}
+            className="w-full p-2 mb-3 bg-gray-800 border border-green-600 rounded-lg"
+          />
+
+          <label className="text-sm text-gray-300">Carbs (g)</label>
+          <input
+            type="number"
+            placeholder="e.g. 250"
+            value={carbs}
+            onChange={(e) => setCarbs(e.target.value)}
+            className="w-full p-2 mb-3 bg-gray-800 border border-green-600 rounded-lg"
+          />
+
+          <label className="text-sm text-gray-300">Fat (g)</label>
+          <input
+            type="number"
+            placeholder="e.g. 70"
+            value={fat}
+            onChange={(e) => setFat(e.target.value)}
+            className="w-full p-2 mb-4 bg-gray-800 border border-green-600 rounded-lg"
+          />
+
+
+        </>
+      )}
+
+      <button
+        onClick={handleSubmit}
+        disabled={loading}
+        className="bg-green-600 hover:bg-green-500 disabled:opacity-50 text-white px-4 py-2 w-full rounded-lg mt-6 transition"
+      >
+        {loading ? "Saving..." : "Save goals"}
+      </button>
+
+      {message && (
+        <p className="mt-4 text-sm text-gray-300 text-center">{message}</p>
+      )}
+    </div>
+  </>
+);
 }

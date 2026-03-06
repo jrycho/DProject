@@ -38,66 +38,75 @@ export default function UserIngredientSearchbarComponent({
   useDebouncedEffect(handleSearch, [query], 300);
 
   return (
-    <>
-      <div>
-              <div className="mt-6 w-110">
-        <h2 className="text-lg font-semibold mb-2 ml-4">Search Food:</h2>
-        <div className="flex items-center">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSearch();
-          
-          }}className="flex items-center w-full gap-2"
-        >
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search for my ingredients..."
-            className="w-full p-2 border ml-2 rounded-md shadow-md"
-          />
+  <>
+    <div>
+      <div className="mt-6 w-110">
+        <h2 className="text-lg font-semibold mb-2 ml-4 text-white">
+          Search Food:
+        </h2>
 
-          <button
-            type="button"
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            onClick={handleSearch}
+        <div className="flex items-center">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSearch();
+            }}
+            className="flex items-center w-full gap-2"
           >
-            {loading ? "..." : "Search"}
-          </button>
-        </form></div>
-      </div></div>
-      <div className="mt-4 ml-2 max-h-64 overflow-y-auto custom-scrollbar">
-        <ul className="space-y-2 p-2">
-          {results.map((item) => (
-            <li
-              key={item._id}
-              
-              onClick={async () => {
-                //if (!mealId) return;
-                onSelected?.(item);
-                console.log(item);
-                const code =  item.code 
-                try {await addIngredientFunction(item, mealId);
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search for my ingredients..."
+              className="w-full p-2 ml-2 bg-gray-800 border border-green-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+
+            <button
+              type="button"
+              onClick={handleSearch}
+              className="px-4 py-2 bg-green-600 border border-green-600 text-white rounded-lg hover:bg-green-500 transition"
+            >
+              {loading ? "..." : "Search"}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div className="mt-4 ml-2 max-h-64 overflow-y-auto custom-scrollbar">
+      <ul className="space-y-2 p-2">
+        {results.map((item) => (
+          <li
+            key={item._id}
+            onClick={async () => {
+              onSelected?.(item);
+              console.log(item);
+
+              try {
+                await addIngredientFunction(item, mealId);
 
                 setQuery("");
                 setResults([]);
 
-                onAdded?.();} catch (err) {
-                  console.log(err);
-                }
-              }}
-              className="border p-2 rounded cursor-pointer hover:bg-gray-100 transition"
-            >
-              <strong>{item.product_name}</strong>
-              <div className="text-sm opacity-80">
-                {item.nutriments.energy_kcal_100g} kcal/100 g • Protein {item.nutriments.proteins_100g} g/100 g • Carbohydrates {item.nutriments.carbohydrates_100g} g/100 g • Fats{" "}
-                {item.nutriments.fat_100g} g/100 g
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </>
-  );
+                onAdded?.();
+              } catch (err) {
+                console.log(err);
+              }
+            }}
+            className="border border-green-600 bg-gray-700 p-2 rounded-lg cursor-pointer hover:bg-gray-600 transition text-white"
+          >
+            <strong>{item.product_name}</strong>
+
+            <div className="text-sm text-gray-300">
+              {item.nutriments.energy_kcal_100g} kcal/100 g • Protein{" "}
+              {item.nutriments.proteins_100g} g/100 g • Carbohydrates{" "}
+              {item.nutriments.carbohydrates_100g} g/100 g • Fats{" "}
+              {item.nutriments.fat_100g} g/100 g
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </>
+);
 }

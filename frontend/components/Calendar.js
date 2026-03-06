@@ -21,28 +21,23 @@ export default function Calendar({ value, onChange }) {
     return () => document.removeEventListener("mousedown", handleClick);
   }, [open]);
 
-
-
   return (
     <div>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="px-4 py-2  bg-gray-600 text-white hover:bg-gray-400 "
+        className="bg-gray-700 px-3 py-1 rounded hover:bg-gray-500 text-white h-8 flex items-center gap-2 transition"
       >
-        {" "}
-        <div className="flex items-center gap-2">
-          {" "}
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            fill="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zm12 8H5v10h14V10z" />
-          </svg>
-          {value instanceof Date ? value.toLocaleDateString() : "Pick a date"}
-        </div>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="18"
+          height="18"
+          fill="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7zm12 8H5v10h14V10z" />
+        </svg>
+
+        {value instanceof Date ? value.toLocaleDateString() : "Pick a date"}
       </button>
 
       {open && (
@@ -56,11 +51,11 @@ export default function Calendar({ value, onChange }) {
                 mode="single"
                 required
                 selected={value}
-  onSelect={(date) => {
-    if (!date) return;     // ✅ ignore undefined
-    onChange(date);        // ✅ always Date
-    setOpen(false);
-  }}
+                onSelect={(date) => {
+                  if (!date) return; // ✅ ignore undefined
+                  onChange(date); // ✅ always Date
+                  setOpen(false);
+                }}
               />
             </div>
           </div>

@@ -80,7 +80,7 @@ export default function SharePopup() {
   <button
     ref={btnRef}
     onClick={() => setOpen((v) => !v)}
-    className="block w-full rounded px-2 py-1 text-left text-white hover:bg-gray-500"
+    className="block w-full rounded px-2 py-1 text-left text-white hover:bg-[#035811]"
   >
     My account
   </button>
