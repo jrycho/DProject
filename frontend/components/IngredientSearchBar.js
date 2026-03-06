@@ -2,6 +2,7 @@
 import { addIngredient } from "@/utils/ingredientAdd";
 import { authFetch } from "@/utils/authFetch";
 import { useEffect, useState } from "react";
+import BarcodeReaderMount from "@/components/BarcodeReaderFullMount"
 
 export default function IngredientSearchBar({
   isActive = true,
@@ -116,6 +117,7 @@ export default function IngredientSearchBar({
           >
             Search
           </button>
+          <BarcodeReaderMount onScan={setQuery}/>
         </div>
         <div
           className="mt-4 ml-2 max-h-64 overflow-y-auto custom-scrollbar
