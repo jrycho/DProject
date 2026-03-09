@@ -2,13 +2,16 @@
 
 import { useState } from "react";
 import SharePopup from "./UserPopup";
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+ const router = useRouter();
 
   const handleLogout = () => {
     console.log("logout");
     localStorage.removeItem("token");
+    router.push("/login")
   };
 
   return (

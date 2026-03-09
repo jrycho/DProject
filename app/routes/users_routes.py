@@ -4,9 +4,20 @@ from app.db_files.core.database import get_db
 from app.db_files.models.users import UserCreate
 from app.utils.forgotten_password import get_reset_token, send_reset_email, hash_token
 from datetime import datetime, timezone
+from app.db_files.crud.settings_saves import save_user_settings
+from fastapi.responses import JSONResponse
+from app.security.security import create_access_token
 
 
 router = APIRouter(prefix="/Signup", tags=["Signup"])
+settings_placeholder_values = {
+    "optimized_properties": ["calories", "protein", "carbs", "fats"],
+    "target_goal": [600.0, 30.0, 60.0, 20.0],
+    "excess_weights": [1.0, 1.0, 1.0, 1.0],
+    "slack_weights": [1.0, 1.0, 1.0, 1.0],
+}
+MEAL_TYPES = ["Breakfast", "Snack 1", "Lunch", "Snack 2", "Dinner", "Snack 3"]
+
 
 """  
 signup router
@@ -20,26 +31,32 @@ Raises:
 """
 @router.post("/signup") #! USED
 async def signup(user: UserCreate, db=Depends(get_db)):
-    if await db["users"].find_one({"email": user.email}):
+    email = user.email.lower().strip()
+    if await db["users"].find_one({"email": email}):
         raise HTTPException(status_code=400, detail="Email already exists")
     result = await create_user(db, user)
     uid = result.inserted_id
-    await db.user_settings.update_one(
-        {"user_id": uid},
-        {"$setOnInsert": {
-            "user_id": uid,
-            "schema_version": 1,
-            "optimized_properties": ["kcal","protein","carbs","fat"],
-            "target_goal": {"kcal": 600.0, "protein": 30.0, "carbs": 60.0, "fat": 20.0},
-            "excess_weights": {"kcal":1.0,"protein":1.0,"carbs":1.0,"fat":1.0},
-            "slack_weights":  {"kcal":1.0,"protein":1.0,"carbs":1.0,"fat":1.0},
-        }},
-        upsert=True,
-    )
-    await db.user_settings.create_index("user_id", unique=True)
+    for meal_type in MEAL_TYPES:
+        await save_user_settings(user_id=str(uid), meal_type=meal_type, settings=settings_placeholder_values)
+
+    token = create_access_token(data={"sub": str(uid)})
+    """
+    response = JSONResponse(content={"message": "User created"})
+    response.set_cookie(
+        key="access_token",
+        value=token,
+        httponly=True,
+        secure=True,
+        samesite="Lax",
+        max_age=3600,
+    )"""
 
     
-    return {"message": "User created", "user_id": str(result.inserted_id)}
+    return {
+        "message": "User created",
+        "access_token": token,
+        "token_type": "bearer"
+    }
 
 
 #NOT YET DONE:

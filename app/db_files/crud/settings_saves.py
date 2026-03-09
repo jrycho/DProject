@@ -36,22 +36,16 @@ args: user_id: str
 """
 async def get_user_settings(user_id: str, meal_type:str): #!USED
     data = await settings_collection.find_one(
-        {"user_id": user_id},
+        {"user_id": user_id
+        },
         projection={"_id": 0, "user_id": 0}
     ) or {}
-
-    meals = data.get("meals") or {}
-    resp = meals.get(meal_type)
-
-    if resp is None:
-        # create default settings for this meal
-        await save_user_settings(
-            user_id=user_id,
-            meal_type=meal_type,
-            settings=default_settings,  # must be a dict
-        )
-        return default_settings
-
+    print(f"data: {data}")
+    resp = data.get("meals", {}).get(meal_type)
+    print(f"settings: {resp}")
+    if not resp:
+        raise HTTPException(status_code=404, detail="Data not found")
+    # Convert to Settings object
     return resp
 
     

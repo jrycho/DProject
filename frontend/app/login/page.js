@@ -49,60 +49,79 @@ export default function Login() {
   };
 
   return (
-    <>
-      <Navbar />
-      <div className="fixed inset-0 -z-10 pointer-events-none" aria-hidden>
-        <div className="absolute inset-0">
-          <div style={{ width: "100%", height: "600px", position: "relative" }}>
-            <ThreadsBackground
-              amplitude={1}
-              distance={0}
-              enableMouseInteraction={true}
-            />
-          </div>
+  <>
+    <Navbar />
+
+    {/* Background */}
+    <div className="fixed inset-0 -z-10 pointer-events-none" aria-hidden>
+      <div className="absolute inset-0">
+        <div style={{ width: "100%", height: "600px", position: "relative" }}>
+          <ThreadsBackground
+            amplitude={1}
+            distance={0}
+            enableMouseInteraction={true}
+          />
         </div>
       </div>
+    </div>
 
-      <div className="p-4 max-w-md mx-auto mt-20">
-        <h2 className="text-xl font-bold mb-4">Log In</h2>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="border p-2 w-full mb-2"
-        />
-        <input
-          className="border p-2 w-full mb-2"
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button
-          onClick={handleLogin}
-          className="bg-blue-600 text-white px-4 py-2 w-full rounded"
-        >
-          Login
-        </button>
+    {/* Page spacing */}
+    <div className="pt-30 px-4">
+
+      {/* Login Card */}
+      <div className="max-w-[520] mx-auto p-6 bg-gray-700 border border-green-600 rounded-2xl shadow-lg text-white">
+        <h2 className="text-2xl font-semibold mb-4">Log In</h2>
+
+        <div className="grid gap-3">
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full px-3 py-2 bg-gray-800 border border-green-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full px-3 py-2 bg-gray-800 border border-green-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+
+          <button
+            onClick={handleLogin}
+            className="mt-2 py-2 px-4 rounded-lg bg-green-600 border border-green-600 text-white font-medium hover:bg-green-500 transition"
+          >
+            Login
+          </button>
+        </div>
+
         <h3
           onClick={() => router.push("/signup")}
-          className="text-sm text-gray-400 mt-4 cursor-pointer"
+          className="text-sm text-gray-300 mt-4 cursor-pointer"
         >
           Not registered?{" "}
-          <span className="text-blue-600 hover:underline">
+          <span className="text-green-500 hover:underline">
             Join us now here
           </span>
         </h3>
+
         <h3
           onClick={() => router.push("/forgot-password")}
-          className="text-sm text-gray-400 mt-4 cursor-pointer"
+          className="text-sm text-gray-300 mt-2 cursor-pointer"
         >
           Forgotten password?{" "}
-          <span className="text-blue-600 hover:underline">Change it here</span>
+          <span className="text-green-500 hover:underline">
+            Change it here
+          </span>
         </h3>
-        {message && <p className="mt-2 text-sm">{message}</p>}
+
+        {message && (
+          <p className="mt-4 text-sm text-gray-200">{message}</p>
+        )}
       </div>
-    </>
-  );
+    </div>
+  </>
+);
 }
