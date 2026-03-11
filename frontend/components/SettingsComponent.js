@@ -130,7 +130,12 @@ export default function OptimizationSettingsForm({
 
   return (
     <div
-      className=" z-[90] rounded-l-xl bg-gray-700 w-120 md:w-180 fixed right-0 top-1/3 shadow ml-0 
+      className="     z-[90] rounded-l-xl bg-gray-700
+     w-[20rem]
+    md:w-[45rem]
+    fixed right-0 top-1/2 -translate-y-1/2
+    shadow
+   
   "
     >
       <div className="grid gap  ">
@@ -139,7 +144,7 @@ export default function OptimizationSettingsForm({
           return (
             <div
               key={p}
-              className="items-start gap-3 flex mt-3 mb-3 ml-10 md:ml-30"
+              className="flex flex-col md:flex-row items-start gap-2 md:gap-3 mt-3 mb-3 px-3 md:px-0 md:ml-10"
             >
               {/* Left: the toggle button */}
               <button

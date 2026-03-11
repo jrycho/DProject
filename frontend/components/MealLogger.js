@@ -114,7 +114,7 @@ export default function MealLogger({
 
   return (
     <>
-      <div className="grid w-1/2 grid-cols-1 md:grid-cols-2 ">
+      <div className="grid w-full  grid-cols-1 md:grid-cols-2 ">
         <div className="mx-auto md:mx-0 flex flex-col gap-2 ">
           {MEAL_TYPES.map((mealType) => {
             const log = logs.find((log) => log.type_of_meal === mealType);
@@ -150,7 +150,7 @@ export default function MealLogger({
             className="
   fixed top-1/2 -translate-y-1/2 z-[90]
   right-0
-  translate-x-0 group-open:-translate-x-120 md:group-open:-translate-x-180
+  translate-x-0 group-open:-translate-x-[20rem] md:group-open:-translate-x-[45rem]
   transition-transform duration-180
   [writing-mode:vertical-rl] rotate-180
   cursor-pointer list-none
@@ -164,7 +164,7 @@ export default function MealLogger({
             Settings
           </summary>
 
-          <div style={{ padding: 24 }}>
+          <div className="p-4 md:p-6 max-w-full overflow-x-hidden">
             <SettingsComponent
               className="transition-transform duration-300"
               initial={null}

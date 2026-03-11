@@ -12,7 +12,6 @@ function toNumber(x) {
 export default function Dashboard({ date, refresh }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  
 
   const [goals, setGoals] = useState(null);
   const [current, setCurrent] = useState(null);
@@ -28,7 +27,7 @@ export default function Dashboard({ date, refresh }) {
 
         const goalResp = await fetchTrackerData();
         const currentResp = await calculateDailyMacros(dateKey);
-        console.log("HERE" ,currentResp)
+        console.log("HERE", currentResp);
 
         if (cancelled) return;
 
@@ -82,7 +81,7 @@ export default function Dashboard({ date, refresh }) {
         goal={goals.calories}
         color="#1EAA02"
         unit="kcal"
-        size={250}
+        size={220}
       />
       <GraphComponent
         macroType="Protein"
@@ -90,7 +89,7 @@ export default function Dashboard({ date, refresh }) {
         goal={goals.protein}
         color="#22c55e"
         unit="g"
-        size={200}
+        size={180}
       />
       <GraphComponent
         macroType="Carbs"
@@ -98,7 +97,7 @@ export default function Dashboard({ date, refresh }) {
         goal={goals.carbs}
         color="#0055DF"
         unit="g"
-        size={200}
+        size={180}
       />
       <GraphComponent
         macroType="Fats"
@@ -106,7 +105,7 @@ export default function Dashboard({ date, refresh }) {
         goal={goals.fat}
         color="#C70000"
         unit="g"
-        size={200}
+        size={180}
       />
     </div>
   );

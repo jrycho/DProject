@@ -67,7 +67,7 @@ export default function MealButton({
     <div className="w-full relative z-[89]">
       <button
         onClick={onClick}
-        className={`w-130 ml-10 mr-10 px-4 py-2 text-white transition duration-300 border  
+        className={`w-full md:w-[26rem] md:ml-10 md:mr-10 px-4 py-2 text-white transition duration-300 border
         ${
           isActive
             ? "pt-2 pb-0 bg-gray-600 hover:bg-gray-500 rounded-b-none border-green-600 border-b-0 rounded-tl-xl" //always
@@ -81,16 +81,15 @@ export default function MealButton({
       </button>
 
       <div
-        className={`ml-10 mr-10 w-130 bg-gray-500 border border-green-600 rounded-br-2xl
-    transition-[height,opacity] duration-300
-    ${isActive ? "h-[26rem] opacity-100 -mt-px" : "h-0 opacity-0"}
-    overflow-hidden
-  `}
+        className={`w-full md:w-[26rem] md:ml-10 md:mr-10 bg-gray-500 border border-green-600 rounded-br-2xl
+      transition-[height,opacity] duration-300
+      ${isActive ? "h-[26rem] opacity-100 -mt-px" : "h-0 opacity-0"}
+      overflow-hidden`}
       >
         {/* ✅ CHANGED: add padding so content doesn’t touch edges */}
         <div className="h-full flex flex-col min-h-0 px-3 pb-3">
           {/* top toggle buttons */}
-          <div className="flex gap-2 pt-2">
+          <div className="flex flex-wrap gap-2 pt-2">
             <button
               onClick={() => setUseUserDb(false)}
               className={`px-3 py-1 rounded text-sm ${
@@ -135,7 +134,7 @@ export default function MealButton({
 
           {/* ingredients buttons */}
 
-          <div className="mt-0 flex-1 min-h-0 overflow-y-auto overflow-x-visible flex flex-col gap-2 pr-2 pt-2 custom-scrollbar">
+          <div className="mt-0 flex-1 min-h-0 overflow-y-auto overflow-x-hidden flex flex-col gap-2 pr-2 pt-2 custom-scrollbar">
             {items.map((it) => (
               <IngredientButton
                 key={it.name}

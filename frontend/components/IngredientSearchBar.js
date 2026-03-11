@@ -93,7 +93,7 @@ export default function IngredientSearchBar({
 return (
   // search bar component
   <div>
-    <div className="mt-6 w-110">
+    <div className="mt-6 w-full md:w-[24rem]">
       <h2 className="text-lg font-semibold mb-2 ml-4 text-white">
         Search Food:
       </h2>

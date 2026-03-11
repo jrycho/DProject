@@ -18,9 +18,9 @@ export default function BarcodeReaderMount({ onScan }) {
     <>
       <button
         onClick={handleScanning}
-        className="px-4 py-2 bg-green-600 text-white rounded"
+        className="px-4 py-2 bg-green-600  text-white rounded"
       >
-        <ScanLine size={20} className="w-12 h-6" />
+        <ScanLine size={16} className="w-8 h-6" />
       </button>
 
       {scanning && (

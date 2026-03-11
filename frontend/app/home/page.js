@@ -46,7 +46,7 @@ export default function Page() {
 
   return (
     <ProtectedPage>
-      <main className="p-4 pt-10">
+      <main className="p-4 pt-10 overflow-x-hidden">
         <Navbar className="relative z-[100]" />
 
         <div className="fixed inset-0 -z-10 pointer-events-none" aria-hidden>
@@ -63,7 +63,7 @@ export default function Page() {
           </div>
         </div>
 
-        <div className="justify-center">
+        <div className="flex justify-center">
           <DateSelector onClickDays={handleChangeDay} />
         </div>
 

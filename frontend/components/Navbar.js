@@ -6,18 +6,18 @@ import { useRouter } from "next/navigation";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
- const router = useRouter();
+  const router = useRouter();
 
   const handleLogout = () => {
     console.log("logout");
     localStorage.removeItem("token");
-    router.push("/login")
+    router.push("/login");
   };
 
   return (
     <>
-      <header className="fixed top-0 inset-x-0 z-95 bg-[#001303] border-b border-green-600 shadow-sm">
-        <div className="mx-auto flex h-25 max-w-7x1 items-center justify-between px-4">
+      <header className="w-full fixed top-0 inset-x-0 z-[95] bg-[#001303] border-b border-green-600 shadow-sm">
+        <div className="mx-auto flex h-25 max-w-full items-center justify-between px-4">
           {/* logo */}
           <a href="/home" className="text-lg  text-white">
             HomePage
@@ -25,7 +25,7 @@ export default function Navbar() {
           {/* Menu button  */}
           <button
             onClick={() => setOpen(true)}
-            className="inline-flex items-center gap-2 rounded-md px-3 py-2 hover:bg-[#035811]"
+            className="inline-flex items-center gap-2 rounded-md px-0 py-2 hover:bg-[#035811]"
             aria-label="Open menu"
           >
             <span className="text-sm text-white">Menu</span>
@@ -50,7 +50,7 @@ export default function Navbar() {
       {open && (
         <div
           onClick={() => setOpen(false)}
-          className="fixed inset-0 u-40 bg-black/40"
+          className="fixed inset-0 z-40 bg-black/40"
         />
       )}
 
@@ -110,7 +110,7 @@ export default function Navbar() {
             >
               Add my ingredients
             </a>
-                        <a
+            <a
               href="/manage_my_ingredients"
               className="block px-2 py-1 hover:bg-[#035811] rounded text-white"
             >

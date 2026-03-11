@@ -27,12 +27,11 @@ export default function IngredientButton({
   const [amount, setAmount] = useState(String(set_amount));
   const [pieceWeight, setPieceWeight] = useState(String(piece_weight));
 
-
-//prevent values on API relods
-useEffect(() => {
-  setAmount(String(set_amount ?? 0));
-  setPieceWeight(String(piece_weight ?? 0));
-}, [set_amount, piece_weight]);
+  //prevent values on API relods
+  useEffect(() => {
+    setAmount(String(set_amount ?? 0));
+    setPieceWeight(String(piece_weight ?? 0));
+  }, [set_amount, piece_weight]);
 
   const handleChange = (e) => {
     const value = e.target.value; // string
@@ -116,42 +115,13 @@ useEffect(() => {
   };
   return (
     <>
-      {/*   <div>
-    <button
-        type="button"
-        onClick={() => onRemove?.(id)}
-        title={`Remove ${name}`}
-        aria-label={`Remove ${name} (${label})`}
-        className="bg-gray-600  border-green-600 border rounded-xl shadow-sm hover:bg-gray-500 active:scale-[0.98] 
-        focus:outline-none focus:ring-2 focus:ring-offset-2
-        
-        inline-flex flex-col  gap-2 justify-center                  
-        px-5 py-3 ml-14 text-sm  text-white font-sans
-        
-        w-100 h-20"
-    >
-      <span className="font-sans truncate  ">{name}</span>
-      <span className="text-xs text-gray-300 items-start">{label}</span>
-    </button>
-        <input
-        type="number"
-        min="1"
-        value={amount}
-        onChange={handleChange}
-        className="w-20 px-2 py-1 rounded border border-gray-500
-                   bg-gray-700 text-white text-sm
-                   focus:outline-none focus:ring-2 focus:ring-green-500"
-        placeholder="g"
-      />
-    </div>*/}
-
-      <div className="ml-14 w-100 h-29 relative">
+      <div className="ml-6  flex justify-center max-w-[18rem] w-[18rem] md:w-[20rem] min-h-[8rem] relative">
         <div
           className="bg-gray-600 border-green-600 border rounded-xl shadow-sm
                hover:bg-gray-500 active:scale-[0.98]
                focus-within:ring-2 focus-within:ring-offset-2
                flex items-center justify-between
-               px-5 py-3 text-sm text-white font-sans h-full"
+               px-5 py-3 text-sm text-white font-sans h-full overflow-hidden"
         >
           {/* Left side - Info */}
           <div className="flex flex-col gap-1 max-w-[60%]">

@@ -24,11 +24,11 @@ export default function DateSelector({ onClickDays }) {
   return (
     <>
       {/* Day navigation */}
-      <div className="relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen bg-gray-600 ">
-        <div className="flex justify-center mb-4 min-h-10 items-center border border-green-600">
+      <div className="w-full bg-gray-600 h-[2.5rem] mb-2">
+        <div className="flex flex-wrap justify-center mb-4 min-h-10 items-center border border-green-600">
           <button
             onClick={() => changeDay(-1)}
-            className="bg-gray-700 px-3 py-1 rounded hover:bg-gray-500 text-white w-30 h-8 "
+            className="bg-gray-700 px-3 py-1 rounded hover:bg-gray-500 text-white min-w-[110px] h-8 "
           >
             ◀ Previous
           </button>
@@ -44,7 +44,7 @@ export default function DateSelector({ onClickDays }) {
 
           <button
             onClick={() => changeDay(1)}
-            className="bg-gray-700 px-3 py-1 rounded hover:bg-gray-500 text-white w-30 h-8"
+            className="bg-gray-700 px-3 py-1 rounded hover:bg-gray-500 text-white min-w-[80px] h-8"
           >
             Next ▶
           </button>
