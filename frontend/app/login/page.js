@@ -108,7 +108,7 @@ export default function Login() {
         </h3>
 
         <h3
-          onClick={() => router.push("/forgot-password")}
+          onClick={() => router.push("/forgotten_password")}
           className="text-sm text-gray-300 mt-2 cursor-pointer"
         >
           Forgotten password?{" "}

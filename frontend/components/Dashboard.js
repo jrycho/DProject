@@ -9,9 +9,10 @@ function toNumber(x) {
   return Number.isFinite(n) ? n : 0;
 }
 
-export default function Dashboard({ date }) {
+export default function Dashboard({ date, refresh }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  
 
   const [goals, setGoals] = useState(null);
   const [current, setCurrent] = useState(null);
@@ -59,7 +60,7 @@ export default function Dashboard({ date }) {
     return () => {
       cancelled = true;
     };
-  }, [date]);
+  }, [date, refresh]);
 
   if (loading) {
     return <div className="p-6 text-sm text-gray-500">Loading dashboard…</div>;

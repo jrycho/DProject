@@ -5,14 +5,13 @@ from email.message import EmailMessage
 import os
 from dotenv import load_dotenv
 import smtplib
+import resend
+
 
 load_dotenv()
+resend_api_key = os.getenv("RESEND_API_KEY")
 
-MAILTRAP_HOST = "sandbox.smtp.mailtrap.io"
-MAILTRAP_PORT = 587
-MAILTRAP_USER = "ca979ca8ebdfce"
-MAILTRAP_PASS = os.getenv("SMTP_PASS")
-FROM_EMAIL = "noreply@jrnoreply.com"
+
 
 
 
@@ -39,23 +38,25 @@ def get_reset_token():
 
 
 def send_reset_email(to_email, reset_link):
-    msg = EmailMessage()
-    msg["Subject"] = "Reset your password"
-    msg["From"] = FROM_EMAIL
-    msg["To"] = to_email
-
-    msg.set_content(
-            f"""
-    You requested a password reset.
-
-    Reset link (valid 30 minutes):
-    {reset_link}
-
-    If you didn’t request this, ignore this email.
+    html = f"""
+    <div style="font-family: Arial, sans-serif; line-height: 1.5;">
+        <h2>Reset your password</h2>
+        <p>We received a request to reset your password.</p>
+        <p>
+            <a href="{reset_link}" style="display:inline-block;padding:10px 16px;text-decoration:none;border-radius:6px;">
+                Reset Password
+            </a>
+        </p>
+        <p>This link expires in {RESET_TOKEN_MINUTES} minutes.</p>
+        <p>If you did not request this, you can safely ignore this email.</p>
+    </div>
     """
-        )
 
-    with smtplib.SMTP(MAILTRAP_HOST, MAILTRAP_PORT) as server:
-        server.starttls()
-        server.login(MAILTRAP_USER, MAILTRAP_PASS)
-        server.send_message(msg)
+    return resend.Emails.send(
+        {
+            "from": "Test <onboarding@resend.dev>",
+            "to": [to_email],
+            "subject": "Reset your password",
+            "html": html,
+        }
+    )

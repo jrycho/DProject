@@ -50,11 +50,15 @@ async def change_password(db, token_hash: str, new_pw_hash: str):
     if not user:
         return False
 
-    if not user.get("reset_hash_expires"):
+    expires = user["reset_hash_expires"]
+
+    # make DB datetime UTC-aware if it isn't
+    if expires.tzinfo is None:
+        expires = expires.replace(tzinfo=timezone.utc)
+
+    if expires < datetime.now(timezone.utc):
         return False
 
-    if user["reset_hash_expires"] < datetime.now(timezone.utc):
-        return False
 
     await db["users"].update_one(
         {"_id": user["_id"]},

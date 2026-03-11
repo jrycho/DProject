@@ -61,48 +61,58 @@ export default function ResetPasswordPage() {
       <ThreadsBackground />
       <Navbar />
 
-      <div style={{ maxWidth: 420, margin: "40px auto" }}>
-        <h1 className="text-xl font-bold text-center">Reset password</h1>
+      <div className="pt-30">
+        {/* Background */}
+        <div className="fixed inset-0 -z-10 pointer-events-none" aria-hidden>
+          <div className="absolute inset-0">
+            <div className="w-full h-[600px] relative">
+              <ThreadsBackground
+                amplitude={1}
+                distance={0}
+                enableMouseInteraction={true}
+              />
+            </div>
+          </div>
+        </div>
 
-        <form onSubmit={submit}>
-          <label>New password</label>
-          <input
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            type="password"
-            required
-            style={{
-              width: "100%",
-              padding: 10,
-              marginTop: 6,
-              marginBottom: 12,
-            }}
-          />
+        {/* Form container */}
+        <div className="max-w-[420px] mx-auto mt-10 p-6 bg-gray-700 border border-green-600 rounded-2xl shadow-lg text-white">
+          <h1 className="text-xl font-bold text-center mb-4">Reset password</h1>
 
-          <label>Confirm password</label>
-          <input
-            value={password2}
-            onChange={(e) => setPassword2(e.target.value)}
-            type="password"
-            required
-            style={{
-              width: "100%",
-              padding: 10,
-              marginTop: 6,
-              marginBottom: 12,
-            }}
-          />
+          <form onSubmit={submit} className="grid gap-3">
+            <div>
+              <label className="text-sm">New password</label>
+              <input
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                type="password"
+                required
+                className="w-full px-3 py-2 mt-1 bg-gray-800 border border-green-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              />
+            </div>
 
-          <button
-            disabled={loading}
-            type="submit"
-            style={{ width: "100%", padding: 10 }}
-          >
-            {loading ? "Resetting..." : "Reset password"}
-          </button>
-        </form>
+            <div>
+              <label className="text-sm">Confirm password</label>
+              <input
+                value={password2}
+                onChange={(e) => setPassword2(e.target.value)}
+                type="password"
+                required
+                className="w-full px-3 py-2 mt-1 bg-gray-800 border border-green-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              />
+            </div>
 
-        {msg && <p style={{ marginTop: 12 }}>{msg}</p>}
+            <button
+              disabled={loading}
+              type="submit"
+              className="mt-2 py-2 px-4 rounded-lg bg-green-600 border border-green-600 text-white font-medium hover:bg-green-500 transition disabled:opacity-60"
+            >
+              {loading ? "Resetting..." : "Reset password"}
+            </button>
+          </form>
+
+          {msg && <p className="mt-4 text-sm text-gray-200">{msg}</p>}
+        </div>
       </div>
     </>
   );

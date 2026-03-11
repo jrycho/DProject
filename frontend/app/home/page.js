@@ -23,6 +23,7 @@ export default function Page() {
   ]);
   const [mealMacros, setMealMacros] = useState({ "No macros yet": "-" });
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [dashboardRefresh, setDashboardRefresh] = useState(0);
 
   const handleChange = useCallback(
     ({ activeMealId, activeMealType, settingsObj }) => {
@@ -36,6 +37,7 @@ export default function Page() {
   const handleOptimizeResults = useCallback(({ mealWeights, mealMacros }) => {
     setMealWeights(Array.isArray(mealWeights) ? [...mealWeights] : []);
     setMealMacros(mealMacros ? { ...mealMacros } : {});
+    setDashboardRefresh((prev) => prev + 1);
   }, []);
 
   const handleChangeDay = useCallback(({ selectedDate }) => {
@@ -67,7 +69,7 @@ export default function Page() {
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3 md:grid-rows-2">
           <div className="order-2 justify-center md:col-start-2 md:col-end-4 md:row-start-1 md:row-end-2">
-            <Dashboard date={selectedDate} />
+            <Dashboard date={selectedDate} refresh={dashboardRefresh} />
           </div>
 
           <div className="order-4 justify-center md:col-start-1 md:col-end-2 md:row-start-1 md:row-end-3 z-[90]">

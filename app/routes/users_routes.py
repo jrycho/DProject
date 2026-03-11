@@ -7,7 +7,13 @@ from datetime import datetime, timezone
 from app.db_files.crud.settings_saves import save_user_settings
 from fastapi.responses import JSONResponse
 from app.security.security import create_access_token
+import resend
+from dotenv import load_dotenv
+from app.models.forgotPasswordRequest import ForgotPasswordRequest
+import os
 
+load_dotenv()
+DOMAIN = os.getenv("DOMAIN")
 
 router = APIRouter(prefix="/Signup", tags=["Signup"])
 settings_placeholder_values = {
@@ -61,19 +67,20 @@ async def signup(user: UserCreate, db=Depends(get_db)):
 
 #NOT YET DONE:
 @router.post("/forgotten_password")
-async def forgotten_password(email: str, db=Depends(get_db)):
+async def forgotten_password(payload: ForgotPasswordRequest, db=Depends(get_db)):
+    email = payload.email
     resp = await get_user_by_email(db, email)
     if not resp:
         return {"message": "If email exists, reset link was sent"}
     
     token, token_hash, expires_at = get_reset_token()
-    await update_reset_hashes(db = Depends(get_db), email=email, token_hash=token_hash, expires_at=expires_at)
+    await update_reset_hashes(db =db, email=email, reset_hash=token_hash, expires=expires_at)
 
-    reset_link = f"http://localhost:3000/reset-password?token={token}"
+    reset_link = f"{DOMAIN}/reset_password?token={token}"
     send_reset_email(email, reset_link)
     
 
-    return {"message": "Password reset link sent to your email"}
+    return {"message": "If email exists, reset link was sent"}
 
 
 
