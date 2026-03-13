@@ -40,7 +40,7 @@ async def create_user_ingredients(user_id: str,  payload: dict):
 
     barcode = f"custom-{user_id}-{uuid4().hex[:8]}"
     ingredient = User_IngredientDoc(user_id=str(user_id), barcode=barcode, share_key=user_key,  **payload)
-    doc = ingredient.model_dump(by_alias = True)
+    doc = ingredient.model_dump(by_alias = True, exclude_none=True)
     resp = await user_ingredients_collection.insert_one(doc)
     return resp
 
@@ -134,3 +134,9 @@ async def delete_user_ingredient_secure(barcode, user_id: str):
         raise HTTPException(status_code=403, detail="Not authorized")
     await user_ingredients_collection.delete_one({"code": barcode})
     return {"message": "Ingredient deleted"}
+
+async def user_shared_keys_init(user_id: str):
+    doc = await users_collection.update_one({"_id": user_id}, {"$addToSet": {"shared_keys": "Default_key_jghsfahpahfpjcgnpasqj32646"}}, upsert=True)
+    if doc.modified_count == 0:
+        raise HTTPException(status_code=409, detail="Error setting shared keys")
+    return doc

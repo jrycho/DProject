@@ -25,7 +25,7 @@ export default function BarcodeReaderMount({ onScan }) {
 
       {scanning && (
         <Portal>
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="fixed inset-0  z-[97] flex items-center justify-center bg-black/60">
             <div className=" relative p-6 rounded-lg ">
               <button
                 onClick={() => setScanning(false)}
@@ -34,6 +34,7 @@ export default function BarcodeReaderMount({ onScan }) {
                 ✕
               </button>
               <BarcodeScannerComponent
+
                 scanning={scanning}
                 onScan={(code) => {
                   if (onScan) onScan(code); // send barcode to parent

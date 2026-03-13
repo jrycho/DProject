@@ -4,6 +4,7 @@ from bson import ObjectId
 from app.db_files.models.ingredient_entry import IngredientEntryTemp
 from fastapi import HTTPException, status
 from datetime import datetime, timezone
+from pymongo.errors import PyMongoError
 
 
 
@@ -11,18 +12,32 @@ async def create_temp_meal( user_id: str):
     doc = MealLogModelTemp(
         user_id=user_id,
         ingredients=[]
-    ).model_dump(by_alias=True)
+    ).model_dump(by_alias=True, exclude_none=True)
 
     res = await temp_ingredients_collection.insert_one(doc)
 
     return await temp_ingredients_collection.find_one(
-        {"_id": res.inserted_id}
+        {"_id": res.inserted_id}, {"_id": 0}
     )
 
 async def get_temp_meal(user_id: str):
-    return await temp_ingredients_collection.find_one(
-        {"user_id": user_id}
-    )
+    try:
+        doc = await temp_ingredients_collection.find_one(
+        {"user_id": user_id}, {"_id": 0}
+        )
+
+    except PyMongoError as e:
+        raise RuntimeError(f"Database read failed: {e}")
+
+    if doc is None:
+        try:
+            doc = await create_temp_meal(user_id)
+        except PyMongoError as e:
+            raise RuntimeError(f"Database read failed: {e}")
+    return doc
+
+
+        
 
 async def add_ingredient_to_temp_meal(user_id: str, ingredient: IngredientEntryTemp): 
     doc = await get_temp_meal(user_id)

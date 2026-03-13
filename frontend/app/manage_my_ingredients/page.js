@@ -52,9 +52,9 @@ export default function ManageMyIngredients() {
       <main className="relative min-h-screen p-4">
         <Navbar />
         <ThreadsBackground />
-
+      <div className="pt-14">
         {/* Content card (same styling as your temp-log page) */}
-        <div className="max-w-[520px] mx-auto p-6 bg-gray-700 backdrop-blur rounded-lg shadow">
+        <div className="w-full md:max-w-[520px] mx-auto p-6 bg-gray-700 backdrop-blur rounded-lg shadow ">
           <h1 className="text-2xl font-semibold mb-4 text-white">
             Manage my ingredients
           </h1>
@@ -84,7 +84,7 @@ export default function ManageMyIngredients() {
               </p>
             )}
           </div>
-        </div>
+        </div></div>
       </main>
     </ProtectedPage>
   );

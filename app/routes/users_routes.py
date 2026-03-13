@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
-from app.db_files.crud.users import create_user, get_user_by_email, update_reset_hashes, clear_reset_hashes, get_user_by_token, hash_password, change_password
+from app.db_files.crud.users import create_user, get_user_by_email, update_reset_hashes, clear_user ,clear_reset_hashes, get_user_by_token, hash_password, change_password
 from app.db_files.core.database import get_db
 from app.db_files.models.users import UserCreate
 from app.utils.forgotten_password import get_reset_token, send_reset_email, hash_token
@@ -11,6 +11,7 @@ import resend
 from dotenv import load_dotenv
 from app.models.forgotPasswordRequest import ForgotPasswordRequest
 import os
+from app.db_files.crud.user_db_crud import user_shared_keys_init
 
 load_dotenv()
 DOMAIN = os.getenv("DOMAIN")
@@ -45,7 +46,12 @@ async def signup(user: UserCreate, db=Depends(get_db)):
     for meal_type in MEAL_TYPES:
         await save_user_settings(user_id=str(uid), meal_type=meal_type, settings=settings_placeholder_values)
 
+    
     token = create_access_token(data={"sub": str(uid)})
+
+
+
+
     """
     response = JSONResponse(content={"message": "User created"})
     response.set_cookie(

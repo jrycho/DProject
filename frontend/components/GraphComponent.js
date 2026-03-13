@@ -20,9 +20,9 @@ export default function GraphComponent({
     { name: "current", value: progress },
     { name: "remaining", value: remaining },
   ];
-
+/*style={{ width: size, height: size }}*/
   return (
-    <div style={{ width: size, height: size }} className="relative">
+    <div  className="relative w-30 h-30 md:w-40 md:w-40h-40">
       <ResponsiveContainer>
         <PieChart>
           <Pie
@@ -42,11 +42,11 @@ export default function GraphComponent({
 
       {/* center text */}
       <div className="mt-2 absolute inset-0 flex flex-col items-center justify-center text-center">
-        <div className="text-xm font-bold text-gray-200">{macroType}</div>
-        <div className="text-lg font-semibold">
+        <div className="text-xs md:text-xm font-bold text-gray-200">{macroType}</div>
+        <div className="text-xm md:text-lg font-semibold">
           {safeCurrent}/{safeGoal}
         </div>
-        <div className="text-xm font-bold text-gray-200">{unit}</div>
+        <div className="text-xs md:text-xm font-bold text-gray-200">{unit}</div>
       </div>
     </div>
   );

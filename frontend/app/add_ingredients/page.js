@@ -83,115 +83,109 @@ export default function AddMacrosSimple() {
   const ALL = [...CORE_NUTRIENTS, ...EXTRA_NUTRIENTS];
 
   return (
-  <ProtectedPage>
-    <main className="relative min-h-screen p-4">
-      <Navbar />
-      <IngredientModeSwitcher />
+    <ProtectedPage>
+      <main className="relative min-h-screen p-4">
+        <Navbar />
+        <IngredientModeSwitcher />
 
-      {/* Background */}
-      <div className="fixed inset-0 -z-10 pointer-events-none">
-        <div className="absolute inset-0"></div>
-      </div>
-
-      {/* Content */}
-      <div className="max-w-[520px] mx-auto p-6 bg-gray-700 border border-green-600 rounded-2xl shadow-lg text-white">
-        <h1 className="text-2xl font-semibold mb-4">
-          Add ingredient (macros)
-        </h1>
-
-        {/* Extras selector */}
-        <div className="mt-3">
-          <button
-            type="button"
-            onClick={() => setShowExtras((v) => !v)}
-            className="px-3 py-1.5 text-sm border border-green-600 rounded-lg bg-gray-600 hover:bg-gray-500 transition"
-          >
-            {showExtras ? "Hide extras" : "+ Add nutrients"}
-          </button>
-
-          {showExtras && (
-            <div className="mt-3 border border-green-600 p-3 rounded-lg bg-gray-600 space-y-1">
-              {EXTRA_NUTRIENTS.map((n) => (
-                <label
-                  key={n.key}
-                  className="flex items-center gap-2 cursor-pointer text-sm"
-                >
-                  <input
-                    type="checkbox"
-                    checked={selected.includes(n.key)}
-                    onChange={() => toggleExtra(n.key)}
-                    className="accent-green-600"
-                  />
-                  {n.label}
-                </label>
-              ))}
-            </div>
-          )}
+        {/* Background */}
+        <div className="fixed inset-0 -z-10 pointer-events-none">
+          <div className="absolute inset-0"></div>
         </div>
 
-        {/* Form */}
-        <form onSubmit={onSubmit} className="grid gap-3 mt-4">
+        {/* Content */}
+        <div className="max-w-[520px] mx-auto p-6 bg-gray-700 border border-green-600 rounded-2xl shadow-lg text-white">
+          <h1 className="text-2xl font-semibold mb-4">
+            Add ingredient via macros
+          </h1>
 
-          {/* Name */}
-          <input
-            placeholder="Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            className="w-full px-3 py-2 bg-gray-800 border border-green-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-          />
+          {/* Extras selector */}
+          <div className="mt-3">
+            <button
+              type="button"
+              onClick={() => setShowExtras((v) => !v)}
+              className="px-3 py-1.5 text-sm border border-green-600 rounded-lg bg-gray-600 hover:bg-gray-500 transition"
+            >
+              {showExtras ? "Hide extras" : "+ Add nutrients"}
+            </button>
 
-          {/* Priority */}
-          <input
-            type="number"
-            min="0"
-            step="1"
-            placeholder="Priority"
-            value={priorityUser}
-            onChange={(e) => setPriorityUser(e.target.value)}
-            required
-            className="w-full px-3 py-2 bg-gray-800 border border-green-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-          />
+            {showExtras && (
+              <div className="mt-3 border border-green-600 p-3 rounded-lg bg-gray-600 space-y-1">
+                {EXTRA_NUTRIENTS.map((n) => (
+                  <label
+                    key={n.key}
+                    className="flex items-center gap-2 cursor-pointer text-sm"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selected.includes(n.key)}
+                      onChange={() => toggleExtra(n.key)}
+                      className="accent-green-600"
+                    />
+                    {n.label}
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
 
-          {/* Nutrient inputs */}
-          {selected.map((key) => {
-            const meta = ALL.find((n) => n.key === key);
+          {/* Form */}
+          <form onSubmit={onSubmit} className="grid gap-3 mt-4">
+            {/* Name */}
+            <input
+              placeholder="Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              className="w-full px-3 py-2 bg-gray-800 border border-green-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
 
-            return (
-              <input
-                key={key}
-                type="number"
-                min="0"
-                step="any"
-                placeholder={meta.label}
-                value={values[key] ?? ""}
-                onChange={(e) => setNutrientValue(key, e.target.value)}
-                required
-                className="w-full px-3 py-2 bg-gray-800 border border-green-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
-            );
-          })}
+            {/* Priority */}
+            <select
+              value={priorityUser}
+              onChange={(e) => setPriorityUser(e.target.value)}
+              required
+              className="w-full px-3 py-2 bg-gray-800 border border-green-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+            >
+              <option value="">Priority</option>
+              <option value={0}>Supporting ingredient</option>
+              <option value={1}>Main ingredient</option>
+            </select>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="mt-2 py-2 px-4 rounded-lg bg-green-600 border border-green-600 text-white font-medium hover:bg-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition"
-          >
-            {loading ? "Sending..." : "Send"}
-          </button>
-        </form>
+            {/* Nutrient inputs */}
+            {selected.map((key) => {
+              const meta = ALL.find((n) => n.key === key);
 
-        {/* Error */}
-        {error && (
-          <>
-            <h2 className="mt-4 text-lg font-semibold text-red-500">Error</h2>
+              return (
+                <input
+                  key={key}
+                  type="number"
+                  min="0"
+                  step="any"
+                  placeholder={meta.label}
+                  value={values[key] ?? ""}
+                  onChange={(e) => setNutrientValue(key, e.target.value)}
+                  required
+                  className="w-full px-3 py-2 bg-gray-800 border border-green-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+              );
+            })}
 
-            <pre className="mt-2 bg-red-900/40 text-red-300 p-3 rounded text-sm overflow-auto">
-              {error}
-            </pre>
-          </>
+            <button
+              type="submit"
+              disabled={loading}
+              className="mt-2 py-2 px-4 rounded-lg bg-green-600 border border-green-600 text-white font-medium hover:bg-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition"
+            >
+              {loading ? "Sending..." : "Save ingredient!"}
+            </button>
+          </form>
+
+        {result && (
+          <p className="text-white font-medium">Saved successfully!</p>
         )}
-      </div>
-    </main>
-  </ProtectedPage>
-);}
+
+
+        </div>
+      </main>
+    </ProtectedPage>
+  );}

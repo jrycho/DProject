@@ -53,3 +53,42 @@ input[type=number] {
   scrollbar-width: thin;
   scrollbar-color: rgba(30 37 33 / 0.93) transparent;
 }
+
+
+
+
+.custom-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 6px;
+  background: rgba(30, 37, 33, 0.93); /* light track */
+  outline: 2px thin #16a34a;
+}
+
+/* Chrome / Safari / Edge */
+.custom-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+
+  background: rgba(30, 37, 33, 0.93); /* dark center */
+  border: 2px solid #16a34a; /* green-600 */
+
+  cursor: pointer;
+}
+
+/* Firefox */
+.custom-range::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+
+  background: rgba(30, 37, 33, 0.93);
+  border: 2px solid #16a34a;
+
+  cursor: pointer;
+}

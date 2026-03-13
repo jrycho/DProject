@@ -18,6 +18,7 @@ async def create_user(db, user):
         "is_admin": False,
         "created_at": datetime.now(),
         "share_key": uuid4().hex,
+        "shared_keys": []
     }
     return await db["users"].insert_one(user_data)
 
@@ -114,3 +115,12 @@ async def change_username_crud(db, data: dict, new_username: str):
             detail="Username is already the same",)
 
     return {"message": "success"}
+
+
+async def clear_user(db, user_id:str):
+    resp = await db["users"].delete_one({"_id": (user_id)})
+    if resp.deleted_count == 0:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",)
+    return True

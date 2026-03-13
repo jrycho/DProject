@@ -1,6 +1,8 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import Calendar from "./Calendar";
+import { ArrowRight, ArrowLeft } from "lucide-react";
+
 export default function DateSelector({ onClickDays }) {
   const [selectedDate, setSelectedDate] = useState(new Date());
 
@@ -28,9 +30,9 @@ export default function DateSelector({ onClickDays }) {
         <div className="flex flex-wrap justify-center mb-4 min-h-10 items-center border border-green-600">
           <button
             onClick={() => changeDay(-1)}
-            className="bg-gray-700 px-3 py-1 rounded hover:bg-gray-500 text-white min-w-[110px] h-8 "
+            className="bg-gray-700 px-3 py-1 rounded hover:bg-gray-500 text-white min-w-[30px] h-8 "
           >
-            ◀ Previous
+            <ArrowLeft className="w-5 h-5" />
           </button>
           <Calendar value={selectedDate} onChange={setSelectedDate} />
           {/*
@@ -44,9 +46,9 @@ export default function DateSelector({ onClickDays }) {
 
           <button
             onClick={() => changeDay(1)}
-            className="bg-gray-700 px-3 py-1 rounded hover:bg-gray-500 text-white min-w-[80px] h-8"
+            className="bg-gray-700 px-3 py-1 rounded hover:bg-gray-500 text-white min-w-[30px] h-8"
           >
-            Next ▶
+            <ArrowRight className="w-5 h-5" />
           </button>
         </div>
       </div>

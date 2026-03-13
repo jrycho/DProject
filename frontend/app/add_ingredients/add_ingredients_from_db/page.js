@@ -100,7 +100,7 @@ return (
 
       {/* Content */}
       <div className="max-w-[520px] mx-auto p-6 bg-gray-700 border border-green-600 rounded-2xl shadow-lg text-white">
-        <h1 className="text-2xl font-semibold mb-4">Build meal (temp log)</h1>
+        <h1 className="text-2xl font-semibold mb-4">Build ingredient like a meal</h1>
 
         {/* Mode switch */}
         <div className="flex gap-2 mb-4">
@@ -183,33 +183,28 @@ return (
             className="w-full px-3 py-2 bg-gray-800 border border-green-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
           />
 
-          <input
-            type="number"
-            min="0"
-            step="1"
-            placeholder="Priority"
+          <select
             value={priorityUser}
             onChange={(e) => setPriorityUser(e.target.value)}
+            required
             className="w-full px-3 py-2 bg-gray-800 border border-green-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-          />
+          >
+            <option value="">Priority</option>
+            <option value={0}>Supporting ingredient</option>
+            <option value={1}>Main ingredient</option>
+          </select>
 
           <button
             type="submit"
             disabled={saving || !items.length}
             className="mt-1 py-2 px-4 rounded-lg bg-green-600 border border-green-600 text-white font-medium hover:bg-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition"
           >
-            {saving ? "Saving..." : "Save meal"}
+            {saving ? "Saving..." : "Save ingredient!"}
           </button>
         </form>
 
-        {/* Error */}
-        {error && (
-          <>
-            <h2 className="mt-4 text-lg font-semibold text-red-500">Error</h2>
-            <pre className="mt-2 bg-red-900/40 text-red-300 p-3 rounded text-sm overflow-auto">
-              {error}
-            </pre>
-          </>
+        {result && (
+          <p className="text-white font-medium">Saved successfully!</p>
         )}
       </div>
     </main>

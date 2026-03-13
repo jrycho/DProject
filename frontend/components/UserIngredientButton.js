@@ -72,7 +72,7 @@ export default function UserIngredientButton({ data, onRemove }) {
   };
 
   return (
-    <div className="ml-14 w-100 h-29 relative">
+    <div className=" w-full h-29 relative">
       <div
         className="bg-gray-600 border-green-600 border rounded-xl shadow-sm
                hover:bg-gray-500 active:scale-[0.98]

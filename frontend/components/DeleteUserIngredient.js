@@ -14,7 +14,7 @@ export default ({ data, removeFunction, closeFunction }) => {
   
      return (
     <>
-      <div className="ml-14 w-100 h-29 relative">
+      <div className=" w-full h-29 md:h-29 relative">
         <div
           className="bg-gray-600 border-green-600 border rounded-xl shadow-sm
                hover:bg-gray-500 active:scale-[0.98]
@@ -23,7 +23,7 @@ export default ({ data, removeFunction, closeFunction }) => {
                px-5 py-3 text-sm text-white font-sans h-full"
         >
           {/* Left side - Info */}
-          <div className="flex flex-col gap-1 max-w-[60%]">
+          <div className="flex flex-col gap-1 max-w-[50%] md:max-w-[50%]">
             <span className="truncate font-medium">{data.product_name}</span>
             <span className="text-xs text-gray-300">{label}</span>
           </div>
@@ -39,7 +39,7 @@ export default ({ data, removeFunction, closeFunction }) => {
           >
             X
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition" onClick={removeFunction}>
+          <button className="w-max-[40%] md:w-35 flex items-center gap-2 px-4 py-2 bg-red-500 text-white text-xs md:text-xm rounded-md hover:bg-red-600 transition" onClick={removeFunction}>
             <TrashIcon className="w-5 h-5"  />
             Delete ingredient
           </button>

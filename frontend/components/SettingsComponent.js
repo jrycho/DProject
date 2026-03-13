@@ -129,22 +129,14 @@ export default function OptimizationSettingsForm({
   );
 
   return (
-    <div
-      className="     z-[90] rounded-l-xl bg-gray-700
-     w-[20rem]
-    md:w-[45rem]
-    fixed right-0 top-1/2 -translate-y-1/2
-    shadow
-   
-  "
-    >
+    <div className="z-[90] rounded-l-xl bg-gray-700 w-[20rem] md:w-[45rem] fixed right-0 top-1/2 -translate-y-1/2 shadow max-h-[60vh] overflow-y-auto custom-scrollbar">
       <div className="grid gap  ">
         {properties.map((p, i) => {
           const active = isActive(i);
           return (
             <div
               key={p}
-              className="flex flex-col md:flex-row items-start gap-2 md:gap-3 mt-3 mb-3 px-3 md:px-0 md:ml-10"
+              className="flex flex-col md:flex-row items-start gap-1.5 md:gap-3 mt-3 mb-3 px-3 md:px-0 md:ml-10"
             >
               {/* Left: the toggle button */}
               <button
@@ -152,8 +144,8 @@ export default function OptimizationSettingsForm({
                 onClick={() => toggle(i)}
                 className={
                   active
-                    ? "bg-green-600 text-white text-xs md:text-xl px-3 py-2 rounded w-32 md:w-64 h-8 md:h-12"
-                    : "bg-green-600 text-black text-xs md:text-xl px-3 py-2 rounded w-32 md:w-64 h-8 md:h-12"
+                    ? "bg-green-600 text-white text-xs md:text-xl  px-3 py-2 rounded w-32 md:w-64 h-6 md:h-12"
+                    : "bg-green-600 text-black text-xs md:text-xl  px-3 py-2 rounded w-32 md:w-64 h-6 md:h-12"
                 }
               >
                 {active ? "✔" : "●"} {p}
@@ -180,7 +172,7 @@ export default function OptimizationSettingsForm({
                     max="10"
                     value={excess_weights[i] ?? ""}
                     onChange={(e) => setAt(setExcessWeights, i, e.target.value)}
-                    className="w-13 rotate-270 mt-3"
+                    className="w-13 rotate-270 mt-3 custom-range"
                   />
                   <span className="w-12 text-right text-sm mt-3">slack</span>
 
@@ -190,7 +182,7 @@ export default function OptimizationSettingsForm({
                     max="10"
                     value={slack_weights[i] ?? ""}
                     onChange={(e) => setAt(setSlackWeights, i, e.target.value)}
-                    className="w-13 rotate-270 mt-3"
+                    className="w-13 rotate-270 mt-3 custom-range"
                   />
                 </div>
               ) : (

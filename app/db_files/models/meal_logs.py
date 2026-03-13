@@ -41,7 +41,6 @@ class MealLogModelTemp(BaseModel):
     ingredients: List[IngredientEntryTemp] = Field(default_factory=list) 
     type_of_meal: Optional[str] = None  # e.g., "lunch", can be added later
     user_id: Optional[str] = None       # add when user accounts are implemented
-    user_settings_id: Optional[str] = None  # planned for future
     
 
 
