@@ -8,7 +8,7 @@ from app.db_files.core.database import get_db, db  # your real get_db
 from app.security.security import get_current_user_id, get_current_user
 
 import app.db_files.crud.ingredient_crud as ingredient_crud
-import app.db_files.crud.meal_logs as meal_logs_crud
+import app.db_files.crud.meal_logs_crud as meal_logs_crud
 import app.db_files.crud.optimization as optimization_crud
 import app.db_files.crud.settings_saves as settings_crud
 import app.db_files.core.database as db_module  # where real db lives

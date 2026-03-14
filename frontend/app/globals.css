@@ -92,3 +92,12 @@ input[type=number] {
 
   cursor: pointer;
 }
+
+
+
+/*react day picker in calendar*/
+.selected_day {
+  color: #16a34a;
+}
+
+

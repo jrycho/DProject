@@ -5,8 +5,14 @@ from fastapi import HTTPException, Depends
 from app.db_files.models.users import User  
 from bson import ObjectId
 from app.db_files.core.database import users_collection 
+from dotenv import load_dotenv
+import os
+from app.db_files.crud.users import get_user_by_ObjectID
 
-SECRET_KEY = "Working_on_it_CVUT_2025" #replace with OS environment variable
+
+load_dotenv()
+
+SECRET_KEY = os.getenv("SECRET_KEY") #replace with OS environment variable
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -79,7 +85,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> User: #! USED
         raise credentials_exception
 
     #find user in db
-    user_data = await users_collection.find_one({"_id": ObjectId(user_id)})
+    user_data = await get_user_by_ObjectID(collection=users_collection,  user_id=ObjectId(user_id))
     if not user_data:
         raise credentials_exception
 

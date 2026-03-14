@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
-from app.db_files.crud.meal_logs import create_meal_log, get_all_meal_logs, add_ingredient_to_log, delete_ingredient_from_meal_log, return_ingredients_button, update_set_and_piece_weights_crud
-from app.db_files.crud.meal_logs import get_meal_by_date
+from app.db_files.crud.meal_logs_crud import create_meal_log, get_all_meal_logs, add_ingredient_to_log, delete_ingredient_from_meal_log, return_ingredients_button, update_set_and_piece_weights_crud
+from app.db_files.crud.meal_logs_crud import get_meal_by_date
 from app.db_files.crud.ingredient_crud import get_or_fetch_ingredient_dict_sync, doc_to_ingredient_entry
 from app.utils.build_ingredient_from_barcode import build_ingredient_from_barcode
 from app.db_files.core.database import db
@@ -101,7 +101,7 @@ priority: int
 
 Checks if in state, if not there pull from db, if not in db HTTP exception
 """
-
+"""
 @router.post("/meal/{meal_id}/ingredient") #DELETABLE #!UNUSED
 async def add_ingredient_by_barcode(meal_id: str, barcode: str, priority: int, user_id: str = Depends(get_current_user_id)):
     #1 Check state, In state aditions for current work
@@ -141,6 +141,10 @@ async def add_ingredient_by_barcode(meal_id: str, barcode: str, priority: int, u
         }
     else:
         raise HTTPException(status_code=400, detail="Ingredient already exists in the meal.")
+"""
+    
+
+
     
 """  
 Remove ingredient by barcode
@@ -193,7 +197,6 @@ async def add_ingredient(barcode: str, meal_id: str, user_id: str = Depends(get_
 
 @router.get("/return_ingredients_for_buttons/{meal_id}")
 async def return_ingredients_for_buttons(meal_id: str, user_id: str = Depends(get_current_user_id)):
-    print("entered function")
     data = await return_ingredients_button(meal_id, user_id)
     return data
 

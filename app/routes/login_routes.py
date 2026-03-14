@@ -3,10 +3,11 @@ from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import JSONResponse
 from app.db_files.core.database import get_db
 from app.db_files.models.users import UserPublic
-from app.db_files.crud.users import verify_password, change_username_crud
+from app.db_files.crud.users import verify_password, change_username_crud, get_user_by_email
 from app.security.security import create_access_token
 from app.security.security import get_current_user
 from datetime import timezone, datetime
+
 
 router = APIRouter(prefix="/Auth", tags=["Auth"])
 
@@ -24,7 +25,7 @@ Raises:
 """
 @router.post("/login") #!USED
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db=Depends(get_db)):
-    user = await db["users"].find_one({"email": form_data.username.lower().strip()})
+    user = await get_user_by_email(db=db, email= form_data.username.lower().strip())
     if not user or not await verify_password(form_data.password, user["password"]):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from app.db_files.crud.user_db_crud import search_crud, create_user_ingredients, get_user_ingredients, get_user_key as get_user_key_crud, add_user_shared_keys as add_user_shared_keys_crud, get_user_shared_keys as get_user_shared_keys_crud
-from app.db_files.crud.meal_logs import ingredient_doc_to_button_json
+from app.db_files.crud.meal_logs_crud import ingredient_doc_to_button_json
 from app.security.security import get_current_user_id
 from app.db_files.crud.tracker_crud import save_new_user_goal, get_user_goals, find_meal_logs_of_user_and_date, get_macros_from_meal_log, sum_macros_from_meals
 

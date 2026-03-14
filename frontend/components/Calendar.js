@@ -45,7 +45,7 @@ export default function Calendar({ value, onChange }) {
           <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
             <div
               ref={popupRef}
-              className="bg-gray-500 text-white p-4 rounded shadow-lg"
+              className="bg-gray-500 text-white p-4 rounded shadow-lg day_selected:bg-green-600"
             >
               <DayPicker
                 mode="single"

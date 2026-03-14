@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends
 
 from app.optimizers.gwo_optimizer import gwo_optimizer
 from app.db_files.crud.settings_saves import get_settings_obj
-from app.db_files.crud.meal_logs import build_input_object_from_meal_log
+from app.db_files.crud.meal_logs_crud import build_input_object_from_meal_log
 from app.security.security import get_current_user_id
 from app.db_files.crud.optimization import save_optimization_macros_crud, save_optimization_weights_crud, get_optimization_macros_crud, get_optimization_weights_crud
 

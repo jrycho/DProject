@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
-from app.db_files.crud.users import create_user, get_user_by_email, update_reset_hashes, clear_user ,clear_reset_hashes, get_user_by_token, hash_password, change_password
+from app.db_files.crud.users import create_user, get_user_by_email, update_reset_hashes,  hash_password, change_password, email_not_registered
 from app.db_files.core.database import get_db
 from app.db_files.models.users import UserCreate
 from app.utils.forgotten_password import get_reset_token, send_reset_email, hash_token
@@ -39,7 +39,7 @@ Raises:
 @router.post("/signup") #! USED
 async def signup(user: UserCreate, db=Depends(get_db)):
     email = user.email.lower().strip()
-    if await db["users"].find_one({"email": email}):
+    if not await email_not_registered(db=db, email=email):
         raise HTTPException(status_code=400, detail="Email already exists")
     result = await create_user(db, user)
     uid = result.inserted_id

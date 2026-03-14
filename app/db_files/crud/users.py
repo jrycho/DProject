@@ -3,6 +3,7 @@ from datetime import datetime, timezone, timedelta
 from uuid import uuid4
 from bson import ObjectId
 from fastapi import HTTPException, status
+from pymongo.errors import PyMongoError
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -26,7 +27,12 @@ async def verify_password(plain_password: str, hashed_password: str) -> bool:
     return  pwd_context.verify(plain_password, hashed_password)
 
 async def get_user_by_email(db, email: str):
-    user = await db["users"].find_one({"email": email})
+    try:
+        user = await db["users"].find_one({"email": email})
+    except PyMongoError as e:
+        raise RuntimeError(f"Error retrieving user by email: {e}")
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
     return user
 
 async def get_user_by_token(db, hashed_token: str):
@@ -124,3 +130,26 @@ async def clear_user(db, user_id:str):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found",)
     return True
+
+
+async def get_user_by_ObjectID(collection, user_id: ObjectId):
+    try:
+        user = await collection.find_one({"_id": user_id})
+        return user
+    except PyMongoError as e:
+        print(e)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error",)
+
+async def email_not_registered(db, email: str):
+    try:
+        user = await db["users"].find_one({"email": email})
+        if user:
+            return False
+        return True
+    except PyMongoError as e:
+        print(e)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error",)

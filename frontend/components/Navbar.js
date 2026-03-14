@@ -20,7 +20,7 @@ export default function Navbar() {
         <div className="mx-auto flex h-25 max-w-full items-center justify-between px-4">
           {/* logo */}
           <a href="/home" className="text-lg  text-white">
-            HomePage
+            Nomingomi
           </a>
           {/* Menu button  */}
           <button

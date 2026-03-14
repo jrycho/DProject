@@ -180,12 +180,19 @@ export default function AddMacrosSimple() {
             </button>
           </form>
 
-        {result && (
-          <p className="text-white font-medium">Saved successfully!</p>
-        )}
-
-
+          {result && (
+            <p className="text-white font-medium">Saved successfully!</p>
+          )}
+          {error && (
+            <>
+              <p className="text-white font-medium">
+                Error has occured or ingredient already exists.
+              </p>
+              <p className="text-white font-medium">Please try again later.</p>
+            </>
+          )}
         </div>
       </main>
     </ProtectedPage>
-  );}
+  );
+}

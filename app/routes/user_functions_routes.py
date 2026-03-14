@@ -1,11 +1,14 @@
 from fastapi import APIRouter, HTTPException, Depends
 from app.db_files.crud.user_db_crud import search_crud, create_user_ingredients, get_user_ingredients, get_user_key as get_user_key_crud, add_user_shared_keys as add_user_shared_keys_crud, get_user_shared_keys as get_user_shared_keys_crud, delete_user_ingredient_secure
-from app.db_files.crud.meal_logs import ingredient_doc_to_button_json
+from app.db_files.crud.meal_logs_crud import ingredient_doc_to_button_json
 from app.security.security import get_current_user_id
 from pydantic import BaseModel
 from app.db_files.models.ingredient import IngredientDoc
 from app.db_files.models.ingredient_entry import IngredientEntryTemp
 from uuid import uuid4
+from app.db_files.crud.temp_ingredients_crud import  create_temp_meal, add_ingredient_to_temp_meal, delete_ingredient_from_temp_meal, get_temp_meal, return_temp_ingredients_button
+from app.db_files.crud.user_db_crud import create_user_ingredients
+from app.db_files.crud.temp_ingredients_crud import get_total_normalized_temp_nutrients, delete_all_ingredients_from_temp, set_amount_in_temp_meal    
 
 
 router = APIRouter(prefix="/User_functions", tags=["UF"])
@@ -86,7 +89,7 @@ async def add_user_ingredient_direct(payload: dict, user_id:str = Depends(get_cu
 
     return await add_user_ingredient(payload=clean_payload, user_id=user_id)
 
-#TODO: implement UI normalized
+
 
 
 
@@ -107,8 +110,6 @@ async def search(payload: dict, user_id:str=Depends(get_current_user_id)):
 
 
 
-
-from app.db_files.crud.temp_ingredients_crud import  create_temp_meal, add_ingredient_to_temp_meal, delete_ingredient_from_temp_meal, get_temp_meal, return_temp_ingredients_button
 
 @router.post("/add_ingredient_to_log")
 async def add_ingredient_to_temp_log(payload: dict, user_id:str=Depends(get_current_user_id)):
@@ -147,8 +148,6 @@ async def fetch_temp_ingredients_buttons(user_id:str=Depends(get_current_user_id
     return doc
 
 
-from app.db_files.crud.user_db_crud import create_user_ingredients
-from app.db_files.crud.temp_ingredients_crud import get_total_normalized_temp_nutrients, delete_all_ingredients_from_temp, set_amount_in_temp_meal    
 @router.post("/save_temp_to_perm")
 async def save_temp_to_perm(payload: dict, user_id:str=Depends(get_current_user_id)):
     if user_id is None:
