@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 
 from app.optimizers.gwo_optimizer import gwo_optimizer
+from app.optimizers.linprog_optimizer import linprog_optimizer
 from app.db_files.crud.settings_saves import get_settings_obj
 from app.db_files.crud.meal_logs_crud import build_input_object_from_meal_log
 from app.security.security import get_current_user_id
@@ -31,9 +32,12 @@ async def optimize_meal(meal_id: str, meal_type: str, user_id: str = Depends(get
     if settings_obj is None:
         raise HTTPException(status_code=404, detail="User settings not found")
     
-    optimization_object = gwo_optimizer(settings_obj, input_obj)
+    optimization_object = linprog_optimizer(settings_obj, input_obj)
 
     optimization_object.solve()
+    if not optimization_object.get_solution().success:
+        optimization_object = gwo_optimizer(settings_obj, input_obj)
+        optimization_object.solve()
     json_ingredient_weights, json_total_macros = optimization_object.get_json_results()
     print(json_ingredient_weights)
     print(json_total_macros)

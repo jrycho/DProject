@@ -288,7 +288,7 @@ class swarm_settings():
         self.used_optimizer = used_optimizer
         print(self.used_optimizer)
         
-        self.GWO_epoch = 500
+        self.GWO_epoch = 100
         self.GWO_pop_size = 50
         self.WOA_epoch = 100
         self.WOA_pop_size = 50

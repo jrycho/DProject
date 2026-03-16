@@ -9,6 +9,7 @@ class linprog_optimizer(AbstractOptimizerBase):
         self.settings = settings
         self.input_list = input_obj.get_input_list()
         self.is_indivisible = input_obj.get_is_indivisible()
+        self.user_designated_values = input_obj.get_user_designated_values()
         self.n = len(self.settings.get_optimized_properties())
         self.n_in = len(self.input_list)
         self.bounds = None
@@ -44,7 +45,7 @@ class linprog_optimizer(AbstractOptimizerBase):
                     filtered_bounds.append((rounded_weight[i],rounded_weight[i]))
                 else:
                     filtered_bounds.append(self.bounds[i])
-                print(filtered_bounds)
+                #print(filtered_bounds)
 
 
             filtered_bounds.extend([(0, None) for _ in range(2 * self.n)])
@@ -171,12 +172,51 @@ class linprog_optimizer(AbstractOptimizerBase):
     def bounds_creator(self):
         #print("creating")
         bounds = []
-        for item in self.input_list:
-            if item.priority == 1:
+        for i, item in enumerate(self.input_list):
+            if self.user_designated_values[i] > 0:
+                bounds.append((self.user_designated_values[i], self.user_designated_values[i]))   # lock variable
+            elif item.priority == 1:
                 bounds.append((0.1, None))
             else:
                 bounds.append((0.1, 2))
     
         bounds.extend([(0, None) for _ in range(2 * self.n)])
-        print(bounds)
+        #print(bounds)
         self.bounds = bounds
+
+
+    def get_json_results(self):
+        if self.solution is None or self.update_flag:
+            self.solve()
+
+        if self.solution is None or not self.solution.success:
+            return [], {}
+
+        # use ingredient part only
+        solution_vector = np.array(self.solution.x[:self.n_in], dtype=float)
+
+
+        rounded_solution = 0.05 * np.round(solution_vector / 0.05)
+
+        json_ingredient_weights = []
+        json_total_macros = {}
+
+        for i in range(self.n_in):
+            barcode = self.input_list[i].barcode
+            name = self.input_list[i].name
+            grams = int(round(rounded_solution[i] * 100))
+
+            json_ingredient_weights.append({
+                "barcode": barcode,
+                "name": name,
+                "grams": grams,
+            })
+
+        # nutrient matrix only, shape: properties x ingredients
+        A_food = self.A_eq[:, :self.n_in]
+        total_macros = A_food @ rounded_solution
+
+        for i, value in enumerate(total_macros):
+            json_total_macros[self.settings.get_optimized_properties()[i]] = int(round(value))
+
+        return json_ingredient_weights, json_total_macros

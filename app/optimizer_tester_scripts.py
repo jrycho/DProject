@@ -137,7 +137,7 @@ for item in ingredients:
     
     Input_Object.add_ingredient(item)
 Input_Object.set_user_designated_value_by_name("Almonds", 40)
-print(Input_Object)
+#print(Input_Object)
 #Input_Object.is_indivisible_eval()
 #print(Input_Object.is_indivisible)
 
@@ -162,18 +162,23 @@ settings2.set_target_goal(target_goal_2)
 
 
 
-"""
+print("***********************************")
 print("Linprog part")
 linprog_obj = linprog_optimizer(settings1, Input_Object)
+start = time.time()
 linprog_obj.solve()
-linprog_obj.print_solution()
 
+end = time.time()
+print(f"⏱️ Time taken: {end - start:.4f} seconds")
+linprog_obj.print_solution()
+print("***********************************")
+"""
 print("solved and printed")
 linprog_obj.set_settings(settings2)
 linprog_obj.print_solution()
 print("printed, check for recalculated")
-"""
 
+"""
 print("GWO part")
 gwo_obj = gwo_optimizer(settings1, Input_Object)
 start = time.time()
@@ -181,6 +186,7 @@ gwo_obj.solve()
 end = time.time()
 print(f"⏱️ Time taken: {end - start:.4f} seconds")
 gwo_obj.print_solution()
+"""
 
 print("solved and printed")
 gwo_obj.set_settings(settings2)
@@ -198,25 +204,36 @@ assert len(gwo_json_total_macros) == len(optimized_properties)
 #res = woa_optimizer(settings1, input_list)
 #res = pso_optimizer(settings1, input_list)
 """
+print("***********************************")
 print("WOApart")
 woa_obj = woa_optimizer(settings1, Input_Object)
+start = time.time()
 woa_obj.solve()
+end = time.time()
+print(f"⏱️ Time taken: {end - start:.4f} seconds")
 woa_obj.print_solution()
+
+
+"""
 print("solved and printer")
 woa_obj.set_settings(settings2)
 woa_obj.print_solution()
-print("printed, check for recalculated")
-
+print("printed, check for recalculated")"""
+print("***********************************")
 print("PSO part")
 pso_obj = pso_optimizer(settings1, Input_Object)
+start = time.time()
 pso_obj.solve()
+end = time.time()
+print(f"⏱️ Time taken: {end - start:.4f} seconds")
 pso_obj.print_solution()
+"""
+
 print("solved and printed")
 pso_obj.set_settings(settings2)
 pso_obj.print_solution()
 print("printed, check for recalculated")
 """
-
 """ notes: 
 gives too much youghurt, need to start with dynamic bounds
 Seems like dynamic bounds fixed that
@@ -231,15 +248,16 @@ print("solved and printed")
 greedy_obj.set_settings(settings2)
 greedy_obj.print_solution()
 print("printed, check for recalculated")
-
+"""
+print("***********************************")
 print("GA part")
-gwo_obj = genetic_optimizer(settings1, Input_Object)
+ga_obj = genetic_optimizer(settings1, Input_Object)
 start = time.time()
-gwo_obj.solve()
+ga_obj.solve()
 end = time.time()
 print(f"⏱️ Time taken: {end - start:.4f} seconds")
-gwo_obj.print_solution()
-
+ga_obj.print_solution()
+"""
 print("solved and printed")
 gwo_obj.set_settings(settings2)
 gwo_obj.print_solution()
