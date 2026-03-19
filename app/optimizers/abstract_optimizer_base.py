@@ -41,4 +41,6 @@ class AbstractOptimizerBase:
 
     def bounds_creator(self):
         raise NotImplementedError("The method 'bounds_creator' must be implemented by subclass")
-
+    
+    def get_json_results(self):
+        raise NotImplementedError("The method 'bounds_creator' must be implemented by subclass")

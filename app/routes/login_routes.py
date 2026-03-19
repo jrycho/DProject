@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import JSONResponse
 from app.db_files.core.database import get_db
@@ -7,10 +7,17 @@ from app.db_files.crud.users import verify_password, change_username_crud, get_u
 from app.security.security import create_access_token
 from app.security.security import get_current_user
 from datetime import timezone, datetime
+from slowapi import Limiter
 
 
 router = APIRouter(prefix="/Auth", tags=["Auth"])
 
+def login_key_func(request: Request) -> str:
+    ip = request.client.host if request.client else "unknown"
+    login_id = getattr(request.state, "login_identifier", "unknown")
+    return f"{ip}:{login_id}"
+
+limiter = Limiter(key_func=login_key_func)
 
 """  
 Login route for user authentication.
@@ -24,7 +31,8 @@ Raises:
     - HTTPException: If the user is not found or the 
 """
 @router.post("/login") #!USED
-async def login(form_data: OAuth2PasswordRequestForm = Depends(), db=Depends(get_db)):
+@limiter.limit("5/minute")
+async def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), db=Depends(get_db)):
     user = await get_user_by_email(db=db, email= form_data.username.lower().strip())
     if not user or not await verify_password(form_data.password, user["password"]):
         raise HTTPException(status_code=401, detail="Invalid credentials")
@@ -46,6 +54,10 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db=Depends(get
 
 
     return {"access_token": token, "token_type": "bearer"}
+
+
+
+
 
 
 

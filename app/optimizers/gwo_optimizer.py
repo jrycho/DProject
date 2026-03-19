@@ -10,11 +10,3 @@ class gwo_optimizer(BaseOptimizer):
         super().__init__( settings, input_obj)
         self.used_optimizer = GWO.GWO_WOA
         self.swarm_settings = swarm_settings("GWO")
-
-   
-
-
-
-
-
-

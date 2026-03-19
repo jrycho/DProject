@@ -15,6 +15,7 @@ export default function Login() {
 
   const handleLogin = async () => {
     try {
+      console.log("clicked")
       const body = new URLSearchParams();
       body.append("grant_type", "password");
       body.append("username", email);
@@ -25,19 +26,32 @@ export default function Login() {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: body.toString(),
       });
-      if (!response.ok) {
-        const err = await response.json();
 
-        let errorText = "Login failed";
-        if (Array.isArray(err.detail)) {
-          errorText = err.detail.map((e) => e.msg).join(", ");
-        } else if (typeof err.detail === "string") {
-          errorText = err.detail;
+    if (!response.ok) {
+      let errorText = "Login failed";
+
+      if (response.status === 401) {
+        errorText = "Invalid email or password.";
+      } else if (response.status === 429) {
+        errorText = "Too many login attempts. Please try again later.";
+      } else {
+        try {
+          const err = await response.json();
+          if (Array.isArray(err.detail)) {
+            errorText = err.detail.map((e) => e.msg).join(", ");
+          } else if (typeof err.detail === "string") {
+            errorText = err.detail;
+          } else if (typeof err.error === "string") {
+            errorText = err.error;
+          }
+        } catch {
+          errorText = `Login failed (${response.status})`;
         }
-
-        setMessage(`Error: ${errorText}`);
-        return;
       }
+
+      setMessage(`Error: ${errorText}`);
+      return;
+    }
 
       const data = await response.json();
       localStorage.setItem("token", data.access_token);

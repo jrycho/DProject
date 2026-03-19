@@ -20,7 +20,12 @@ from app import routes
 from app.routes import meal_logs_routes, settings_routes, optimization_routes, testing_routes, users_routes, login_routes, user_functions_routes, tracker_routes
 from app.state.state import active_meals
 import app.state.state as state
+from fastapi import FastAPI
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 
+limiter = Limiter(key_func=get_remote_address)
 
 
 
@@ -29,9 +34,11 @@ import app.state.state as state
 """ Global vars for meals "db" and session settings, should be both loaded from db. TODO: DO IT """
 #active_meals = {}
 
+
 #Creation of application instance
 app = FastAPI()
-
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 origins = [
     "http://localhost:3000",
