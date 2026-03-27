@@ -1,108 +1,110 @@
-'use client'
+"use client";
 
-// React hooks
-import { useEffect, useRef } from "react"
+import { useEffect, useId, useRef, useState } from "react";
 
-// Barcode scanning library
-import { Html5Qrcode } from "html5-qrcode"
-
-// Component receives:
-// scanning → boolean (whether scanner should run)
-// onScan → function to call when barcode is detected
 export default function BarcodeScannerComponent({ scanning, onScan }) {
-
-  // Stores the scanner instance so it persists between renders
-  const scannerRef = useRef(null)
+  const rawReaderId = useId();
+  const readerId = rawReaderId.replace(/[:]/g, "");
+  const scannerRef = useRef(null);
+  const mountedRef = useRef(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
+    mountedRef.current = true;
 
-    // If scanner hasn't been created yet, create it
-    if (!scannerRef.current) {
-      // Html5Qrcode attaches itself to a DOM element with id="reader"
-      scannerRef.current = new Html5Qrcode("reader")
-    }
-
-    // Reference to the scanner instance
-    const scanner = scannerRef.current
-
-
-    // Function to start the scanner
-    const startScanner = async () => {
-
-      // Only start if it's not already running
-      if (!scanner.isScanning) {
-        try {
-
-          await scanner.start(
-            // Use the rear camera on phones
-            { facingMode: "environment" },
-
-            // Scanner configuration
-            {
-              fps: 10, // how many frames per second to analyze
-
-              // Size of the scanning area inside the camera preview
-              qrbox: { width: 300, height: 200 }
-            },
-
-            // Callback when a barcode/QR code is successfully detected
-            (decodedText) => {
-              if (onScan) onScan(decodedText)
-            },
-
-            // Callback for scan errors (ignored here)
-            () => {}
-          )
-
-        } catch (err) {
-          console.error("Start error:", err)
-        }
-      }
-    }
-
-
-    // Function to stop the scanner
-    const stopScanner = async () => {
-
-      // Only stop if scanner is currently running
-      if (scanner.isScanning) {
-        try {
-          await scanner.stop()
-        } catch (err) {
-          console.error("Stop error:", err)
-        }
-      }
-    }
-
-
-    // If parent component says scanning should run → start it
-    if (scanning) {
-      startScanner()
-    } else {
-      // Otherwise stop the scanner
-      stopScanner()
-    }
-
-    // Cleanup when component unmounts or dependencies change
     return () => {
-      stopScanner()
+      mountedRef.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function cleanupScanner() {
+      const scanner = scannerRef.current;
+      if (!scanner) return;
+
+      try {
+        if (scanner.isScanning) {
+          await scanner.stop();
+        }
+      } catch (err) {
+        console.error("Stop error:", err);
+      }
+
+      try {
+        await scanner.clear();
+      } catch (err) {
+        console.error("Clear error:", err);
+      }
+
+      if (!cancelled) {
+        scannerRef.current = null;
+      }
     }
 
-  }, [scanning, onScan]) // Effect re-runs if scanning state or callback changes
+    async function startScanner() {
+      if (!scanning) {
+        await cleanupScanner();
+        if (!cancelled && mountedRef.current) {
+          setError("");
+        }
+        return;
+      }
 
+      try {
+        const { Html5Qrcode } = await import("html5-qrcode");
+        if (cancelled || !mountedRef.current) return;
 
-  // Render container where the camera preview + scanner UI will appear
-return (
-  <div className="relative flex justify-center w-full max-w-[400px] h-[300px] mx-auto">
-    
-    {/* Scanner video will render here */}
-    <div id="reader" className="w-full h-full" />
+        const target = document.getElementById(readerId);
+        if (!target) {
+          throw new Error("Scanner mount point is missing.");
+        }
 
-    {/* Frame overlay */}
-    <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-      <div className="w-[220px] h-[100px] border-4 border-green-400 rounded-lg shadow-lg"></div>
+        await cleanupScanner();
+        if (cancelled || !mountedRef.current) return;
+
+        const scanner = new Html5Qrcode(readerId);
+        scannerRef.current = scanner;
+        setError("");
+
+        await scanner.start(
+          { facingMode: "environment" },
+          {
+            fps: 10,
+            qrbox: { width: 220, height: 110 },
+            aspectRatio: 1.7777778,
+          },
+          (decodedText) => {
+            if (!mountedRef.current || cancelled) return;
+            onScan?.(decodedText);
+          },
+          () => {},
+        );
+      } catch (err) {
+        console.error("Start error:", err);
+        if (!cancelled && mountedRef.current) {
+          setError("Camera failed to start.");
+        }
+      }
+    }
+
+    void startScanner();
+
+    return () => {
+      cancelled = true;
+      void cleanupScanner();
+    };
+  }, [readerId, scanning, onScan]);
+
+  return (
+    <div className="relative flex w-[min(92vw,320px)] flex-col items-center gap-3">
+      <div className="relative flex h-[220px] w-full justify-center overflow-hidden rounded-xl border border-green-600 bg-black">
+        <div id={readerId} className="h-full w-full" />
+
+      </div>
+
+      {error ? <p className="text-sm text-red-300">{error}</p> : null}
     </div>
-
-  </div>
-);
+  );
 }

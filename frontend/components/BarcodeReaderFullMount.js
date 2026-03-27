@@ -1,50 +1,45 @@
 "use client";
 
-import GraphComponent from "@/components/GraphComponent";
-import Dashboard from "@/components/Dashboard";
-import BarcodeScannerComponent from "@/components/BarcodeReader";
 import { useState } from "react";
-import Portal from "@/utils/portal";
 import { ScanLine } from "lucide-react";
+import BarcodeScannerComponent from "@/components/BarcodeReader";
+import Portal from "@/utils/portal";
 
 export default function BarcodeReaderMount({ onScan }) {
   const [scanning, setScanning] = useState(false);
 
-  const handleScanning = () => {
-    setScanning((prev) => !prev);
-  };
-
   return (
     <>
       <button
-        onClick={handleScanning}
-        className="px-4 py-2 bg-green-600  text-white rounded"
+        onClick={() => setScanning((prev) => !prev)}
+        className="rounded bg-green-600 px-4 py-2 text-white"
       >
-        <ScanLine size={16} className="w-8 h-6" />
+        <ScanLine size={16} className="h-6 w-8" />
       </button>
 
-      {scanning && (
+      {scanning ? (
         <Portal>
-          <div className="fixed inset-0  z-[97] flex items-center justify-center bg-black/60">
-            <div className=" relative p-6 rounded-lg ">
+          <div className="fixed inset-0 z-[97] flex items-center justify-center bg-black/60 px-4">
+            <div className="relative rounded-lg p-6">
               <button
                 onClick={() => setScanning(false)}
-                className="absolute -top-2 -right-2 w-8 h-8 flex items-center justify-center bg-white text-black rounded-full shadow-lg hover:bg-gray-200"
+                className="absolute -right-2 -top-2 flex h-8 w-8 items-center justify-center rounded-full bg-white text-black shadow-lg transition hover:bg-gray-200"
+                aria-label="Close barcode scanner"
               >
-                ✕
+                x
               </button>
-              <BarcodeScannerComponent
 
+              <BarcodeScannerComponent
                 scanning={scanning}
                 onScan={(code) => {
-                  if (onScan) onScan(code); // send barcode to parent
+                  onScan?.(code);
                   setScanning(false);
                 }}
               />
             </div>
           </div>
         </Portal>
-      )}
+      ) : null}
     </>
   );
 }
