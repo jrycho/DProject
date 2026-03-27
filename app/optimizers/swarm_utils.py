@@ -130,7 +130,7 @@ class BaseOptimizer(AbstractOptimizerBase):
     
 
     """  
-    Function to be minimized, wieghted squared sum of differences between target goal and solution
+    Function to be minimized, wieghted abs sum of differences between target goal and solution
     """
     def swarm_fitness_function_for_genA(self, sol, A_matrix, target_goal):
         solution = target_goal - np.matmul(A_matrix,sol)

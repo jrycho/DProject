@@ -74,7 +74,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> User: #! USED
     user id is "sub" from payload, defined in login routes
     """
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = verify_access_token(token)
         user_id = payload.get("sub")
         
         #validation check

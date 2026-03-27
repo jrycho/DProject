@@ -34,7 +34,7 @@ class linprog_optimizer(AbstractOptimizerBase):
             optimal_solution = linprog(self.c, A_eq=self.A_eq, b_eq=self.b_eq, bounds=self.bounds, method="highs").x[:self.n_in]
             only_indivisible = np.where(self.is_indivisible ==0, 0, optimal_solution)
             result = np.divide(only_indivisible, self.is_indivisible, out=np.zeros_like(only_indivisible, dtype=float), where=self.is_indivisible !=0)
-            
+            result = np.where((result < 0.5) & (result != 0), 0.5, result)
             rounded_vals = np.round(result+1e-8).astype(int) #rounding to full pieces
             rounded_weight = np.multiply(rounded_vals, self.is_indivisible)
             
@@ -167,7 +167,7 @@ class linprog_optimizer(AbstractOptimizerBase):
         """ BOUNDS ASSESMENT LOGIC
         Creates bounds for each ingredient, based on the priority if whole food unlimited, otherwise limited by the max amount of 200g
         Later expanded for syntax purposes so deviations are unlimited
-        TODO: undividable foods.
+
         """
     def bounds_creator(self):
         #print("creating")
