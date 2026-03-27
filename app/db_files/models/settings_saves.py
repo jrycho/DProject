@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Dict, List
+from typing import Dict, List, Optional
 from datetime import datetime
 
 
@@ -15,4 +15,4 @@ class SettingsInput(BaseModel):
 class UserSettings(BaseModel, SettingsInput):
     user_id: str
     meals: Dict[str, SettingsInput] = Field(default_factory=dict)
-    updated_at: datetime | None = None
+    updated_at: Optional[datetime] = None

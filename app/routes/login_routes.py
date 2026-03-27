@@ -8,6 +8,7 @@ from app.security.security import create_access_token
 from app.security.security import get_current_user
 from datetime import timezone, datetime
 from slowapi import Limiter
+from app.models.payload_inputs import ChangeUsernamePayload
 
 
 router = APIRouter(prefix="/Auth", tags=["Auth"])
@@ -77,7 +78,7 @@ async def get_me(current_user=Depends(get_current_user)):
 
 
 @router.post("/change_username")
-async def change_username( new_username: str, current_user=Depends(get_current_user), db=Depends(get_db)):
+async def change_username(payload: ChangeUsernamePayload, current_user=Depends(get_current_user), db=Depends(get_db)):
     data = current_user
-    resp = await change_username_crud(db=db, data=data, new_username=new_username)
+    resp = await change_username_crud(db=db, data=data, new_username=payload.new_username)
     return resp

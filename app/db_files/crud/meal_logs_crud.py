@@ -229,8 +229,8 @@ async def update_set_and_piece_weights_crud(
     meal_id: str,
     user_id: str,
     barcode: str,
-    set_amount: float | None = None,
-    piece_weight: float | None = None,
+    set_amount: Optional[float] = None,
+    piece_weight: Optional[float] = None,
 ):
 
     result = await meal_logs.update_one(
@@ -259,3 +259,4 @@ def proofing(x):
         return float(x)
     except (TypeError, ValueError):
         return 0.0
+from typing import Optional

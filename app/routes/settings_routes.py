@@ -4,7 +4,7 @@ from app.models.settings import Settings  #
 from app.db_files.crud.settings_saves import save_user_settings, get_user_settings
 import app.state.state as state  # global memory state
 from app.security.security import get_current_user_id
-from app.utils.settingsPayload import SettingsPayload
+from app.models.payload_inputs import MealTypePayload, SettingsPayload
 
 router = APIRouter(prefix="/settings", tags=["User Settings"])
 
@@ -43,10 +43,9 @@ if not in DB HTTPException 404
 returns Settings object
 """
 @router.post("/get_settings") #! USED
-async def get_settings(payload: dict, user_id: str = Depends(get_current_user_id)):
+async def get_settings(payload: MealTypePayload, user_id: str = Depends(get_current_user_id)):
         # Get from MongoDB
-        print(payload)
-        meal_type = payload.get("meal_type").strip()
+        meal_type = payload.meal_type
         db_data = await get_user_settings(user_id=user_id,meal_type=meal_type)
         if not db_data:
             raise HTTPException(status_code=404, detail="Settings not found")

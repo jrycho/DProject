@@ -82,7 +82,7 @@ class FakeCollection:
                 remaining.append(doc)
         self._docs = remaining
 
-    async def find(self, query: Dict[str, Any] | None = None):
+    async def find(self, query: Optional[Dict[str, Any]] = None):
         # very crude; ignores projection, sorting, etc.
         query = query or {}
         result = [doc for doc in self._docs if all(doc.get(k) == v for k, v in query.items())]

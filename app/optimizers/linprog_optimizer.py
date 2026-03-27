@@ -173,6 +173,7 @@ class linprog_optimizer(AbstractOptimizerBase):
         #print("creating")
         bounds = []
         for i, item in enumerate(self.input_list):
+            print(item.priority)
             if self.user_designated_values[i] > 0:
                 bounds.append((self.user_designated_values[i], self.user_designated_values[i]))   # lock variable
             elif item.priority == 1:

@@ -174,7 +174,7 @@ async def build_ingredient(barcode, priority, set_amount, piece_weights): #!USED
             "sugars_100g":        float(n.get("sugars_100g") or 0),
             "fiber_100g":         float(n.get("fiber_100g") or 0),
             "salt_100g":          float(n.get("salt_100g") or 0),
-            "priority":           doc.get("priority_auto"),
+            "priority":           doc.get("priority_user" or "priority_auto"),
             "piece_weight":       float(piece_weights or 0),        # e.g. 60g egg
             "user_designated_value": float(set_amount or 0), # e.g. 150g
             }

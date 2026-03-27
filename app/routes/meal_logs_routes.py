@@ -13,6 +13,7 @@ from uuid import uuid4
 from app.security.security import get_current_user_id
 from datetime import datetime
 import logging
+from app.models.payload_inputs import DatePayload, MealIngredientPayload, MealLogPayload, MealLogWithIdPayload, SetAndPieceWeightsPayload
 
 
 
@@ -22,7 +23,7 @@ router = APIRouter(prefix="/logs", tags=["Meal Logs"])
 
 
 @router.post("/log_custom_id") #!UNUSED, testable
-async def log_meal_with_id(meal_type:str, date:str, meal_id:str, user_id: str = Depends(get_current_user_id)): 
+async def log_meal_with_id(payload: MealLogWithIdPayload = Depends(), user_id: str = Depends(get_current_user_id)): 
     """
     Log a meal by its ID.
     Calls create_meal_log function from crud.py
@@ -31,10 +32,10 @@ async def log_meal_with_id(meal_type:str, date:str, meal_id:str, user_id: str = 
 
     try:
 
-        date = str(date)
-        meal_id = str(meal_id)
+        date = str(payload.date)
+        meal_id = str(payload.meal_id)
         user_id = str(user_id)
-        meal_type = str(meal_type)
+        meal_type = str(payload.meal_type)
     
         log_id = await create_meal_log(
             meal_id=meal_id,
@@ -47,7 +48,7 @@ async def log_meal_with_id(meal_type:str, date:str, meal_id:str, user_id: str = 
         raise HTTPException(status_code=500, detail=str(e))
     
 @router.post("/log_meal") #!USED
-async def log_meal(meal_type:str, date:str, user_id: str = Depends(get_current_user_id)):
+async def log_meal(payload: MealLogPayload = Depends(), user_id: str = Depends(get_current_user_id)):
     
     """
     Log a meal creates ID.
@@ -63,13 +64,13 @@ async def log_meal(meal_type:str, date:str, user_id: str = Depends(get_current_u
     try:
         meal_id = str(uuid4())
         user_id = str(user_id)
-        meal_type = str(meal_type)
+        meal_type = str(payload.meal_type)
 
         log_id = await create_meal_log(
             meal_id=meal_id,
             user_id=user_id,
             type_of_meal=meal_type,
-            date=date,
+            date=payload.date,
             )
         return {
             "message": "Meal logged",
@@ -162,22 +163,20 @@ async def remove_ingredient_by_barcode(meal_id: str, barcode: str, user_id: str 
 
 
 @router.get("/fetch_meal_by_date") #!USED
-async def fetch_meal_by_date(current_user_id: str = Depends(get_current_user_id), date: str = None):
-    if not date:
-        raise HTTPException(status_code=400, detail="Date is required")
+async def fetch_meal_by_date(payload: DatePayload = Depends(), current_user_id: str = Depends(get_current_user_id)):
     if not current_user_id:
         raise HTTPException(status_code=401, detail="User not authenticated")
     
     try:
-        date_obj = datetime.fromisoformat(date)
+        date_obj = datetime.fromisoformat(payload.date)
     except ValueError:
         raise HTTPException(status_code=402, detail="Invalid date format. Use YYYY-MM-DD")
     
-    return await get_meal_by_date(current_user_id, date)
+    return await get_meal_by_date(current_user_id, payload.date)
 
 
 @router.post("/add_ingredient/{barcode}") #!USED
-async def add_ingredient(barcode: str, meal_id: str, user_id: str = Depends(get_current_user_id)):
+async def add_ingredient(barcode: str, payload: MealIngredientPayload = Depends(), user_id: str = Depends(get_current_user_id)):
     if not user_id:
         return  {
             "message": f"No user found, log in",
@@ -189,7 +188,7 @@ async def add_ingredient(barcode: str, meal_id: str, user_id: str = Depends(get_
     #make ingredient entry ✅
     entry = await doc_to_ingredient_entry(doc,1)
     # append to meal of meal id ✅
-    await add_ingredient_to_log(meal_id, entry)
+    await add_ingredient_to_log(payload.meal_id, entry)
     return  {
             "message": f"Ingredient added successfully.",
             
@@ -202,6 +201,12 @@ async def return_ingredients_for_buttons(meal_id: str, user_id: str = Depends(ge
 
 
 @router.post("/update_set_and_piece_weights")
-async def update_set_and_piece_weights(barcode: str, meal_id: str, set_amount: float, piece_weight: float, user_id: str = Depends(get_current_user_id)):
-    data = await update_set_and_piece_weights_crud(barcode=barcode, meal_id=meal_id, user_id=user_id, set_amount=set_amount, piece_weight=piece_weight)
+async def update_set_and_piece_weights(payload: SetAndPieceWeightsPayload = Depends(), user_id: str = Depends(get_current_user_id)):
+    data = await update_set_and_piece_weights_crud(
+        barcode=payload.barcode,
+        meal_id=payload.meal_id,
+        user_id=user_id,
+        set_amount=payload.set_amount,
+        piece_weight=payload.piece_weight,
+    )
     return data

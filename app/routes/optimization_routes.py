@@ -6,6 +6,7 @@ from app.db_files.crud.settings_saves import get_settings_obj
 from app.db_files.crud.meal_logs_crud import build_input_object_from_meal_log
 from app.security.security import get_current_user_id
 from app.db_files.crud.optimization import save_optimization_macros_crud, save_optimization_weights_crud, get_optimization_macros_crud, get_optimization_weights_crud
+from app.models.payload_inputs import MealTypePayload, OptimizationMacrosPayload, OptimizationWeightsPayload
 
 
 router = APIRouter(prefix="/optim", tags=["Optimization"])
@@ -20,7 +21,7 @@ calls solver
 returns results in JSON form, not saved, user result, if needed could be optimized again for same result
 """
 @router.get("/optimize/{meal_id}")
-async def optimize_meal(meal_id: str, meal_type: str, user_id: str = Depends(get_current_user_id)):
+async def optimize_meal(meal_id: str, payload: MealTypePayload = Depends(), user_id: str = Depends(get_current_user_id)):
     input_obj, issue_list = await build_input_object_from_meal_log(meal_id, user_id) 
     print("got somewhere 1")
     print(issue_list)
@@ -28,7 +29,7 @@ async def optimize_meal(meal_id: str, meal_type: str, user_id: str = Depends(get
     if issue_list != []:   # any invalid ingredients? return early
         return {"issues": issue_list}
     
-    settings_obj = await get_settings_obj(user_id=user_id, meal_type=meal_type)
+    settings_obj = await get_settings_obj(user_id=user_id, meal_type=payload.meal_type)
     if settings_obj is None:
         raise HTTPException(status_code=404, detail="User settings not found")
     
@@ -49,15 +50,15 @@ async def optimize_meal(meal_id: str, meal_type: str, user_id: str = Depends(get
 
 
 @router.post("/optimize/save_optimization_weights/{meal_id}")
-async def save_optimization_weights(meal_id, json, user_id: str = Depends(get_current_user_id) ):
-    res = await save_optimization_weights_crud(meal_id, user_id, json)
+async def save_optimization_weights(meal_id: str, payload: OptimizationWeightsPayload, user_id: str = Depends(get_current_user_id) ):
+    res = await save_optimization_weights_crud(meal_id, user_id, payload.root)
     if not res:
         raise HTTPException(status_code=404, detail="Meal optimization weights saving error")
     return res
 
 @router.post("/optimize/save_optimization_macros/{meal_id}")
-async def save_optimization_macros(meal_id, json, user_id: str = Depends(get_current_user_id) ):
-    res = await save_optimization_macros_crud(meal_id, user_id, json)
+async def save_optimization_macros(meal_id: str, payload: OptimizationMacrosPayload, user_id: str = Depends(get_current_user_id) ):
+    res = await save_optimization_macros_crud(meal_id, user_id, payload.root)
     if not res:
         raise HTTPException(status_code=404, detail="Meal optimization macros saving error")
     return res

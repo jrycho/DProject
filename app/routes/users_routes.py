@@ -10,6 +10,7 @@ from app.security.security import create_access_token
 import resend
 from dotenv import load_dotenv
 from app.models.forgotPasswordRequest import ForgotPasswordRequest
+from app.models.payload_inputs import ResetPasswordPayload
 import os
 from app.db_files.crud.user_db_crud import user_shared_keys_init
 
@@ -93,9 +94,9 @@ async def forgotten_password(payload: ForgotPasswordRequest, db=Depends(get_db))
 
 
 @router.post("/reset_password")
-async def reset_password(token: str, password: str, db=Depends(get_db)):
-    token_hash = hash_token(token)
-    new_pw_hash = hash_password(password)
+async def reset_password(payload: ResetPasswordPayload, db=Depends(get_db)):
+    token_hash = hash_token(payload.token)
+    new_pw_hash = hash_password(payload.password)
 
     success = await change_password(db, token_hash, new_pw_hash)
 

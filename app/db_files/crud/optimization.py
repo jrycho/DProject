@@ -33,6 +33,7 @@ async def save_optimization_weights_crud(meal_id, user_id, payload):
             )
     except PyMongoError as e:
         raise HTTPException(status_code=500, detail=f"DB error: {e.__class__.__name__}")
+    return res
 
 
 async def save_optimization_macros_crud(meal_id, user_id, payload):
@@ -52,6 +53,7 @@ async def save_optimization_macros_crud(meal_id, user_id, payload):
             )
     except PyMongoError as e:
         raise HTTPException(status_code=500, detail=f"DB error: {e.__class__.__name__}")
+    return res
 
 
 async def get_optimization_weights_crud(meal_id, user_id):

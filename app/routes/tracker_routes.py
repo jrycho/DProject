@@ -3,21 +3,20 @@ from app.db_files.crud.user_db_crud import search_crud, create_user_ingredients,
 from app.db_files.crud.meal_logs_crud import ingredient_doc_to_button_json
 from app.security.security import get_current_user_id
 from app.db_files.crud.tracker_crud import save_new_user_goal, get_user_goals, find_meal_logs_of_user_and_date, get_macros_from_meal_log, sum_macros_from_meals
+from app.models.payload_inputs import DatePayload, EstimateUserMacrosPayload, MacroGoalsPayload
 
 
 router = APIRouter(prefix="/Tracker", tags=["Tracker"])
 
 @router.post("/estimate_user_macros")
-async def estimate_user_macros(payload:dict, user_id: str = Depends(get_current_user_id)):
+async def estimate_user_macros(payload: EstimateUserMacrosPayload, user_id: str = Depends(get_current_user_id)):
     if user_id is None:
         raise HTTPException(status_code=401, detail="User not found")
     
-    if payload.get("sex")=="male":
-        bmr = 10*payload.get("weight") + 6.25*payload.get("height") - 5*payload.get("age") + 5
-    elif payload.get("sex")=="female":
-        bmr = 10*payload.get("weight") + 6.25*payload.get("height") - 5*payload.get("age") - 161
+    if payload.sex == "male":
+        bmr = 10 * payload.weight + 6.25 * payload.height - 5 * payload.age + 5
     else:
-        raise HTTPException(status_code=400, detail="Invalid sex")
+        bmr = 10 * payload.weight + 6.25 * payload.height - 5 * payload.age - 161
     
     activity_factors = {
             "sedentary": 1.2,
@@ -26,9 +25,7 @@ async def estimate_user_macros(payload:dict, user_id: str = Depends(get_current_
             "very_active": 1.725,
             "athlete": 1.9,
         }
-    factor = activity_factors.get(payload["activity_level"])
-    if factor is None:
-        raise HTTPException(status_code=400, detail="Invalid activity level")
+    factor = activity_factors[payload.activity_level]
 
     tdee = bmr * factor
     
@@ -36,13 +33,11 @@ async def estimate_user_macros(payload:dict, user_id: str = Depends(get_current_
         "weight_loss": -350,
         "maintain": 0,
         "weight_gain": 350,
-    }.get(payload["goal"])
-    if goal_adjust is None:
-        raise HTTPException(status_code=400, detail="Invalid goal")
+    }[payload.goal]
 
     calories = tdee + goal_adjust
 
-    weight = payload.get("weight")
+    weight = payload.weight
     protein_g = 1.8 * weight
     fat_g = 0.9 * weight
     carbs_g = (calories - (protein_g * 4 + fat_g * 9)) / 4
@@ -66,10 +61,10 @@ async def estimate_user_macros(payload:dict, user_id: str = Depends(get_current_
 
 
 @router.post("/set_user_goals")
-async def set_user_goals(custom_goal:dict, user_id: str = Depends(get_current_user_id)):
+async def set_user_goals(custom_goal: MacroGoalsPayload, user_id: str = Depends(get_current_user_id)):
     if user_id is None:
         raise HTTPException(status_code=401, detail="User not found")
-    resp = await save_new_user_goal(user_goal=custom_goal, user_id=user_id)
+    resp = await save_new_user_goal(user_goal=custom_goal.root, user_id=user_id)
     if resp.modified_count==0:
         raise HTTPException(status_code=400, detail="No changes made")
     return resp
@@ -84,12 +79,12 @@ async def fetch_tracker_data(user_id: str = Depends(get_current_user_id)):
     return resp
 
 @router.post("/calculate_daily_macros")
-async def calculate_daily_macros(date: str, user_id: str = Depends(get_current_user_id)):
+async def calculate_daily_macros(payload: DatePayload = Depends(), user_id: str = Depends(get_current_user_id)):
     if user_id is None:
         raise HTTPException(status_code=401, detail="User not found")
     
     # find meal ids of the day
-    list_of_meal_logs = await find_meal_logs_of_user_and_date(user_id=user_id, date=date)
+    list_of_meal_logs = await find_meal_logs_of_user_and_date(user_id=user_id, date=payload.date)
     print(f"list_of_meal_logs: {list_of_meal_logs}")
     if list_of_meal_logs is None:
         raise HTTPException(status_code=400, detail="No data found")
