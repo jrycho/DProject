@@ -9,6 +9,7 @@ export default function GraphComponent({
   color = "#3b82f6",
   unit = "",
   size = 400,
+  mobileSize = 120,
 }) {
   const safeCurrent = Math.max(0, current || 0);
   const safeGoal = Math.max(1, goal || 1);
@@ -20,9 +21,14 @@ export default function GraphComponent({
     { name: "current", value: progress },
     { name: "remaining", value: remaining },
   ];
-/*style={{ width: size, height: size }}*/
   return (
-    <div  className="relative w-30 h-30 md:w-40 md:w-40h-40">
+    <div
+      className="relative [width:var(--mobile-size)] [height:var(--mobile-size)] md:[width:var(--desktop-size)] md:[height:var(--desktop-size)]"
+      style={{
+        "--mobile-size": `${mobileSize}px`,
+        "--desktop-size": `${size}px`,
+      }}
+    >
       <ResponsiveContainer>
         <PieChart>
           <Pie
@@ -42,11 +48,11 @@ export default function GraphComponent({
 
       {/* center text */}
       <div className="mt-2 absolute inset-0 flex flex-col items-center justify-center text-center">
-        <div className="text-xs md:text-xm font-bold text-gray-200">{macroType}</div>
+        <div className="text-xs md:text-sm font-bold text-gray-200">{macroType}</div>
         <div className="text-xm md:text-lg font-semibold">
           {safeCurrent}/{safeGoal}
         </div>
-        <div className="text-xs md:text-xm font-bold text-gray-200">{unit}</div>
+        <div className="text-xs md:text-sm font-bold text-gray-200">{unit}</div>
       </div>
     </div>
   );

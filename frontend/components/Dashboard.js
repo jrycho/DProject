@@ -81,7 +81,8 @@ export default function Dashboard({ date, refresh }) {
         goal={goals.calories}
         color="#1EAA02"
         unit="kcal"
-        size={220}
+        mobileSize={140}
+        size={260}
       />
       <GraphComponent
         macroType="Protein"
@@ -89,7 +90,8 @@ export default function Dashboard({ date, refresh }) {
         goal={goals.protein}
         color="#22c55e"
         unit="g"
-        size={180}
+        mobileSize={120}
+        size={220}
       />
       <GraphComponent
         macroType="Carbs"
@@ -97,7 +99,8 @@ export default function Dashboard({ date, refresh }) {
         goal={goals.carbs}
         color="#0055DF"
         unit="g"
-        size={180}
+        mobileSize={120}
+        size={220}
       />
       <GraphComponent
         macroType="Fats"
@@ -105,7 +108,8 @@ export default function Dashboard({ date, refresh }) {
         goal={goals.fat}
         color="#C70000"
         unit="g"
-        size={180}
+        mobileSize={120}
+        size={220}
       />
     </div>
   );

@@ -41,6 +41,8 @@ export default function MealLogger({
   const [activeMealType, setActiveMealType] = useState("Breakfast");
 
   useEffect(() => {
+    setActiveMealLog(null);
+    setActiveMealId(null);
     fetchLogs(dateKey, setLogs);
   }, [dateKey]);
   console.log(logs);
