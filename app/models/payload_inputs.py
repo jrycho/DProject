@@ -118,6 +118,14 @@ class SetAndPieceWeightsPayload(StrictPayload):
     meal_id: str = Field(..., min_length=1)
     set_amount: float = Field(..., ge=0)
     piece_weight: float = Field(..., ge=0)
+    min_amount: float = Field(..., ge=0)
+    max_amount: float = Field(..., ge=0)
+
+    @model_validator(mode="after")
+    def check_min_max_amounts(self):
+        if self.max_amount > 0 and self.min_amount > self.max_amount:
+            raise ValueError("min_amount must be less than or equal to max_amount")
+        return self
 
 
 class OptimizationMacrosPayload(RootModel[Dict[str, Any]]):

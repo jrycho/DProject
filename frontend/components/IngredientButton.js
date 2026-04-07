@@ -1,15 +1,8 @@
 "use client";
-import { deleteIngredient } from "@/utils/deleteIngredient";
 import { useEffect, useState } from "react";
 import { updateIngredientValues } from "@/utils/updateIngredientValues";
 
-export default function IngredientButton({
-  data,
-  mealId,
-  onRemove,
-  onChangeAmount,
-  onChangePieceWeight,
-}) {
+export default function IngredientButton({ data, mealId, onRemove }) {
   const {
     name,
     kcal,
@@ -19,169 +12,171 @@ export default function IngredientButton({
     barcode,
     set_amount = 0,
     piece_weight = 0,
+    min_amount = 0,
+    max_amount = 0,
   } = data;
-  const label = `${kcal} kcal/100 g
-   • ${protein} g Protein
-    • ${carbs} g Carbs
-     • ${fat} g Fats`;
+
+  const label = `${kcal} kcal/100 g | ${protein} g protein | ${carbs} g carbs | ${fat} g fats`;
   const [amount, setAmount] = useState(String(set_amount));
   const [pieceWeight, setPieceWeight] = useState(String(piece_weight));
+  const [minAmount, setMinAmount] = useState(String(min_amount));
+  const [maxAmount, setMaxAmount] = useState(String(max_amount));
 
-  //prevent values on API relods
   useEffect(() => {
     setAmount(String(set_amount ?? 0));
     setPieceWeight(String(piece_weight ?? 0));
-  }, [set_amount, piece_weight]);
+    setMinAmount(String(min_amount ?? 0));
+    setMaxAmount(String(max_amount ?? 0));
+  }, [set_amount, piece_weight, min_amount, max_amount]);
 
-  const handleChange = (e) => {
-    const value = e.target.value; // string
-
-    // Allow empty while typing
+  const handleNumericChange = (setter) => (e) => {
+    const value = e.target.value;
     if (value === "") {
-      setAmount("");
-      onChangeAmount?.(id, 0);
+      setter("");
       return;
     }
 
-    // Only digits
     if (/^\d+$/.test(value)) {
-      setAmount(value);
-      onChangeAmount?.(id, Number(value));
+      setter(value);
     }
   };
 
-  const handleBlurAmount = async () => {
-    const finalValue = amount === "" ? "0" : amount;
+  const normalizeValue = (value, setter) => {
+    const normalized = value === "" ? "0" : value;
+    setter(normalized);
+    return Number(normalized);
+  };
 
-    // Normalize UI
-    if (finalValue !== amount) {
-      setAmount(finalValue);
-    }
-
-    const num = Number(finalValue);
-
-    // Optional parent update
-    onChangeAmount?.(id, num);
-
-    // Save to backend
+  const persistValues = async (nextValues) => {
     try {
-      await updateIngredientValues(
+      await updateIngredientValues({
         barcode,
         mealId,
-        num,
-        Number(pieceWeight || 0),
-      );
+        ...nextValues,
+      });
     } catch (e) {
-      console.error("Failed to save amount:", e);
+      console.error("Failed to save ingredient values:", e);
     }
   };
 
-  const handlePieceWeightChange = (e) => {
-    const value = e.target.value; // string
+  const handleBlur = async (field) => {
+    const nextAmount = field === "amount" ? normalizeValue(amount, setAmount) : Number(amount || 0);
+    const nextPieceWeight =
+      field === "pieceWeight"
+        ? normalizeValue(pieceWeight, setPieceWeight)
+        : Number(pieceWeight || 0);
+    const nextMinAmount =
+      field === "minAmount" ? normalizeValue(minAmount, setMinAmount) : Number(minAmount || 0);
+    const nextMaxAmount =
+      field === "maxAmount" ? normalizeValue(maxAmount, setMaxAmount) : Number(maxAmount || 0);
 
-    if (value === "") {
-      setPieceWeight("");
-      onChangePieceWeight?.(id, 0);
+    if (nextMaxAmount > 0 && nextMinAmount > nextMaxAmount) {
+      if (field === "minAmount") {
+        setMaxAmount(String(nextMinAmount));
+        await persistValues({
+          setAmount: nextAmount,
+          pieceWeight: nextPieceWeight,
+          minAmount: nextMinAmount,
+          maxAmount: nextMinAmount,
+        });
+      } else if (field === "maxAmount") {
+        setMinAmount(String(nextMaxAmount));
+        await persistValues({
+          setAmount: nextAmount,
+          pieceWeight: nextPieceWeight,
+          minAmount: nextMaxAmount,
+          maxAmount: nextMaxAmount,
+        });
+      }
       return;
     }
 
-    if (/^\d+$/.test(value)) {
-      setPieceWeight(value);
-      onChangePieceWeight?.(id, Number(value));
-    }
+    await persistValues({
+      setAmount: nextAmount,
+      pieceWeight: nextPieceWeight,
+      minAmount: nextMinAmount,
+      maxAmount: nextMaxAmount,
+    });
   };
 
-  const handleBlurPieceWeight = async () => {
-    // If user left the input empty, replace it with "0"
-    const finalValue = pieceWeight === "" ? "0" : pieceWeight;
-    // If we changed "" → "0", update the UI
-    if (finalValue !== pieceWeight) {
-      setPieceWeight(finalValue);
-    }
-    // Convert string to number for backend / parent
-    const num = Number(finalValue);
-    // Notify parent component about change
-    onChangePieceWeight?.(id, num);
-
-    try {
-      // Save both values to backend
-      // We send:
-      // - current forced amount (grams)
-      // - new piece weight (grams per piece)
-      await updateIngredientValues(barcode, mealId, Number(amount || 0), num);
-    } catch (e) {
-      console.error("Failed to save piece weight:", e);
-    }
-  };
   return (
-    <>
-      <div className="ml-6  flex justify-center max-w-[18rem] w-[18rem] md:w-[20rem] min-h-[8rem] relative">
-        <div
-          className="bg-gray-600 border-green-600 border rounded-xl shadow-sm
-               hover:bg-gray-500 active:scale-[0.98]
-               focus-within:ring-2 focus-within:ring-offset-2
-               flex items-center justify-between
-               px-5 py-3 text-sm text-white font-sans h-full overflow-hidden"
-        >
-          {/* Left side - Info */}
-          <div className="flex flex-col gap-1 max-w-[60%]">
-            <span className="truncate font-medium">{name}</span>
-            <span className="text-xs text-gray-300">{label}</span>
-          </div>
-
-          {/* Right side - Inputs */}
-          <div className="flex flex-col gap-2 text-xs text-gray-200">
-            {/* Amount */}
-            <div className="flex flex-col gap-1">
-              <label className="text-gray-300">Set amount</label>
-
-              <input
-                type="number"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                min="1"
-                value={amount}
-                onChange={handleChange}
-                onBlur={handleBlurAmount}
-                onFocus={(e) => e.target.select()}
-                className="w-24 px-2 py-1 rounded bg-gray-700
-                     text-white text-sm border border-gray-500
-                     focus:outline-none focus:ring-2 focus:ring-green-500 [appearance:textfield]"
-                placeholder="g"
-              />
-            </div>
-
-            {/* Weight per piece */}
-            <div className="flex flex-col gap-1">
-              <label className="text-gray-300">Weight of piece</label>
-
-              <input
-                type="number"
-                min="1"
-                value={pieceWeight}
-                onChange={handlePieceWeightChange}
-                onBlur={handleBlurPieceWeight}
-                className="w-24 px-2 py-1 rounded bg-gray-700
-                     text-white text-sm border border-gray-500
-                     focus:outline-none focus:ring-2 focus:ring-green-500"
-                placeholder="g"
-              />
-            </div>
-          </div>
+    <div className="relative mx-2 w-full max-w-[24rem] self-center md:mx-0 md:max-w-none">
+      <div className="grid gap-4 rounded-2xl border border-green-600 bg-gray-600 px-4 py-4 text-sm text-white shadow-sm transition hover:bg-gray-500 focus-within:ring-2 focus-within:ring-green-400 md:grid-cols-[minmax(0,1fr)_auto]">
+        <div className="min-w-0">
+          <span className="block truncate text-sm font-semibold">{name}</span>
+          <span className="mt-1 block text-xs leading-5 text-gray-200">{label}</span>
         </div>
 
-        {/* Remove Button */}
-        <button
-          type="button"
-          onClick={() => onRemove?.(barcode)}
-          className="absolute -top-2 -right-2 bg-red-500
-               w-6 h-6 rounded-full text-xs
-               flex items-center justify-center
-               hover:bg-red-600"
-        >
-          X
-        </button>
+        <div className="grid grid-cols-2 gap-2 text-xs text-gray-200 sm:w-[14rem]">
+          <label className="flex flex-col gap-1">
+            <span className="text-gray-300">Set amount</span>
+            <input
+              type="number"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              value={amount}
+              onChange={handleNumericChange(setAmount)}
+              onBlur={() => handleBlur("amount")}
+              onFocus={(e) => e.target.select()}
+              className="w-full rounded-lg border border-gray-500 bg-gray-700 px-2 py-1.5 text-sm text-white [appearance:textfield] focus:outline-none focus:ring-2 focus:ring-green-500"
+              placeholder="g"
+            />
+          </label>
+
+          <label className="flex flex-col gap-1">
+            <span className="text-gray-300">Piece weight</span>
+            <input
+              type="number"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              value={pieceWeight}
+              onChange={handleNumericChange(setPieceWeight)}
+              onBlur={() => handleBlur("pieceWeight")}
+              onFocus={(e) => e.target.select()}
+              className="w-full rounded-lg border border-gray-500 bg-gray-700 px-2 py-1.5 text-sm text-white [appearance:textfield] focus:outline-none focus:ring-2 focus:ring-green-500"
+              placeholder="g"
+            />
+          </label>
+
+          <label className="flex flex-col gap-1">
+            <span className="text-gray-300">Min weight</span>
+            <input
+              type="number"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              value={minAmount}
+              onChange={handleNumericChange(setMinAmount)}
+              onBlur={() => handleBlur("minAmount")}
+              onFocus={(e) => e.target.select()}
+              className="w-full rounded-lg border border-gray-500 bg-gray-700 px-2 py-1.5 text-sm text-white [appearance:textfield] focus:outline-none focus:ring-2 focus:ring-green-500"
+              placeholder="g"
+            />
+          </label>
+
+          <label className="flex flex-col gap-1">
+            <span className="text-gray-300">Max weight</span>
+            <input
+              type="number"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              value={maxAmount}
+              onChange={handleNumericChange(setMaxAmount)}
+              onBlur={() => handleBlur("maxAmount")}
+              onFocus={(e) => e.target.select()}
+              className="w-full rounded-lg border border-gray-500 bg-gray-700 px-2 py-1.5 text-sm text-white [appearance:textfield] focus:outline-none focus:ring-2 focus:ring-green-500"
+              placeholder="g"
+            />
+          </label>
+        </div>
       </div>
-    </>
+
+      <button
+        type="button"
+        onClick={() => onRemove?.(barcode)}
+        className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-red-500 text-xs text-white hover:bg-red-600"
+      >
+        X
+      </button>
+    </div>
   );
 }

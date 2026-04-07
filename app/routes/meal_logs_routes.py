@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
-from app.db_files.crud.meal_logs_crud import create_meal_log, get_all_meal_logs, add_ingredient_to_log, delete_ingredient_from_meal_log, return_ingredients_button, update_set_and_piece_weights_crud
+from app.db_files.crud.meal_logs_crud import create_meal_log, get_all_meal_logs, add_ingredient_to_log, delete_ingredient_from_meal_log, return_ingredients_button, update_ingredient_amount_settings_crud
 from app.db_files.crud.meal_logs_crud import get_meal_by_date
 from app.db_files.crud.ingredient_crud import get_or_fetch_ingredient_dict_sync, doc_to_ingredient_entry
 from app.utils.build_ingredient_from_barcode import build_ingredient_from_barcode
@@ -200,13 +200,15 @@ async def return_ingredients_for_buttons(meal_id: str, user_id: str = Depends(ge
     return data
 
 
-@router.post("/update_set_and_piece_weights")
-async def update_set_and_piece_weights(payload: SetAndPieceWeightsPayload = Depends(), user_id: str = Depends(get_current_user_id)):
-    data = await update_set_and_piece_weights_crud(
+@router.post("/update_ingredient_amount_settings")
+async def update_ingredient_amount_settings(payload: SetAndPieceWeightsPayload = Depends(), user_id: str = Depends(get_current_user_id)):
+    data = await update_ingredient_amount_settings_crud(
         barcode=payload.barcode,
         meal_id=payload.meal_id,
         user_id=user_id,
         set_amount=payload.set_amount,
         piece_weight=payload.piece_weight,
+        min_amount=payload.min_amount,
+        max_amount=payload.max_amount,
     )
     return data

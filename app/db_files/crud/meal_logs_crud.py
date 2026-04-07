@@ -125,7 +125,14 @@ async def build_input_object_from_meal_log(meal_id: str, user_id: str) -> InputO
     issue_list = []
 
     for entry in log.ingredients: #forcycle on ingredients
-        ingredient = await build_ingredient(barcode=entry.barcode, priority=entry.priority, piece_weights=entry.piece_weight, set_amount=entry.set_amount) #calls function that fetches it from OpenFoodFacts API and build to obj needed
+        ingredient = await build_ingredient(
+            barcode=entry.barcode,
+            priority=entry.priority,
+            piece_weights=entry.piece_weight,
+            set_amount=entry.set_amount,
+            min_amount=entry.min_amount,
+            max_amount=entry.max_amount,
+        ) #calls function that fetches it from OpenFoodFacts API and build to obj needed
         cal = getattr(ingredient, "calories")
         print(cal)
         is_numeric = isinstance(cal, (int, float)) and not isinstance(cal, bool)
@@ -195,13 +202,19 @@ async def return_ingredients_button(meal_id: str, user_id: str):
     ret_list = []
     for item in barcodes_list:
         ing = await get_or_fetch_ingredient_dict_sync(item["barcode"])
-        ret_ing = ingredient_doc_to_button_json(ing, item.get("piece_weight", 0), item.get("set_amount", 0))
+        ret_ing = ingredient_doc_to_button_json(
+            ing,
+            item.get("piece_weight", 0),
+            item.get("set_amount", 0),
+            item.get("min_amount", 0),
+            item.get("max_amount", 0),
+        )
         #print(f"ret ing {ret_ing}")
         ret_list.append(ret_ing)
         print(ret_list)
     return ret_list
 
-def ingredient_doc_to_button_json(ingredient, piece_weight, set_amount):
+def ingredient_doc_to_button_json(ingredient, piece_weight, set_amount, min_amount, max_amount):
         nutr = ingredient.get("nutrients") or ingredient.get("nutriments")
         name = ingredient.get("name") or ingredient.get("product_name") or "Unnamed"
         raw = ingredient.get("barcode") or ingredient.get("code") or ingredient.get("_id") 
@@ -221,16 +234,20 @@ def ingredient_doc_to_button_json(ingredient, piece_weight, set_amount):
         "barcode": barcode,
 
         "piece_weight": piece_weight,
-        "set_amount": set_amount
+        "set_amount": set_amount,
+        "min_amount": min_amount,
+        "max_amount": max_amount,
     }
         return ret_dict
 
-async def update_set_and_piece_weights_crud(
+async def update_ingredient_amount_settings_crud(
     meal_id: str,
     user_id: str,
     barcode: str,
     set_amount: Optional[float] = None,
     piece_weight: Optional[float] = None,
+    min_amount: Optional[float] = None,
+    max_amount: Optional[float] = None,
 ):
 
     result = await meal_logs.update_one(
@@ -243,6 +260,8 @@ async def update_set_and_piece_weights_crud(
             "$set": {
                 "ingredients.$.set_amount": set_amount,
                 "ingredients.$.piece_weight": piece_weight,
+                "ingredients.$.min_amount": min_amount,
+                "ingredients.$.max_amount": max_amount,
             }
         },
     )

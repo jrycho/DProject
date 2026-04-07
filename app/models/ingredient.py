@@ -29,6 +29,8 @@ class Ingredient():
         self.priority = priority
         self.piece_weight = float(data.get("piece_weight", 0.0)/100)
         self.user_designated_value = float(data.get("user_designated_value", 0.0)/100)
+        self.min_amount = float(data.get("min_amount", 0.0)/100)
+        self.max_amount = float(data.get("max_amount", 0.0)/100)
         self.barcode = data.get("barcode") 
 
     
@@ -57,6 +59,18 @@ class Ingredient():
 
     def get_user_designated_value(self):
         return self.user_designated_value
+
+    def set_min_amount(self, min_amount):
+        self.min_amount = min_amount/100
+
+    def get_min_amount(self):
+        return self.min_amount
+
+    def set_max_amount(self, max_amount):
+        self.max_amount = max_amount/100
+
+    def get_max_amount(self):
+        return self.max_amount
 
     def __repr__(self):
         return self.name

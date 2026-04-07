@@ -96,12 +96,21 @@ class BaseOptimizer(AbstractOptimizerBase):
                 lower_bounds.append(self.user_designated_values[item])
                 upper_bounds.append(self.user_designated_values[item])
 
-            elif self.input_list[item].priority == 1:
-                lower_bounds.append(0.1)
-                upper_bounds.append(15)
             else:
-                lower_bounds.append(0.1)
-                upper_bounds.append(2)
+                lower_bound = self.input_list[item].get_min_amount() if self.input_list[item].get_min_amount() > 0 else 0.1
+                upper_bound = 15 if self.input_list[item].priority == 1 else 2
+
+                if self.input_list[item].get_max_amount() > 0:
+                    upper_bound = self.input_list[item].get_max_amount()
+
+                if lower_bound > upper_bound:
+                    if self.input_list[item].get_min_amount() > 0 and self.input_list[item].get_max_amount() == 0:
+                        upper_bound = lower_bound
+                    else:
+                        lower_bound = upper_bound
+
+                lower_bounds.append(lower_bound)
+                upper_bounds.append(upper_bound)
         return np.array(lower_bounds), np.array(upper_bounds)
     
 

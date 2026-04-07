@@ -147,7 +147,7 @@ async def doc_to_ingredient_entry(doc, priority): #! USED
     entry = IngredientEntry(barcode=barcode, priority=priority)
     return entry
 
-async def build_ingredient(barcode, priority, set_amount, piece_weights): #!USED
+async def build_ingredient(barcode, priority, set_amount, piece_weights, min_amount=0, max_amount=0): #!USED
         """
         Build the runtime Ingredient object used by your app.
 
@@ -177,7 +177,9 @@ async def build_ingredient(barcode, priority, set_amount, piece_weights): #!USED
             "priority":           doc.get("priority_user" or "priority_auto"),
             "piece_weight":       float(piece_weights or 0),        # e.g. 60g egg
             "user_designated_value": float(set_amount or 0), # e.g. 150g
+            "min_amount":         float(min_amount or 0),
+            "max_amount":         float(max_amount or 0),
             }
-        return Ingredient(data, data["priority"])
+        return Ingredient(data, priority)
 
 

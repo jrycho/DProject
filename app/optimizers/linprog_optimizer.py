@@ -176,10 +176,20 @@ class linprog_optimizer(AbstractOptimizerBase):
             print(item.priority)
             if self.user_designated_values[i] > 0:
                 bounds.append((self.user_designated_values[i], self.user_designated_values[i]))   # lock variable
-            elif item.priority == 1:
-                bounds.append((0.1, None))
             else:
-                bounds.append((0.1, 2))
+                lower_bound = item.get_min_amount() if item.get_min_amount() > 0 else 0.1
+                upper_bound = None if item.priority == 1 else 2
+
+                if item.get_max_amount() > 0:
+                    upper_bound = item.get_max_amount()
+
+                if upper_bound is not None and lower_bound > upper_bound:
+                    if item.get_min_amount() > 0 and item.get_max_amount() == 0:
+                        upper_bound = lower_bound
+                    else:
+                        lower_bound = upper_bound
+
+                bounds.append((lower_bound, upper_bound))
     
         bounds.extend([(0, None) for _ in range(2 * self.n)])
         #print(bounds)
