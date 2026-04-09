@@ -3,6 +3,7 @@ import { fetchMe } from "@/utils/fetchMe";
 import { addShareKey } from "@/utils/addShareKey";
 import { changeUsername } from "@/utils/changeUsername";
 import Portal from "@/utils/portal";
+import GuideButton from "@/components/GuideButton";
 
 export default function SharePopup() {
   const [open, setOpen] = useState(false);
@@ -99,42 +100,45 @@ export default function SharePopup() {
         <div
           ref={popRef}
           onMouseDown={(e) => e.stopPropagation()} // extra safety
-          className="w-[340px] rounded-xl border border-gray-600 bg-gray-600 p-4 shadow-lg"
+          className="w-[360px] rounded-2xl border border-green-600 bg-gray-700 p-6 shadow-lg text-white"
         >
-          {/* Row 1 */}
+          <div className="mb-6 flex items-center justify-between gap-3">
+            <h2 className="text-2xl font-semibold">My account</h2>
+            <GuideButton guideKey="myAccountSharing" buttonText="?" />
+          </div>
+
           <div className="mb-4">
-            <div className="text-xs text-white">Username (editable)</div>
+            <div className="text-sm text-gray-300">Username</div>
 
             <div className="mt-2 flex gap-2">
               <input
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="h-10 flex-1 rounded-lg border border-gray-500 bg-white px-3 text-sm text-gray-500 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-black"
+                className="h-10 flex-1 rounded-lg border border-green-600 bg-gray-800 px-3 text-sm text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
               />
 
               <button
                 onClick={saveUsername}
-                className="h-10 w-24 rounded-lg bg-black text-sm font-medium text-white hover:opacity-90"
+                className="h-10 w-24 rounded-lg bg-green-600 border border-green-600 text-sm font-medium text-white hover:bg-green-500 transition"
               >
                 Save
               </button>
             </div>
-            <div>            {usernameError && (
-  <p className="mt-1 text-sm text-red-500">
-    {usernameError}
-  </p>
-)}</div>
+            <div>
+              {usernameError && (
+                <p className="mt-1 text-sm text-red-400">{usernameError}</p>
+              )}
+            </div>
           </div>
 
-          {/* Row 2 */}
           <div className="mb-4">
-            <div className="text-xs text-white">Share code (read-only)</div>
+            <div className="text-sm text-gray-300">Share code</div>
 
             <div className="mt-2 flex gap-2">
               <input
                 value={shareCode}
                 readOnly
-                className="h-10 flex-1 rounded-lg border border-gray-500 bg-white px-3 text-sm text-gray-500 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-black"
+                className="h-10 flex-1 rounded-lg border border-green-600 bg-gray-800 px-3 text-sm text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
               />
 
               <button
@@ -143,39 +147,37 @@ export default function SharePopup() {
                   setCopied(true);
                   setTimeout(() => setCopied(false), 1500);
                 }}
-                className="h-10 w-24 rounded-lg bg-black text-sm font-medium text-white hover:opacity-90"
+                className="h-10 w-24 rounded-lg bg-green-600 border border-green-600 text-sm font-medium text-white hover:bg-green-500 transition"
               >
                 {copied ? "Copied!" : "Copy"}
               </button>
             </div>
           </div>
 
-          {/* Row 3 */}
           <div>
-            <div className="text-xs text-white">Add share key</div>
+            <div className="text-sm text-gray-300">Add share key</div>
 
             <div className="mt-2 flex gap-2">
               <input
                 value={shareKey}
                 onChange={(e) => setShareKey(e.target.value)}
                 placeholder="paste key"
-                className="h-10 flex-1 rounded-lg border border-gray-500 bg-white px-3 text-sm text-gray-500 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-black"
+                className="h-10 flex-1 rounded-lg border border-green-600 bg-gray-800 px-3 text-sm text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
               />
 
               <button
                 onClick={handleAddShareKey}
-                className="h-10 w-24 rounded-lg bg-black text-sm font-medium text-white hover:opacity-90"
+                className="h-10 w-24 rounded-lg bg-green-600 border border-green-600 text-sm font-medium text-white hover:bg-green-500 transition"
               >
                 Add
               </button>
-</div>
+            </div>
 
-<div>            {keyError && (
-  <p className="mt-1 text-sm text-red-500">
-    {keyError}
-  </p>
-)}</div>
-
+            <div>
+              {keyError && (
+                <p className="mt-1 text-sm text-red-400">{keyError}</p>
+              )}
+            </div>
           </div>
         </div>
       </div>

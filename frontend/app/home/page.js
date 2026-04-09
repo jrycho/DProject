@@ -9,6 +9,7 @@ import { useState, useCallback } from "react";
 import DateSelector from "@/components/DayNavigation";
 import ThreadsBackground from "@/components/ThreadsBackground";
 import Dashboard from "@/components/Dashboard";
+import GuideButton from "@/components/GuideButton";
 
 export default function Page() {
   const [activeMealId, setActiveMealId] = useState(null);
@@ -72,7 +73,10 @@ export default function Page() {
             <Dashboard date={selectedDate} refresh={dashboardRefresh} />
           </div>
 
-          <div className="order-4 justify-center md:col-start-1 md:col-end-2 md:row-start-1 md:row-end-3 z-[90]">
+          <div className="order-4 relative justify-center md:col-start-1 md:col-end-2 md:row-start-1 md:row-end-3 z-[90]">
+            <div className="absolute top-0 right-0 z-[91]">
+              <GuideButton guideKey="mealLoggerHome" buttonText="?" />
+            </div>
             <MealLogger
               onChange={handleChange}
               selectedDate={selectedDate}

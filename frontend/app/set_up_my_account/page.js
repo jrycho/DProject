@@ -143,7 +143,6 @@ export default function TrackerQuestioner() {
     </div>
 
     <div className="max-w-md mx-auto mt-24 p-6 bg-gray-700 border border-green-600 rounded-2xl shadow-lg text-white">
-
       <h2 className="text-2xl font-semibold mb-6 text-center">
         Set your daily goals
       </h2>

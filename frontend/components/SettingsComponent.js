@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { saveSettings } from "@/utils/saveSettings";
 import { useDebouncedEffect } from "@/utils/useDebouncedEffect";
 import { getLastSettings } from "@/utils/getLastSettings";
+import GuideButton from "@/components/GuideButton";
 
 const PROPS = ["calories", "protein", "carbs", "fats", "saturated_fat", "salt"];
 
@@ -130,6 +131,9 @@ export default function OptimizationSettingsForm({
 
   return (
     <div className="z-[90] rounded-l-xl bg-gray-700 w-[20rem] md:w-[45rem] fixed right-0 top-1/2 -translate-y-1/2 shadow max-h-[60vh] overflow-y-auto custom-scrollbar">
+      <div className="px-3 pt-3 md:px-6 md:pt-4 flex justify-end">
+        <GuideButton guideKey="mealLoggerSettings" buttonText="?" />
+      </div>
       <div className="grid gap  ">
         {properties.map((p, i) => {
           const active = isActive(i);

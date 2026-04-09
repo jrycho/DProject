@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import GraphComponent from "@/components/GraphComponent";
 import { fetchTrackerData, calculateDailyMacros } from "@/utils/tracker";
+import GuideButton from "@/components/GuideButton";
 
 function toNumber(x) {
   const n = Number(x);
@@ -74,43 +75,49 @@ export default function Dashboard({ date, refresh }) {
   }
 
   return (
-    <div className="w-full flex flex-wrap gap-8 p-6 justify-center">
-      <GraphComponent
-        macroType="Calories"
-        current={current.calories}
-        goal={goals.calories}
-        color="#1EAA02"
-        unit="kcal"
-        mobileSize={140}
-        size={260}
-      />
-      <GraphComponent
-        macroType="Protein"
-        current={current.protein}
-        goal={goals.protein}
-        color="#22c55e"
-        unit="g"
-        mobileSize={120}
-        size={220}
-      />
-      <GraphComponent
-        macroType="Carbs"
-        current={current.carbs}
-        goal={goals.carbs}
-        color="#0055DF"
-        unit="g"
-        mobileSize={120}
-        size={220}
-      />
-      <GraphComponent
-        macroType="Fats"
-        current={current.fat}
-        goal={goals.fat}
-        color="#C70000"
-        unit="g"
-        mobileSize={120}
-        size={220}
-      />
+    <div className="relative w-full">
+      <div className="absolute top-0 right-0 z-10">
+        <GuideButton guideKey="trackerGoals" buttonText="?" />
+      </div>
+
+      <div className="w-full flex flex-wrap gap-8 p-6 justify-center">
+        <GraphComponent
+          macroType="Calories"
+          current={current.calories}
+          goal={goals.calories}
+          color="#1EAA02"
+          unit="kcal"
+          mobileSize={140}
+          size={260}
+        />
+        <GraphComponent
+          macroType="Protein"
+          current={current.protein}
+          goal={goals.protein}
+          color="#22c55e"
+          unit="g"
+          mobileSize={120}
+          size={220}
+        />
+        <GraphComponent
+          macroType="Carbs"
+          current={current.carbs}
+          goal={goals.carbs}
+          color="#0055DF"
+          unit="g"
+          mobileSize={120}
+          size={220}
+        />
+        <GraphComponent
+          macroType="Fats"
+          current={current.fat}
+          goal={goals.fat}
+          color="#C70000"
+          unit="g"
+          mobileSize={120}
+          size={220}
+        />
+      </div>
     </div>
   );
 }

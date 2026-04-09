@@ -96,4 +96,18 @@ input[type=number] {
 
 
 /*react day picker in calendar*/
+.rdp-root {
+  --rdp-accent-color: #16a34a;
+  --rdp-accent-background-color: rgba(22, 163, 74, 0.2);
+}
+
+.rdp-selected .rdp-day_button {
+  border: 2px solid #16a34a;
+  color: #ffffff;
+}
+
+.rdp-day_button:focus-visible {
+  outline: 2px solid #16a34a;
+  outline-offset: 2px;
+}
 

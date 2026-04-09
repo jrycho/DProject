@@ -117,7 +117,7 @@ export default function MealLogger({
   return (
     <>
       <div className="grid w-full  grid-cols-1 md:grid-cols-2 ">
-        <div className="mx-auto md:mx-0 flex flex-col gap-2 ">
+        <div className="mx-auto md:mx-0 w-full flex flex-col gap-2">
           {MEAL_TYPES.map((mealType) => {
             const log = logs.find((log) => log.type_of_meal === mealType);
             const isActive =

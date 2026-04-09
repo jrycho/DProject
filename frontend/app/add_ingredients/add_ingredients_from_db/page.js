@@ -8,8 +8,8 @@ import IngredientModeSwitcher from "@/components/UserIngredientSwitcher";
 
 import IngredientSearchBar from "@/components/IngredientSearchBar";
 import UserIngredientSearchbarComponent from "@/components/UserIngredientSearchbar";
-
 import UserIngredientButton from "@/components/UserIngredientButton";
+import GuideButton from "@/components/GuideButton";
 
 import {
   addIngredientToTempLog,
@@ -98,9 +98,10 @@ export default function TempLogPage() {
 
         {/* Content */}
         <div className="max-w-[520px] mx-auto p-6 bg-gray-700 border border-green-600 rounded-2xl shadow-lg text-white">
-          <h1 className="text-2xl font-semibold mb-4">
-            Build ingredient like a meal
-          </h1>
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <h1 className="text-2xl font-semibold">Build ingredient like a meal</h1>
+            <GuideButton guideKey="addIngredientsFromDb" buttonText="?" />
+          </div>
 
           {/* Mode switch */}
           <div className="flex gap-2 mb-4">

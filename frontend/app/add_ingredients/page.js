@@ -7,6 +7,7 @@ import ProtectedPage from "@/components/ProtectedPage";
 import Threads from "@/components/Threads";
 import Navbar from "@/components/Navbar";
 import ThreadsBackground from "@/components/ThreadsBackground";
+import GuideButton from "@/components/GuideButton";
 import {
   CORE_NUTRIENTS,
   EXTRA_NUTRIENTS,
@@ -95,9 +96,12 @@ export default function AddMacrosSimple() {
 
         {/* Content */}
         <div className="max-w-[520px] mx-auto p-6 bg-gray-700 border border-green-600 rounded-2xl shadow-lg text-white">
-          <h1 className="text-2xl font-semibold mb-4">
-            Add ingredient via macros
-          </h1>
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-2xl font-semibold">
+              Add ingredient via macros
+            </h1>
+            <GuideButton guideKey="addIngredients" buttonText="?" />
+          </div>
 
           {/* Extras selector */}
           <div className="mt-3">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import Portal from "@/utils/portal";
@@ -9,7 +9,6 @@ export default function Calendar({ value, onChange }) {
   const [open, setOpen] = useState(false);
   const popupRef = useRef(null);
 
-  // Close when clicking outside
   useEffect(() => {
     function handleClick(e) {
       if (popupRef.current && !popupRef.current.contains(e.target)) {
@@ -17,7 +16,10 @@ export default function Calendar({ value, onChange }) {
       }
     }
 
-    if (open) document.addEventListener("mousedown", handleClick);
+    if (open) {
+      document.addEventListener("mousedown", handleClick);
+    }
+
     return () => document.removeEventListener("mousedown", handleClick);
   }, [open]);
 
@@ -42,18 +44,24 @@ export default function Calendar({ value, onChange }) {
 
       {open && (
         <Portal>
-          <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+          <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/30">
             <div
               ref={popupRef}
-              className="bg-gray-500 text-white p-4 rounded shadow-lg day_selected:bg-green-600"
+              className="rounded bg-gray-500 p-4 text-white shadow-lg"
             >
               <DayPicker
                 mode="single"
                 required
                 selected={value}
+                navLayout="around"
+                style={{
+                  "--rdp-accent-color": "#16a34a",
+                  "--rdp-accent-background-color": "rgba(22, 163, 74, 0.2)",
+                  "--rdp-selected-border": "2px solid #16a34a",
+                }}
                 onSelect={(date) => {
-                  if (!date) return; // ✅ ignore undefined
-                  onChange(date); // ✅ always Date
+                  if (!date) return;
+                  onChange(date);
                   setOpen(false);
                 }}
               />
