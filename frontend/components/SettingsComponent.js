@@ -1,6 +1,6 @@
 "use client";
-import { useMemo, useState } from "react";
-import { useEffect } from "react";
+
+import { useEffect, useMemo, useState } from "react";
 import { saveSettings } from "@/utils/saveSettings";
 import { useDebouncedEffect } from "@/utils/useDebouncedEffect";
 import { getLastSettings } from "@/utils/getLastSettings";
@@ -8,8 +8,13 @@ import GuideButton from "@/components/GuideButton";
 
 const PROPS = ["calories", "protein", "carbs", "fats", "saturated_fat", "salt"];
 
-// If you want to pass `properties` from a parent, keep the prop.
-// Otherwise, it will default to PROPS.
+function formatPropertyLabel(prop) {
+  return prop
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
 export default function OptimizationSettingsForm({
   properties = PROPS,
   meal_type,
@@ -18,24 +23,22 @@ export default function OptimizationSettingsForm({
 }) {
   const N = properties.length;
 
-  // 4 arrays: selector (string|null) + three value arrays (number|null)
   const [propSel, setPropSel] = useState(Array(N).fill(null));
   const [target_goal, setTargetGoal] = useState(Array(N).fill(null));
   const [excess_weights, setExcessWeights] = useState(Array(N).fill(null));
   const [slack_weights, setSlackWeights] = useState(Array(N).fill(null));
 
-  const [loaded, setLoaded] = useState(false); // block onChange/autosave until true
-  const [autosaveOn, setAutosaveOn] = useState(false); // internal switch you can enable after load
+  const [loaded, setLoaded] = useState(false);
+  const [autosaveOn, setAutosaveOn] = useState(false);
 
-  // ---- Async function balast ----
   useEffect(() => {
-    let cancel = false; //set flags
+    let cancel = false;
+
     (async () => {
       try {
-        const saved = await getLastSettings(meal_type); // await the data
+        const saved = await getLastSettings(meal_type);
         if (cancel || !saved) return;
 
-        // expand compact saved payload into per-index arrays
         const sel = Array(N).fill(null);
         const tg = Array(N).fill(null);
         const ew = Array(N).fill(null);
@@ -46,11 +49,10 @@ export default function OptimizationSettingsForm({
         const E = saved.excess_weights ?? [];
         const S = saved.slack_weights ?? [];
 
-        // creating arrays to fill and iterate them
         names.forEach((name, idx) => {
           const i = properties.indexOf(name);
           if (i !== -1) {
-            sel[i] = name; // turn this row ON
+            sel[i] = name;
             tg[i] = Number(T[idx] ?? 0);
             ew[i] = Number(E[idx] ?? 0);
             sw[i] = Number(S[idx] ?? 0);
@@ -62,25 +64,23 @@ export default function OptimizationSettingsForm({
         setExcessWeights(ew);
         setSlackWeights(sw);
         setLoaded(true);
-        // enable autosave
         setAutosaveOn(true);
       } catch (e) {
-        // if loading fails, still unblock UI;
         setLoaded(true);
       }
     })();
+
     return () => {
       cancel = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [N, meal_type]); // re-hydrate if properties length changes
+  }, [N, meal_type, properties]);
 
   const isActive = (i) => propSel[i] !== null;
 
   const toggle = (i) => {
     const on = isActive(i);
-    const nextName = on ? null : properties[i]; // string name when ON
-    const nextVal = on ? null : 0; // start numbers at 0
+    const nextName = on ? null : properties[i];
+    const nextVal = on ? null : 0;
 
     setPropSel((a) => a.map((x, k) => (k === i ? nextName : x)));
     setTargetGoal((a) => a.map((x, k) => (k === i ? nextVal : x)));
@@ -91,12 +91,12 @@ export default function OptimizationSettingsForm({
   const setAt = (setter, i, val) =>
     setter((a) => a.map((x, k) => (k === i ? Number(val) : x)));
 
-  // If you ever need a compact payload (drop nulls), memoize it here:
   const settings = useMemo(() => {
     const optimized_properties = [];
-    const tg = [],
-      ew = [],
-      sw = [];
+    const tg = [];
+    const ew = [];
+    const sw = [];
+
     for (let i = 0; i < properties.length; i++) {
       if (propSel[i] !== null) {
         optimized_properties.push(properties[i]);
@@ -105,6 +105,7 @@ export default function OptimizationSettingsForm({
         sw.push(slack_weights[i] ?? 0);
       }
     }
+
     return {
       optimized_properties,
       target_goal: tg,
@@ -134,32 +135,29 @@ export default function OptimizationSettingsForm({
       <div className="px-3 pt-3 md:px-6 md:pt-4 flex justify-end">
         <GuideButton guideKey="mealLoggerSettings" buttonText="?" />
       </div>
-      <div className="grid gap  ">
+      <div className="grid gap">
         {properties.map((p, i) => {
           const active = isActive(i);
+
           return (
             <div
               key={p}
               className="flex flex-col md:flex-row items-start gap-1.5 md:gap-3 mt-3 mb-3 px-3 md:px-0 md:ml-10"
             >
-              {/* Left: the toggle button */}
               <button
                 type="button"
                 onClick={() => toggle(i)}
                 className={
                   active
-                    ? "bg-green-600 text-white text-xs md:text-xl  px-3 py-2 rounded w-32 md:w-64 h-6 md:h-12"
-                    : "bg-green-600 text-black text-xs md:text-xl  px-3 py-2 rounded w-32 md:w-64 h-6 md:h-12"
+                    ? "bg-green-600 text-white text-xs md:text-xl px-3 py-2 rounded w-32 md:w-64 h-6 md:h-12"
+                    : "bg-green-600 text-black text-xs md:text-xl px-3 py-2 rounded w-32 md:w-64 h-6 md:h-12"
                 }
               >
-                {active ? "✔" : "●"} {p}
+                {active ? "✓" : "●"} {formatPropertyLabel(p)}
               </button>
 
-              {/* Right: inputs for this prop (only when active) */}
               {active ? (
-                <div className="flex items-start gap-1 ">
-                  {/* <strong className="text-white">{propSel[i]}</strong>*/}
-
+                <div className="flex items-start gap-1">
                   <input
                     type="number"
                     min="1"
@@ -179,7 +177,6 @@ export default function OptimizationSettingsForm({
                     className="w-13 rotate-270 mt-3 custom-range"
                   />
                   <span className="w-12 text-right text-sm mt-3">slack</span>
-
                   <input
                     type="range"
                     min="0"
@@ -190,7 +187,6 @@ export default function OptimizationSettingsForm({
                   />
                 </div>
               ) : (
-                // keeps the grid structure aligned when inactive
                 <div />
               )}
             </div>

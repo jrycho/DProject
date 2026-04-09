@@ -3,8 +3,8 @@
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import { useRouter } from "next/navigation";
-import ThreadsBackground from "@/components/ThreadsBackground";
 import { forgottenPassword } from "@/utils/forgottenPassword";
+import AppBackground from "@/components/AppBackground";
 
 const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL;
 
@@ -30,18 +30,7 @@ export default function ForgottenPassword() {
     <>
       <Navbar />
 
-      {/* Background */}
-      <div className="fixed inset-0 -z-10 pointer-events-none" aria-hidden>
-        <div className="absolute inset-0">
-          <div style={{ width: "100%", height: "600px", position: "relative" }}>
-            <ThreadsBackground
-              amplitude={1}
-              distance={0}
-              enableMouseInteraction={true}
-            />
-          </div>
-        </div>
-      </div>
+      <AppBackground />
 
       {/* Page spacing */}
       <div className="pt-30 px-4">

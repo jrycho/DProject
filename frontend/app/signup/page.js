@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Threads from "@/components/Threads";
-import ThreadsBackground from "@/components/ThreadsBackground";
 import { useRouter } from "next/navigation";
+import AppBackground from "@/components/AppBackground";
 
 const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL;
 
@@ -56,18 +55,7 @@ useEffect(() => {
   return (
   <>
     <div className="pt-30">
-      {/* Background */}
-      <div className="fixed inset-0 -z-10 pointer-events-none" aria-hidden>
-        <div className="absolute inset-0">
-          <div style={{ width: "100%", height: "600px", position: "relative" }}>
-            <ThreadsBackground
-              amplitude={1}
-              distance={0}
-              enableMouseInteraction={true}
-            />
-          </div>
-        </div>
-      </div>
+      <AppBackground />
 
       {/* Form container */}
       <div className="max-w-[520px] mx-auto p-6 bg-gray-700 border border-green-600 rounded-2xl shadow-lg text-white">

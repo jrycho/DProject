@@ -21,7 +21,7 @@ export async function authFetch(path, options = {}) {
   // optional: auto-logout on 401
   if (response.status === 401) {
     localStorage.removeItem('token');
-    // window.location.href = '/login'; // uncomment if you want redirect
+    window.location.href = '/login';
   }
 
   return response; // returns a Response object

@@ -7,9 +7,9 @@ import JsonTextViewerMacros from "@/components/JsonTextViewerMacros";
 import ProtectedPage from "@/components/ProtectedPage";
 import { useState, useCallback } from "react";
 import DateSelector from "@/components/DayNavigation";
-import ThreadsBackground from "@/components/ThreadsBackground";
 import Dashboard from "@/components/Dashboard";
 import GuideButton from "@/components/GuideButton";
+import AppBackground from "@/components/AppBackground";
 
 export default function Page() {
   const [activeMealId, setActiveMealId] = useState(null);
@@ -50,19 +50,7 @@ export default function Page() {
       <main className="p-4 pt-10 overflow-x-hidden">
         <Navbar className="relative z-[100]" />
 
-        <div className="fixed inset-0 -z-10 pointer-events-none" aria-hidden>
-          <div className="absolute inset-0">
-            <div
-              style={{ width: "100%", height: "600px", position: "relative" }}
-            >
-              <ThreadsBackground
-                amplitude={1}
-                distance={0}
-                enableMouseInteraction={true}
-              />
-            </div>
-          </div>
-        </div>
+        <AppBackground />
 
         <div className="flex justify-center">
           <DateSelector onClickDays={handleChangeDay} />

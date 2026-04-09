@@ -39,6 +39,10 @@ export default function AddMacrosSimple() {
     );
   }
 
+  function clearExtras() {
+    setSelected(CORE_NUTRIENTS.map((n) => n.key));
+  }
+
   function setNutrientValue(key, val) {
     setValues((prev) => ({
       ...prev,
@@ -110,16 +114,28 @@ export default function AddMacrosSimple() {
           </div>
           {/* Extras selector */}
           <div className="mt-3">
-            <button
-              type="button"
-              onClick={() => setShowExtras((v) => !v)}
-              className="px-3 py-1.5 text-sm border border-green-600 rounded-lg bg-gray-600 hover:bg-gray-500 transition"
-            >
-              {showExtras ? "Hide extras" : "+ Add nutrients"}
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setShowExtras((v) => !v)}
+                className="px-3 py-1.5 text-sm border border-green-600 rounded-lg bg-gray-600 hover:bg-gray-500 transition"
+              >
+                {showExtras ? "Hide extras" : "+ Add nutrients"}
+              </button>
+
+              {showExtras && (
+                <button
+                  type="button"
+                  onClick={clearExtras}
+                  className="px-3 py-1.5 text-sm border border-green-600 rounded-lg bg-gray-700 hover:bg-gray-600 transition"
+                >
+                  Unselect extras
+                </button>
+              )}
+            </div>
 
             {showExtras && (
-              <div className="mt-3 border border-green-600 p-3 rounded-lg bg-gray-600 space-y-1">
+              <div className="mt-3 max-h-44 overflow-y-auto custom-scrollbar border border-green-600 p-3 rounded-lg bg-gray-600 space-y-1">
                 {EXTRA_NUTRIENTS.map((n) => (
                   <label
                     key={n.key}

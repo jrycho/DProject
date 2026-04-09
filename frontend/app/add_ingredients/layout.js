@@ -1,22 +1,12 @@
 "use client";
 
-import ThreadsBackground from "@/components/ThreadsBackground";
+import AppBackground from "@/components/AppBackground";
 
 export default function AddIngredientsLayout({ children }) {
   return (
     <div className="relative min-h-screen pt-10">
-      {/* Persistent background */}
-      <div className="fixed inset-0 -z-10 pointer-events-none">
-        <div className="w-full h-[600px] relative">
-          <ThreadsBackground
-            amplitude={1}
-            distance={0}
-            enableMouseInteraction
-          />
-        </div>
-      </div>
+      <AppBackground />
 
-      {/* Pages render here */}
       {children}
     </div>
   );

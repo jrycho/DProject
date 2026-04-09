@@ -1,9 +1,16 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import GraphComponent from "@/components/GraphComponent";
 import { fetchTrackerData, calculateDailyMacros } from "@/utils/tracker";
 import GuideButton from "@/components/GuideButton";
+
+const EMPTY_MACROS = {
+  calories: 0,
+  protein: 0,
+  carbs: 0,
+  fat: 0,
+};
 
 function toNumber(x) {
   const n = Number(x);
@@ -11,11 +18,8 @@ function toNumber(x) {
 }
 
 export default function Dashboard({ date, refresh }) {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  const [goals, setGoals] = useState(null);
-  const [current, setCurrent] = useState(null);
+  const [goals, setGoals] = useState(EMPTY_MACROS);
+  const [current, setCurrent] = useState(EMPTY_MACROS);
   const dateKey = date.toISOString().split("T")[0];
 
   useEffect(() => {
@@ -23,17 +27,12 @@ export default function Dashboard({ date, refresh }) {
 
     async function run() {
       try {
-        setLoading(true);
-        setError("");
-
         const goalResp = await fetchTrackerData();
         const currentResp = await calculateDailyMacros(dateKey);
-        console.log("HERE", currentResp);
 
         if (cancelled) return;
 
-        // ---- Normalize shapes (adjust here if your API returns a different structure)
-        const goalMacros = goalResp?.target_macros ?? goalResp; // supports both shapes
+        const goalMacros = goalResp?.target_macros ?? goalResp;
         const curMacros = currentResp;
 
         setGoals({
@@ -50,9 +49,7 @@ export default function Dashboard({ date, refresh }) {
           fat: toNumber(curMacros?.fats),
         });
       } catch (e) {
-        setError(e?.message || "Failed to load tracker data.");
-      } finally {
-        if (!cancelled) setLoading(false);
+        console.error("Failed to load tracker data.", e);
       }
     }
 
@@ -60,19 +57,7 @@ export default function Dashboard({ date, refresh }) {
     return () => {
       cancelled = true;
     };
-  }, [date, refresh]);
-
-  if (loading) {
-    return <div className="p-6 text-sm text-gray-500">Loading dashboard…</div>;
-  }
-
-  if (error) {
-    return <div className="p-6 text-sm text-red-600">{error}</div>;
-  }
-
-  if (!goals || !current) {
-    return <div className="p-6 text-sm text-gray-500">No tracker data.</div>;
-  }
+  }, [dateKey, refresh]);
 
   return (
     <div className="relative w-full">

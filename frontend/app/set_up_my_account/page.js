@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import { useRouter } from "next/navigation";
-import ThreadsBackground from "@/components/ThreadsBackground";
 import { estimateUserMacros, setUserGoals } from "@/utils/tracker";
+import AppBackground from "@/components/AppBackground";
 
 
 
@@ -130,17 +130,7 @@ export default function TrackerQuestioner() {
   <>
     <Navbar />
 
-    <div className="fixed inset-0 -z-10 pointer-events-none" aria-hidden>
-      <div className="absolute inset-0">
-        <div style={{ width: "100%", height: "600px", position: "relative" }}>
-          <ThreadsBackground
-            amplitude={1}
-            distance={0}
-            enableMouseInteraction={true}
-          />
-        </div>
-      </div>
-    </div>
+    <AppBackground />
 
     <div className="max-w-md mx-auto mt-24 p-6 bg-gray-700 border border-green-600 rounded-2xl shadow-lg text-white">
       <h2 className="text-2xl font-semibold mb-6 text-center">
