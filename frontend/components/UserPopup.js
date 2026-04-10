@@ -2,17 +2,23 @@ import { useEffect, useRef, useState } from "react";
 import { fetchMe } from "@/utils/fetchMe";
 import { addShareKey } from "@/utils/addShareKey";
 import { changeUsername } from "@/utils/changeUsername";
+import { getSharedKeys } from "@/utils/getSharedKeys";
+import { deleteSharedKey } from "@/utils/deleteSharedKey";
 import Portal from "@/utils/portal";
 import GuideButton from "@/components/GuideButton";
 
 export default function SharePopup() {
   const [open, setOpen] = useState(false);
+  const [manageKeysOpen, setManageKeysOpen] = useState(false);
   const [username, setUsername] = useState("");
   const [shareCode, setShareCode] = useState("");
   const [shareKey, setShareKey] = useState("");
+  const [sharedKeysWithMe, setSharedKeysWithMe] = useState([]);
+  const [sharedKeysLoading, setSharedKeysLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [keyError, setKeyError] = useState("");
   const [usernameError, setUsernameError] = useState("");
+  const [sharedKeysError, setSharedKeysError] = useState("");
   
 
   const btnRef = useRef(null);
@@ -35,6 +41,24 @@ export default function SharePopup() {
     })();
   }, [open]);
 
+  useEffect(() => {
+    if (!manageKeysOpen) return;
+
+    (async () => {
+      setSharedKeysLoading(true);
+      setSharedKeysError("");
+      try {
+        const data = await getSharedKeys();
+        setSharedKeysWithMe(Array.isArray(data) ? data : []);
+      } catch (e) {
+        setSharedKeysError("Failed to load shared keys");
+        console.log("fetch shared keys failed", e);
+      } finally {
+        setSharedKeysLoading(false);
+      }
+    })();
+  }, [manageKeysOpen]);
+
   // close on outside click + ESC
   useEffect(() => {
     if (!open) return;
@@ -56,7 +80,7 @@ export default function SharePopup() {
 
   async function saveUsername() {
     try {
-      res = await changeUsername(username);
+      const res = await changeUsername(username);
       alert(res.message);
     } catch (e) {
       setUsernameError("You can change username only once every 24h");
@@ -69,10 +93,23 @@ export default function SharePopup() {
       await addShareKey(shareKey);
       console.log("added key", shareKey);
       setShareKey("");
+      setKeyError("");
       alert("Share key added!");
     } catch (e) {
       setKeyError("Invalid key or internal error");
       console.log("add share key failed", e)
+    }
+  }
+
+  async function handleDeleteSharedKey(sharedKeyToDelete) {
+    try {
+      await deleteSharedKey(sharedKeyToDelete);
+      setSharedKeysWithMe((prev) =>
+        prev.filter((item) => item.shared_key !== sharedKeyToDelete),
+      );
+    } catch (e) {
+      setSharedKeysError("Failed to delete shared key");
+      console.log("delete shared key failed", e);
     }
   }
 
@@ -178,6 +215,74 @@ export default function SharePopup() {
                 <p className="mt-1 text-sm text-red-400">{keyError}</p>
               )}
             </div>
+          </div>
+
+          <div className="mt-4">
+            <button
+              onClick={() => setManageKeysOpen(true)}
+              className="w-full rounded-lg border border-green-600 bg-gray-800 px-3 py-2 text-sm font-medium text-white transition hover:bg-gray-600"
+            >
+              Manage keys shared with me
+            </button>
+          </div>
+        </div>
+      </div>
+    </Portal>
+  )}
+
+  {manageKeysOpen && (
+    <Portal>
+      <div
+        className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/40"
+        onMouseDown={(e) => {
+          if (e.target === e.currentTarget) setManageKeysOpen(false);
+        }}
+      >
+        <div
+          onMouseDown={(e) => e.stopPropagation()}
+          className="w-[420px] max-w-[calc(100vw-2rem)] rounded-2xl border border-green-600 bg-gray-700 p-6 shadow-lg text-white"
+        >
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <h2 className="text-xl font-semibold">Keys shared with me</h2>
+            <button
+              onClick={() => setManageKeysOpen(false)}
+              className="rounded px-2 py-1 text-sm text-white transition hover:bg-gray-600"
+            >
+              Close
+            </button>
+          </div>
+
+          <div className="max-h-[18rem] overflow-y-auto custom-scrollbar space-y-3 pr-1">
+            {sharedKeysLoading && (
+              <p className="text-sm text-gray-300">Loading...</p>
+            )}
+
+            {!sharedKeysLoading && sharedKeysWithMe.length === 0 && !sharedKeysError && (
+              <p className="text-sm text-gray-300">No shared keys added.</p>
+            )}
+
+            {!sharedKeysLoading &&
+              sharedKeysWithMe.map((item) => (
+                <div
+                  key={item.shared_key}
+                  className="rounded-lg border border-green-600 bg-gray-800 px-3 py-3"
+                >
+                  <div className="text-sm font-medium text-white">{item.username}</div>
+                  <div className="mt-1 break-all text-xs text-gray-300">
+                    {item.shared_key}
+                  </div>
+                  <button
+                    onClick={() => handleDeleteSharedKey(item.shared_key)}
+                    className="mt-3 rounded-lg bg-red-600 px-3 py-1 text-sm text-white transition hover:bg-red-500"
+                  >
+                    Delete key
+                  </button>
+                </div>
+              ))}
+
+            {sharedKeysError && (
+              <p className="text-sm text-red-400">{sharedKeysError}</p>
+            )}
           </div>
         </div>
       </div>

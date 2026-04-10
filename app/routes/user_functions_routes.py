@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
-from app.db_files.crud.user_db_crud import search_crud, create_user_ingredients, get_user_ingredients, get_user_key as get_user_key_crud, add_user_shared_keys as add_user_shared_keys_crud, get_user_shared_keys as get_user_shared_keys_crud, delete_user_ingredient_secure
+from app.db_files.crud.user_db_crud import search_crud, create_user_ingredients, get_user_ingredients, get_user_key as get_user_key_crud, add_user_shared_keys as add_user_shared_keys_crud, get_user_shared_keys as get_user_shared_keys_crud, delete_user_shared_key as delete_user_shared_key_crud, delete_user_ingredient_secure
 from app.db_files.crud.meal_logs_crud import ingredient_doc_to_button_json
 from app.security.security import get_current_user_id
 from app.db_files.models.ingredient import IngredientDoc
@@ -69,11 +69,16 @@ async def add_key_to_library(payload: SharedKeyPayload, user_id: str = Depends(g
 async def get_user_shared_keys(user_id: str = Depends(get_current_user_id)):
     if user_id is None:
         raise HTTPException(status_code=401, detail="Unauthorized")
-    try:
-        resp = await get_user_shared_keys_crud(user_id=user_id)
-        return resp
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    resp = await get_user_shared_keys_crud(user_id=user_id)
+    return resp
+
+
+@router.delete("/delete_user_shared_key/{shared_key}")
+async def delete_user_shared_key(shared_key: str, user_id: str = Depends(get_current_user_id)):
+    if user_id is None:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    await delete_user_shared_key_crud(user_id=user_id, shared_key=shared_key)
+    return {"message": f"Shared key '{shared_key}' deleted"}
 
 
 @router.post("/add_user_ingredient_direct")

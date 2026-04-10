@@ -16,10 +16,27 @@ async def get_user_key(user_id: str):
     user_share_key = resp["share_key"]
     return user_share_key
 
-async def get_user_shared_keys(user_id: str):
+async def get_user_shared_keys_raw(user_id: str):
     resp = await users_collection.find_one({"_id": await str_to_OID(user_id)})
-    user_shared_keys = resp["shared_keys"]
-    return user_shared_keys
+    if resp is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return resp.get("shared_keys", [])
+
+async def get_user_shared_keys(user_id: str):
+    user_shared_keys = await get_user_shared_keys_raw(user_id)
+    shared_keys_with_usernames = []
+
+    # Keep this intentionally simple: for each shared key, look up the owning user one by one.
+    for shared_key in user_shared_keys:
+        owner = await users_collection.find_one({"share_key": shared_key})
+        shared_keys_with_usernames.append(
+            {
+                "shared_key": shared_key,
+                "username": owner.get("username", "Unknown user") if owner else "Unknown user",
+            }
+        )
+
+    return shared_keys_with_usernames
 
 async def add_user_shared_keys(user_id: str, shared_key: str):
     await find_key(share_key=shared_key)
@@ -27,6 +44,17 @@ async def add_user_shared_keys(user_id: str, shared_key: str):
 
     if resp.modified_count == 0:
         raise HTTPException(status_code=409, detail="Key already in the list")
+    return resp
+
+
+async def delete_user_shared_key(user_id: str, shared_key: str):
+    resp = await users_collection.update_one(
+        {"_id": await str_to_OID(user_id)},
+        {"$pull": {"shared_keys": shared_key}},
+    )
+
+    if resp.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Shared key not found")
     return resp
 
 
@@ -85,7 +113,7 @@ async def str_to_OID(user_id: str):
 
 async def get_visible_keys(user_id: str):
     user_key = await get_user_key(user_id)
-    shared_keys = await get_user_shared_keys(user_id)
+    shared_keys = await get_user_shared_keys_raw(user_id)
     visible_keys = [user_key, *shared_keys]
     return visible_keys
 
