@@ -61,8 +61,8 @@ export default function Page() {
             <Dashboard date={selectedDate} refresh={dashboardRefresh} />
           </div>
 
-          <div className="order-4 relative justify-center md:col-start-1 md:col-end-2 md:row-start-1 md:row-end-3 z-[90]">
-            <div className="absolute top-0 right-0 z-[91]">
+          <div className="order-4 relative justify-center md:col-start-1 md:col-end-2 md:row-start-1 md:row-end-3 z-[10]">
+            <div className="absolute top-0 right-0 z-[85]">
               <GuideButton guideKey="mealLoggerHome" buttonText="?" />
             </div>
             <MealLogger
@@ -78,7 +78,7 @@ export default function Page() {
             <JsonTextViewerIngredients inputText={mealWeights} />
           </div>
 
-          <div className="order-6 justify-center md:col-start-3 md:col-end-4 md:row-start-2">
+          <div className="order-6 justify-center pb-20 md:pb-0 md:col-start-3 md:col-end-4 md:row-start-2">
             <JsonTextViewerMacros inputText={mealMacros} />
           </div>
         </div>

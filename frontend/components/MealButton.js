@@ -64,7 +64,7 @@ export default function MealButton({
   };
 
   return (
-    <div className="w-full relative z-[89]">
+    <div className="w-full relative z-[60]">
       <button
         onClick={onClick}
         className={`w-full md:w-[26rem] md:ml-10 md:mr-10 px-4 py-2 text-white transition duration-300 border
@@ -72,12 +72,12 @@ export default function MealButton({
           isActive
             ? "pt-2 pb-0 bg-gray-600 hover:bg-gray-500 rounded-b-none border-green-600 border-b-0 rounded-tl-xl" //always
             : isLogged
-              ? "py-2 bg-gray-600 hover:bg-gray-500 rounded-br-2xl rounded-tl-2xl rounded-b-none border-green-600" //logged
+              ? "py-2 bg-gray-500 hover:bg-gray-400 rounded-br-2xl rounded-tl-2xl rounded-b-none border-green-600" //logged
               : "py-2 bg-gray-700 hover:bg-gray-500 rounded-br-2xl rounded-tl-2xl border-green-600" //basic
         }
       `}
       >
-        {isLogged ? `${meal} (Logged)` : meal}
+        {meal}
       </button>
 
       <div

@@ -7,6 +7,7 @@ export default function OptimizeButton({ mealId, mealType, onResults }) {
   const disabled = busy || !mealId;
   const [mealWeights, setMealWeights] = useState({});
   const [mealMacros, setMealMacros] = useState({});
+  const hasActiveMeal = Boolean(mealId);
 
   const handleOptimize = useCallback(async () => {
     if (!mealId || busy) return;
@@ -25,9 +26,13 @@ export default function OptimizeButton({ mealId, mealType, onResults }) {
     }
   });
   return (
-    <div>
+    <div
+      className={`${
+        hasActiveMeal ? "fixed flex" : "hidden"
+      } inset-x-0 bottom-4 z-[90] justify-center px-4 md:static md:block md:px-0`}
+    >
       <button
-        className="w-full md:w-[18rem] md:ml-30 min-h-10 bg-green-600 border border-green-900 rounded-tl-xl rounded-br-xl hover:bg-green-700 disabled:bg-green-900"
+        className="w-full max-w-md md:w-[18rem] md:max-w-none md:ml-30 min-h-10 bg-green-600 border border-green-900 rounded-tl-xl rounded-br-xl hover:bg-green-700 disabled:bg-green-900 shadow-lg md:shadow-none"
         onClick={handleOptimize}
         disabled={disabled}
       >

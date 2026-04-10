@@ -155,6 +155,7 @@ export default function MealLogger({
   translate-x-0 group-open:-translate-x-[20rem] md:group-open:-translate-x-[45rem]
   transition-transform duration-180
   [writing-mode:vertical-rl] rotate-180
+  flex items-center justify-center
   cursor-pointer list-none
   px-8 py-3
   text-3xl font-medium text-white

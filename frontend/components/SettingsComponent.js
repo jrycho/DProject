@@ -149,8 +149,8 @@ export default function OptimizationSettingsForm({
                 onClick={() => toggle(i)}
                 className={
                   active
-                    ? "bg-green-600 text-white text-xs md:text-xl px-3 py-2 rounded w-32 md:w-64 h-6 md:h-12"
-                    : "bg-green-600 text-black text-xs md:text-xl px-3 py-2 rounded w-32 md:w-64 h-6 md:h-12"
+                    ? "flex items-center justify-center text-center leading-none bg-green-600 text-white text-xs md:text-xl px-3 py-2 rounded w-32 md:w-64 h-8 md:h-12"
+                    : "flex items-center justify-center text-center leading-none bg-green-600 text-black text-xs md:text-xl px-3 py-2 rounded w-32 md:w-64 h-8 md:h-12"
                 }
               >
                 {active ? "✓" : "●"} {formatPropertyLabel(p)}
