@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import GraphComponent from "@/components/GraphComponent";
 import { fetchTrackerData, calculateDailyMacros } from "@/utils/tracker";
 import GuideButton from "@/components/GuideButton";
@@ -18,6 +19,7 @@ function toNumber(x) {
 }
 
 export default function Dashboard({ date, refresh }) {
+  const router = useRouter();
   const [goals, setGoals] = useState(EMPTY_MACROS);
   const [current, setCurrent] = useState(EMPTY_MACROS);
   const dateKey = date.toISOString().split("T")[0];
@@ -27,7 +29,7 @@ export default function Dashboard({ date, refresh }) {
 
     async function run() {
       try {
-        const goalResp = await fetchTrackerData();
+        const goalResp = await fetchTrackerData(dateKey);
         const currentResp = await calculateDailyMacros(dateKey);
 
         if (cancelled) return;
@@ -49,6 +51,10 @@ export default function Dashboard({ date, refresh }) {
           fat: toNumber(curMacros?.fats),
         });
       } catch (e) {
+        if (!cancelled && e?.message?.includes("Failed to fetch tracker data: 400")) {
+          router.push("/set_up_my_account");
+          return;
+        }
         console.error("Failed to load tracker data.", e);
       }
     }
@@ -57,7 +63,7 @@ export default function Dashboard({ date, refresh }) {
     return () => {
       cancelled = true;
     };
-  }, [dateKey, refresh]);
+  }, [dateKey, refresh, router]);
 
   return (
     <div className="relative w-full">

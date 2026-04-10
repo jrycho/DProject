@@ -5,14 +5,25 @@ import Navbar from "@/components/Navbar";
 import { useRouter } from "next/navigation";
 import { estimateUserMacros, setUserGoals } from "@/utils/tracker";
 import AppBackground from "@/components/AppBackground";
+import Calendar from "@/components/Calendar";
 
 
 
 export default function TrackerQuestioner() {
   const router = useRouter();
+  const today = new Date();
+
+  const formatLocalDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
 
   // --- mode
   const [mode, setMode] = useState("estimate");
+  const [goalDate, setGoalDate] = useState(today);
+  const [showGoalDatePicker, setShowGoalDatePicker] = useState(false);
 
   // --- estimate form state
   const [sex, setSex] = useState("male");
@@ -68,6 +79,7 @@ export default function TrackerQuestioner() {
         weight: w,
         height: h,
         age: a,
+        goal_date: formatLocalDate(goalDate),
         activity_level: activityLevel,
         goal,
       };
@@ -108,7 +120,7 @@ export default function TrackerQuestioner() {
         fat: f,
       };
 
-      await setUserGoals(customPayload);
+      await setUserGoals(customPayload, formatLocalDate(goalDate));
 
       setMessage("Custom goals saved! Redirecting to homepage...");
       router.push("/home");
@@ -136,6 +148,30 @@ export default function TrackerQuestioner() {
       <h2 className="text-2xl font-semibold mb-6 text-center">
         Set your daily goals
       </h2>
+
+      <div className="mb-6">
+        <button
+          type="button"
+          onClick={() => setShowGoalDatePicker((prev) => !prev)}
+          className="inline-flex items-center gap-1 text-sm font-medium text-white transition hover:text-gray-300"
+        >
+          <span>Use from this date</span>
+          <span className="text-base leading-none">
+            {showGoalDatePicker ? "v" : ">"}
+          </span>
+        </button>
+
+        {showGoalDatePicker && (
+          <div className="mt-3 rounded-lg border border-green-600 bg-gray-800/60 px-4 py-4">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-sm text-gray-300">
+                {goalDate.toLocaleDateString()}
+              </span>
+              <Calendar value={goalDate} onChange={setGoalDate} />
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Mode Switch */}
       <div className="flex gap-2 mb-6">

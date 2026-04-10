@@ -12,6 +12,7 @@ const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL;
  *   weight: number,      // kg
  *   height: number,      // cm
  *   age: number,         // years
+ *   goal_date: string,   // ISO datetime or YYYY-MM-DD
  *   activity_level: "sedentary" | "lightly_active" | "moderately_active" | "very_active" | "athlete",
  *   goal: "weight_loss" | "maintain" | "weight_gain"
  * }
@@ -34,26 +35,32 @@ export async function estimateUserMacros(payload) {
 
 /**
  * POST /Tracker/set_user_goals
- * Backend: saves custom goal dict for the user (overrides whatever is stored).
+ * Backend: saves custom goal dict for the user on a specific effective date.
  *
- * custom_goal example:
+ * custom goal example:
  * {
- *   calories: number,
- *   protein: number,
- *   fat: number,
- *   carbs: number,
- *   sat_fat?: number,
- *   fiber?: number,
- *   sodium?: number,
- *   salt?: number,
- *   cholesterol?: number
+ *   goal_date: string,
+ *   target_macros: {
+ *     calories: number,
+ *     protein: number,
+ *     fat: number,
+ *     carbs: number,
+ *     sat_fat?: number,
+ *     fiber?: number,
+ *     sodium?: number,
+ *     salt?: number,
+ *     cholesterol?: number
+ *   }
  * }
  */
-export async function setUserGoals(customGoal) {
+export async function setUserGoals(customGoal, goalDate) {
   const res = await authFetch(`${API_ORIGIN}/Tracker/set_user_goals`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(customGoal ?? {}),
+    body: JSON.stringify({
+      goal_date: goalDate,
+      target_macros: customGoal ?? {},
+    }),
   });
 
   if (!res.ok) {
@@ -67,14 +74,13 @@ export async function setUserGoals(customGoal) {
 
 /**
  * POST /Tracker/fetch_tracker_data
- * Backend: returns stored user goals (macros) for the current user.
- * No body.
+ * Backend: resolves stored user goals (macros) for the requested date.
  */
-export async function fetchTrackerData() {
+export async function fetchTrackerData(date) {
   const res = await authFetch(`${API_ORIGIN}/Tracker/fetch_tracker_data`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({}), // keep consistent with backend expecting a POST
+    body: JSON.stringify({ date }),
   });
 
   if (!res.ok) {

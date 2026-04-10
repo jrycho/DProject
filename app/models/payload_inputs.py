@@ -53,6 +53,7 @@ class EstimateUserMacrosPayload(StrictPayload):
     weight: float = Field(..., gt=0)
     height: float = Field(..., gt=0)
     age: int = Field(..., gt=0)
+    goal_date: str = Field(..., min_length=10)
     activity_level: Literal[
         "sedentary",
         "lightly_active",
@@ -65,6 +66,11 @@ class EstimateUserMacrosPayload(StrictPayload):
 
 class MacroGoalsPayload(RootModel[Dict[str, float]]):
     pass
+
+
+class DatedMacroGoalsPayload(StrictPayload):
+    goal_date: str = Field(..., min_length=10)
+    target_macros: Dict[str, float] = Field(default_factory=dict)
 
 
 class DatePayload(StrictPayload):
