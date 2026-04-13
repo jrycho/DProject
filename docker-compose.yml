@@ -1,25 +1,28 @@
-
 services:
+  web:
+    image: jrycho/diplomka-web:latest
+    pull_policy: always
+    command: npm run start
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:?NEXT_PUBLIC_API_URL is required}
+      NEXT_PUBLIC_API_BASE: ${NEXT_PUBLIC_API_BASE:?NEXT_PUBLIC_API_BASE is required}
+    depends_on:
+      - fastapi
+    restart: unless-stopped
+
   fastapi:
-    build: .
-    container_name: fastapi_app
+    image: jrycho/diplomka-fastapi:latest
+    pull_policy: always
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 1
     ports:
       - "8000:8000"
-    volumes:
-      - .:/app
-    depends_on:
-      - mongo
     environment:
-      - MONGO_URI=mongodb://mongo:27017
-      - MONGO_DB_NAME=nutrition_app
-
-  mongo:
-    image: mongo:6
-    container_name: mongo_db
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
-  
-volumes:
-  mongo_data:
+      MONGO_URI: ${MONGO_URI:?MONGO_URI is required}
+      MONGO_DB_NAME: ${MONGO_DB_NAME:?MONGO_DB_NAME is required}
+      RESEND_API_KEY: ${RESEND_API_KEY:?RESEND_API_KEY is required}
+      DOMAIN: ${DOMAIN:?DOMAIN is required}
+      SECRET_KEY: ${SECRET_KEY:?SECRET_KEY is required}
+      SMTP_PASS: ${SMTP_PASS:?SMTP_PASS is required}
+    restart: unless-stopped
