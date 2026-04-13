@@ -1,11 +1,7 @@
 services:
   web:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:?NEXT_PUBLIC_API_URL is required}
-        NEXT_PUBLIC_API_BASE: ${NEXT_PUBLIC_API_BASE:?NEXT_PUBLIC_API_BASE is required}
+    image: jrycho/diplomka-web:latest
+    pull_policy: always
     command: npm run start
     ports:
       - "3000:3000"
@@ -17,9 +13,8 @@ services:
     restart: unless-stopped
 
   fastapi:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: jrycho/diplomka-fastapi:latest
+    pull_policy: always
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 1
     ports:
       - "8000:8000"
