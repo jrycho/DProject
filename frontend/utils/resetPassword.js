@@ -1,4 +1,4 @@
-const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL;
+const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL || "/api";
 export async function resetPassword(token, password) {
 
   const res = await fetch(

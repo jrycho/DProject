@@ -1,6 +1,6 @@
 "use client";
 import react from "react";
-const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL;
+const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL || "/api";
 import { authFetch } from "./authFetch";
 
 function buildNormalizedPayload({

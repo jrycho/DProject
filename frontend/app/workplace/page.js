@@ -3,6 +3,8 @@
   import { useEffect, useState } from 'react';
   import SettingsPanel from './settingspanel';
 
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE || '/api';
+
   const MealCreator = () => {
     const [mealId, setMealId] = useState(null)
     const [loading, setLoading] = useState(false)
@@ -42,7 +44,7 @@
       setError(null)
 
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/logs`, {
+        const res = await fetch(`${API_BASE}/logs`, {
           method: 'POST',
         })
         if (!res.ok) throw new Error('API error')
@@ -95,7 +97,7 @@
 
   const addItemToMeal = async (mealId, barcode, priority) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/logs/meal/${mealId}/ingredient?barcode=${barcode}&priority=${priority}`,
+      const res = await fetch(`${API_BASE}/logs/meal/${mealId}/ingredient?barcode=${barcode}&priority=${priority}`,
       {method: 'POST'})
       const data = await res.json()
       if (res.ok) {
@@ -110,7 +112,7 @@
 
   const showMeal = async (mealId) => {
     if (!mealId !== null) {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/logs/${mealId}`,
+      const res = await fetch(`${API_BASE}/logs/${mealId}`,
         {method: 'GET'}
       )
       const data = await res.json()

@@ -1,6 +1,6 @@
 import { authFetch } from "./authFetch";
 
-const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL;
+const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 /**
  * POST /Tracker/estimate_user_macros
@@ -129,7 +129,7 @@ export async function calculateDailyMacros(date) {
  * POST /Tracker/calculate_daily_macros?date=YYYY-MM-DD
  */
 export async function calculateDailyMacrosQuery(date) {
-  const url = new URL(`${API_ORIGIN}/Tracker/calculate_daily_macros`);
+  const url = new URL(`${API_ORIGIN}/Tracker/calculate_daily_macros`, window.location.origin);
   url.searchParams.set("date", date);
 
   const res = await authFetch(url.toString(), {

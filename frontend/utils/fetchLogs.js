@@ -1,7 +1,7 @@
 import { authFetch } from './authFetch';
 
 
-const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL;
+const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL || "/api";
 /**
  * Fetch logs for a given date and update the state.
  * @param {string} dateKey - Date in YYYY-MM-DD format

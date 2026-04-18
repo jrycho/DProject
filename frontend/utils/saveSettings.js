@@ -1,6 +1,6 @@
 import { authFetch } from './authFetch';
 //TODO: API_ORIGIN
-const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL;;
+const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL || "/api";;
 
 
 export async function saveSettings(settings, meal_type) {

@@ -1,7 +1,7 @@
 import React from 'react'
 import { authFetch } from './authFetch';
 
-const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL;
+const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 export async function addIngredient(barcode, mealId) {
 

@@ -1,5 +1,5 @@
 import { authFetch } from './authFetch';
-const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL;;
+const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL || "/api";;
 
 export async function deleteIngredient(mealId, barcode){
       const res = await authFetch(`${API_ORIGIN}/logs/meal/${encodeURIComponent(mealId)}/ingredient?barcode=${encodeURIComponent(barcode)}`,

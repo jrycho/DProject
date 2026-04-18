@@ -1,7 +1,7 @@
 // optimizeApi.js
 import { authFetch } from "./authFetch";
 
-const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL;
+const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 /**
  * GET /optimize/get_optimization_macros/{meal_id}

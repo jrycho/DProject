@@ -1,5 +1,5 @@
 import { authFetch } from './authFetch';
-const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL;
+const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 export async function fetchIngredientButtons(mealId){
         const res = await authFetch(`${API_ORIGIN}/logs/return_ingredients_for_buttons/${encodeURIComponent(mealId)}`,
