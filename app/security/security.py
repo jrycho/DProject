@@ -53,7 +53,8 @@ def verify_access_token(token: str): #!USED
         return payload  # contains e.g. { "sub": "user_id" }
     #if the token is not valid, raise an exception
     except JWTError:
-        return None
+        raise HTTPException(
+            status_code=401,)
 
 """  
 get user function, querries for user info in db
