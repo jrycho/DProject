@@ -7,7 +7,6 @@ from datetime import datetime, timezone
 from app.db_files.crud.settings_saves import save_user_settings
 from fastapi.responses import JSONResponse
 from app.security.security import create_access_token
-import resend
 from dotenv import load_dotenv
 from app.models.forgotPasswordRequest import ForgotPasswordRequest
 from app.models.payload_inputs import ResetPasswordPayload

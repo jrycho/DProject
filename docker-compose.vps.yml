@@ -1,43 +1,33 @@
-version: "3.3"
-
 services:
   web:
-    image: 
-      jrycho/diplomka-web:latest
+    image: jrycho/diplomka-web:latest
+    pull_policy: always
     command: npm run start
     ports:
       - "3000:3000"
-    env_file:
-      - .env
-      - .env.vps
     environment:
-      - NODE_ENV=production
-      - NEXT_PUBLIC_API_URL=http://46.28.109.229:8000
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+      NEXT_PUBLIC_API_BASE: ${NEXT_PUBLIC_API_BASE}
     depends_on:
       - fastapi
     restart: unless-stopped
 
-
   fastapi:
-    image: jrycho/diplomka-fastapi:latest  
+    image: jrycho/diplomka-fastapi:latest
+    pull_policy: always
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 1
     ports:
       - "8000:8000"
     environment:
-      - MONGO_URI=mongodb://mongo:27017
-      - MONGO_DB_NAME=nutrition_app
-    depends_on:
-      - mongo
+      MONGO_URI: ${MONGO_URI:?MONGO_URI is required}
+      MONGO_DB_NAME: ${MONGO_DB_NAME:?MONGO_DB_NAME is required}
+      DOMAIN: ${DOMAIN:?DOMAIN is required}
+      SECRET_KEY: ${SECRET_KEY:?SECRET_KEY is required}
+      SMTP_HOST: ${SMTP_HOST:-smtp.cesky-hosting.cz}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_SECURITY: ${SMTP_SECURITY:-tls}
+      SMTP_USER: ${SMTP_USER:-noreply@jrycho.cz}
+      SMTP_FROM_EMAIL: ${SMTP_FROM_EMAIL:-noreply@jrycho.cz}
+      SMTP_FROM_NAME: ${SMTP_FROM_NAME:-Jrycho}
+      SMTP_PASS: ${SMTP_PASS:?SMTP_PASS is required}
     restart: unless-stopped
-
-
-  mongo:
-    image: mongo:6
-
-    volumes:
-      - mongo_data:/data/db
-    restart: unless-stopped
-
-
-volumes:
-  mongo_data:
