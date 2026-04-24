@@ -4,7 +4,7 @@ const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 export async function addShareKey(sharedId) {
   const res = await authFetch(
-    `${API_ORIGIN}/User_functions/add_user_shared_id`,
+    `${API_ORIGIN}/user-functions/shared-keys`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },

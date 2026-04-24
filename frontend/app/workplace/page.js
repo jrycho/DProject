@@ -44,7 +44,7 @@
       setError(null)
 
       try {
-        const res = await fetch(`${API_BASE}/logs`, {
+        const res = await fetch(`${API_BASE}/meal-logs`, {
           method: 'POST',
         })
         if (!res.ok) throw new Error('API error')
@@ -97,7 +97,7 @@
 
   const addItemToMeal = async (mealId, barcode, priority) => {
     try {
-      const res = await fetch(`${API_BASE}/logs/meal/${mealId}/ingredient?barcode=${barcode}&priority=${priority}`,
+      const res = await fetch(`${API_BASE}/meal-logs/${mealId}/ingredients?barcode=${barcode}&priority=${priority}`,
       {method: 'POST'})
       const data = await res.json()
       if (res.ok) {
@@ -112,7 +112,7 @@
 
   const showMeal = async (mealId) => {
     if (!mealId !== null) {
-      const res = await fetch(`${API_BASE}/logs/${mealId}`,
+      const res = await fetch(`${API_BASE}/meal-logs/${mealId}`,
         {method: 'GET'}
       )
       const data = await res.json()

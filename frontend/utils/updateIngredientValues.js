@@ -10,7 +10,7 @@ export async function updateIngredientValues({
   maxAmount,
 }) {
   const res = await authFetch(
-    `${API_ORIGIN}/logs/update_ingredient_amount_settings` +
+    `${API_ORIGIN}/meal-logs/ingredient-amount-settings` +
       `?barcode=${encodeURIComponent(barcode)}` +
       `&meal_id=${encodeURIComponent(mealId)}` +
       `&set_amount=${encodeURIComponent(setAmount)}` +

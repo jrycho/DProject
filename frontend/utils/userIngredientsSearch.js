@@ -7,7 +7,7 @@ export async function getUserIngredientsSearch(query) {
   const q = (query ?? "").trim();
   if (!q) return [];
 
-  const response = await authFetch(`${API_ORIGIN}/User_functions/search`, {
+  const response = await authFetch(`${API_ORIGIN}/user-functions/search`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

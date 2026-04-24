@@ -3,7 +3,7 @@ import { authFetch } from "./authFetch";
 const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 /**
- * POST /Tracker/estimate_user_macros
+ * POST /tracker/macro-estimates
  * Backend: estimates macros from user params, saves them as user's goal, returns DB response.
  *
  * payload example:
@@ -18,7 +18,7 @@ const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL || "/api";
  * }
  */
 export async function estimateUserMacros(payload) {
-  const res = await authFetch(`${API_ORIGIN}/Tracker/estimate_user_macros`, {
+  const res = await authFetch(`${API_ORIGIN}/tracker/macro-estimates`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload ?? {}),
@@ -34,7 +34,7 @@ export async function estimateUserMacros(payload) {
 }
 
 /**
- * POST /Tracker/set_user_goals
+ * POST /tracker/goals
  * Backend: saves custom goal dict for the user on a specific effective date.
  *
  * custom goal example:
@@ -54,7 +54,7 @@ export async function estimateUserMacros(payload) {
  * }
  */
 export async function setUserGoals(customGoal, goalDate) {
-  const res = await authFetch(`${API_ORIGIN}/Tracker/set_user_goals`, {
+  const res = await authFetch(`${API_ORIGIN}/tracker/goals`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -73,11 +73,11 @@ export async function setUserGoals(customGoal, goalDate) {
 }
 
 /**
- * POST /Tracker/fetch_tracker_data
+ * POST /tracker/goals/items
  * Backend: resolves stored user goals (macros) for the requested date.
  */
 export async function fetchTrackerData(date) {
-  const res = await authFetch(`${API_ORIGIN}/Tracker/fetch_tracker_data`, {
+  const res = await authFetch(`${API_ORIGIN}/tracker/goals/items`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ date }),
@@ -93,7 +93,7 @@ export async function fetchTrackerData(date) {
 }
 
 /**
- * POST /Tracker/calculate_daily_macros
+ * POST /tracker/daily-macros
  * Backend: returns summed macros for all meals of the given date for current user.
  *
  * IMPORTANT NOTE:
@@ -106,11 +106,11 @@ export async function fetchTrackerData(date) {
  *
  * This client sends it as JSON body: { date: "YYYY-MM-DD" }.
  * If you keep backend as-is, you might need to call:
- *   `${API_ORIGIN}/Tracker/calculate_daily_macros?date=YYYY-MM-DD`
+ *   `${API_ORIGIN}/tracker/daily-macros?date=YYYY-MM-DD`
  * instead.
  */
 export async function calculateDailyMacros(date) {
-  const res = await authFetch(`${API_ORIGIN}/Tracker/calculate_daily_macros?date=${date}`, {
+  const res = await authFetch(`${API_ORIGIN}/tracker/daily-macros?date=${date}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
   });
@@ -126,10 +126,10 @@ export async function calculateDailyMacros(date) {
 
 /**
  * Alternate version if your backend expects date as QUERY PARAM (likely with current signature).
- * POST /Tracker/calculate_daily_macros?date=YYYY-MM-DD
+ * POST /tracker/daily-macros?date=YYYY-MM-DD
  */
 export async function calculateDailyMacrosQuery(date) {
-  const url = new URL(`${API_ORIGIN}/Tracker/calculate_daily_macros`, window.location.origin);
+  const url = new URL(`${API_ORIGIN}/tracker/daily-macros`, window.location.origin);
   url.searchParams.set("date", date);
 
   const res = await authFetch(url.toString(), {

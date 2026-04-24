@@ -37,8 +37,13 @@ services:
     environment:
       MONGO_URI: ${MONGO_URI:?MONGO_URI is required}
       MONGO_DB_NAME: ${MONGO_DB_NAME:?MONGO_DB_NAME is required}
-      RESEND_API_KEY: ${RESEND_API_KEY:?RESEND_API_KEY is required}
       DOMAIN: ${DOMAIN:-https://jrycho.cz}
       SECRET_KEY: ${SECRET_KEY:?SECRET_KEY is required}
+      SMTP_HOST: ${SMTP_HOST:-smtp.cesky-hosting.cz}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_SECURITY: ${SMTP_SECURITY:-tls}
+      SMTP_USER: ${SMTP_USER:-noreply@jrycho.cz}
+      SMTP_FROM_EMAIL: ${SMTP_FROM_EMAIL:-noreply@jrycho.cz}
+      SMTP_FROM_NAME: ${SMTP_FROM_NAME:-Jrycho}
       SMTP_PASS: ${SMTP_PASS:?SMTP_PASS is required}
     restart: unless-stopped

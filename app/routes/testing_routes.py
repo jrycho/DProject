@@ -4,14 +4,14 @@ import os
 from app.logging_config import get_logger 
 
 log = get_logger()
-router = APIRouter(prefix="/Testing", tags=["Testing"])
+router = APIRouter(prefix="/testing", tags=["Testing"])
 
 MONGO_URL = os.getenv("MONGO_URI", "mongodb://localhost:27017")
 DB_NAME = os.getenv("MONGO_DB_NAME", "nutrition_app")
 
 client = AsyncIOMotorClient(MONGO_URL)
 
-@router.delete("/danger/delete-db")
+@router.delete("/database")
 async def delete_database():
     """
     🚨 Danger: Deletes the entire MongoDB database.
@@ -23,6 +23,6 @@ async def delete_database():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
-@router.get("/logging_test")
+@router.get("/logging")
 async def get_logging_test():
     log.debug("got some log")

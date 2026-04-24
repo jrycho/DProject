@@ -9,7 +9,7 @@ const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL || "/api";
  */
 export async function fetchLogs(dateKey, setLogs) {
     try {        
-        const response = await authFetch(`${API_ORIGIN}/logs/fetch_meal_by_date?date=${dateKey}`)
+        const response = await authFetch(`${API_ORIGIN}/meal-logs/by-date?date=${dateKey}`)
         if (!response.ok) throw new Error('Failed to fetch logs');
         const data = await response.json();
 

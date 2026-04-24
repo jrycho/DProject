@@ -3,6 +3,7 @@ services:
   fastapi:
     build: .
     container_name: fastapi_app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     ports:
       - "8000:8000"
     volumes:
@@ -12,6 +13,15 @@ services:
     environment:
       - MONGO_URI=mongodb://mongo:27017
       - MONGO_DB_NAME=nutrition_app
+      - DOMAIN=${DOMAIN:-http://localhost:3000}
+      - SECRET_KEY=${SECRET_KEY:-dev-secret-key}
+      - SMTP_HOST=${SMTP_HOST:-smtp.cesky-hosting.cz}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_SECURITY=${SMTP_SECURITY:-tls}
+      - SMTP_USER=${SMTP_USER:-noreply@jrycho.cz}
+      - SMTP_FROM_EMAIL=${SMTP_FROM_EMAIL:-noreply@jrycho.cz}
+      - SMTP_FROM_NAME=${SMTP_FROM_NAME:-Jrycho}
+      - SMTP_PASS=${SMTP_PASS}
 
   mongo:
     image: mongo:6

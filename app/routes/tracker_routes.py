@@ -6,9 +6,9 @@ from app.db_files.crud.tracker_crud import save_new_user_goal, get_user_goals, f
 from app.models.payload_inputs import DatePayload, DatedMacroGoalsPayload, EstimateUserMacrosPayload
 
 
-router = APIRouter(prefix="/Tracker", tags=["Tracker"])
+router = APIRouter(prefix="/tracker", tags=["Tracker"])
 
-@router.post("/estimate_user_macros")
+@router.post("/macro-estimates")
 async def estimate_user_macros(payload: EstimateUserMacrosPayload, user_id: str = Depends(get_current_user_id)):
     if user_id is None:
         raise HTTPException(status_code=401, detail="User not found")
@@ -64,7 +64,7 @@ async def estimate_user_macros(payload: EstimateUserMacrosPayload, user_id: str 
     return ("Successfully updated goals")
 
 
-@router.post("/set_user_goals")
+@router.post("/goals")
 async def set_user_goals(custom_goal: DatedMacroGoalsPayload, user_id: str = Depends(get_current_user_id)):
     if user_id is None:
         raise HTTPException(status_code=401, detail="User not found")
@@ -77,7 +77,7 @@ async def set_user_goals(custom_goal: DatedMacroGoalsPayload, user_id: str = Dep
         raise HTTPException(status_code=400, detail="No changes made")
     return {"detail": "Successfully updated goals"}
 
-@router.post("/fetch_tracker_data")
+@router.post("/goals/items")
 async def fetch_tracker_data(payload: DatePayload, user_id: str = Depends(get_current_user_id)):
     if user_id is None:
         raise HTTPException(status_code=401, detail="User not found")
@@ -86,7 +86,7 @@ async def fetch_tracker_data(payload: DatePayload, user_id: str = Depends(get_cu
         raise HTTPException(status_code=400, detail="No data found")
     return resp
 
-@router.post("/calculate_daily_macros")
+@router.post("/daily-macros")
 async def calculate_daily_macros(payload: DatePayload = Depends(), user_id: str = Depends(get_current_user_id)):
     if user_id is None:
         raise HTTPException(status_code=401, detail="User not found")

@@ -6,7 +6,7 @@ print("Signup tests started")
 async def test_signup_works(client, fake_db):
     payload = {"username":"test","email": "user@example.com", "password": "secret123"}
 
-    resp = await client.post("/Signup/signup", json=payload)
+    resp = await client.post("/users", json=payload)
     assert resp.status_code == status.HTTP_200_OK
 
     # check fake DB state
@@ -29,7 +29,7 @@ async def test_login(client, fake_db):
         "password": hashed_password,
     })
     resp = await client.post(
-        "/Auth/login",
+        "/auth/sessions",
         data={"username": "user@example.com", "password": raw_password},
     )
     assert resp.status_code == 200

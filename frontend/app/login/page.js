@@ -20,7 +20,7 @@ export default function Login() {
       body.append("username", email);
       body.append("password", password);
 
-      const response = await fetch(`${API_ORIGIN}/Auth/login`, {
+      const response = await fetch(`${API_ORIGIN}/auth/sessions`, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: body.toString(),

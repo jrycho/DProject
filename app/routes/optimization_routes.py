@@ -9,7 +9,7 @@ from app.db_files.crud.optimization import save_optimization_macros_crud, save_o
 from app.models.payload_inputs import MealTypePayload, OptimizationMacrosPayload, OptimizationWeightsPayload
 
 
-router = APIRouter(prefix="/optim", tags=["Optimization"])
+router = APIRouter(prefix="/meal-optimizations", tags=["Optimization"])
 
 """  
 Optimize meal
@@ -20,7 +20,7 @@ calls optimization algorithm with settings in state
 calls solver
 returns results in JSON form, not saved, user result, if needed could be optimized again for same result
 """
-@router.get("/optimize/{meal_id}")
+@router.get("/{meal_id}")
 async def optimize_meal(meal_id: str, payload: MealTypePayload = Depends(), user_id: str = Depends(get_current_user_id)):
     input_obj, issue_list = await build_input_object_from_meal_log(meal_id, user_id) 
     print("got somewhere 1")
@@ -49,14 +49,14 @@ async def optimize_meal(meal_id: str, payload: MealTypePayload = Depends(), user
 
 
 
-@router.post("/optimize/save_optimization_weights/{meal_id}")
+@router.post("/{meal_id}/weights")
 async def save_optimization_weights(meal_id: str, payload: OptimizationWeightsPayload, user_id: str = Depends(get_current_user_id) ):
     res = await save_optimization_weights_crud(meal_id, user_id, payload.root)
     if not res:
         raise HTTPException(status_code=404, detail="Meal optimization weights saving error")
     return res
 
-@router.post("/optimize/save_optimization_macros/{meal_id}")
+@router.post("/{meal_id}/macros")
 async def save_optimization_macros(meal_id: str, payload: OptimizationMacrosPayload, user_id: str = Depends(get_current_user_id) ):
     res = await save_optimization_macros_crud(meal_id, user_id, payload.root)
     if not res:
@@ -66,7 +66,7 @@ async def save_optimization_macros(meal_id: str, payload: OptimizationMacrosPayl
 
 MACROS_PLACEHOLDER = {"No macros yet": "-"}
 
-@router.get("/optimize/get_optimization_macros/{meal_id}")
+@router.get("/{meal_id}/macros")
 async def get_optimization_macros(meal_id, user_id: str = Depends(get_current_user_id) ):
     res = await get_optimization_macros_crud(meal_id, user_id)
 
@@ -75,13 +75,13 @@ async def get_optimization_macros(meal_id, user_id: str = Depends(get_current_us
 WEIGHTS_PLACEHOLDER = [
     { "name": "No items", "grams": "-"}
 ]
-@router.get("/optimize/get_optimization_weights/{meal_id}")
+@router.get("/{meal_id}/weights")
 async def get_optimization_weights(meal_id, user_id: str = Depends(get_current_user_id) ):
     res = await get_optimization_weights_crud(meal_id, user_id)
 
     return res
 
-@router.get("/optimize/get_optimization_macros_and_weights/{meal_id}")
+@router.get("/{meal_id}/results")
 async def get_optimization_macros(meal_id, user_id: str = Depends(get_current_user_id) ):
     if not user_id:
         raise HTTPException(status_code=401, detail="Unauthorized")

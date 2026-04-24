@@ -11,7 +11,7 @@ from slowapi import Limiter
 from app.models.payload_inputs import ChangeUsernamePayload
 
 
-router = APIRouter(prefix="/Auth", tags=["Auth"])
+router = APIRouter(prefix="/auth", tags=["Auth"])
 
 def login_key_func(request: Request) -> str:
     ip = request.client.host if request.client else "unknown"
@@ -31,7 +31,7 @@ Returns:
 Raises:
     - HTTPException: If the user is not found or the 
 """
-@router.post("/login") #!USED
+@router.post("/sessions") #!USED
 @limiter.limit("5/minute")
 async def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends(), db=Depends(get_db)):
     user = await get_user_by_email(db=db, email= form_data.username.lower().strip())
@@ -71,13 +71,13 @@ Args:
 Returns:
     - UserPublic: The current user's information.
 """
-@router.get("/me") #! USED testing
+@router.get("/profile") #! USED testing
 async def get_me(current_user=Depends(get_current_user)):
 
     return UserPublic(**current_user)
 
 
-@router.post("/change_username")
+@router.patch("/profile/username")
 async def change_username(payload: ChangeUsernamePayload, current_user=Depends(get_current_user), db=Depends(get_db)):
     data = current_user
     resp = await change_username_crud(db=db, data=data, new_username=payload.new_username)

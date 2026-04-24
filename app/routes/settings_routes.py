@@ -17,7 +17,7 @@ saves it to state
 saves it to MongoDB
 returns message and user_id
 """
-@router.post("/save_settings") #! USED, worth 
+@router.post("") #! USED, worth 
 async def create_settings(input: SettingsPayload, user_id: str = Depends(get_current_user_id)):
     print(input.excess_weights)
     settings_obj = Settings(
@@ -42,7 +42,7 @@ args: user_id: str
 if not in DB HTTPException 404
 returns Settings object
 """
-@router.post("/get_settings") #! USED
+@router.post("/items") #! USED
 async def get_settings(payload: MealTypePayload, user_id: str = Depends(get_current_user_id)):
         # Get from MongoDB
         meal_type = payload.meal_type

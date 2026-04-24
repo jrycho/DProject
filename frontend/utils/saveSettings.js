@@ -6,7 +6,7 @@ const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL || "/api";;
 export async function saveSettings(settings, meal_type) {
       const payload = { meal_type: meal_type, ...settings };
     try {        
-        const response = await authFetch(`${API_ORIGIN}/settings/save_settings`,
+        const response = await authFetch(`${API_ORIGIN}/settings`,
             {method : 'POST',
              headers: { 'Content-Type': 'application/json' },
              body: JSON.stringify(payload),

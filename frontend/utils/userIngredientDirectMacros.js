@@ -5,7 +5,7 @@ import { authFetch } from "./authFetch";
 
 export async function addUserIngredientDirect(payload) {
   const res = await authFetch(
-    `${API_ORIGIN}/User_functions/add_user_ingredient_direct`,
+    `${API_ORIGIN}/user-functions/ingredients/direct`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },

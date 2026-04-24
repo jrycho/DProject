@@ -4,7 +4,7 @@ import { authFetch } from "./authFetch";
 const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 /**
- * GET /optimize/get_optimization_macros/{meal_id}
+ * GET /meal-optimizations/{meal_id}/macros
  * Backend: returns optimization macros for a meal for the current user.
  */
 export async function getOptimizationMacros(mealId) {
@@ -13,7 +13,7 @@ export async function getOptimizationMacros(mealId) {
   }
 
   const res = await authFetch(
-    `${API_ORIGIN}/optim/optimize/get_optimization_macros/${encodeURIComponent(mealId)}`,
+    `${API_ORIGIN}/meal-optimizations/${encodeURIComponent(mealId)}/macros`,
     { method: "GET" }
   );
 
@@ -27,7 +27,7 @@ export async function getOptimizationMacros(mealId) {
 }
 
 /**
- * GET /optimize/get_optimization_weights/{meal_id}
+ * GET /meal-optimizations/{meal_id}/weights
  * Backend: returns optimization weights for a meal for the current user.
  */
 export async function getOptimizationWeights(mealId) {
@@ -36,7 +36,7 @@ export async function getOptimizationWeights(mealId) {
   }
 
   const res = await authFetch(
-    `${API_ORIGIN}/optim/optimize/get_optimization_weights/${encodeURIComponent(mealId)}`,
+    `${API_ORIGIN}/meal-optimizations/${encodeURIComponent(mealId)}/weights`,
     { method: "GET" }
   );
 
@@ -50,7 +50,7 @@ export async function getOptimizationWeights(mealId) {
 }
 
 /**
- * GET /optimize/get_optimization_macros_and_weights/{meal_id}
+ * GET /meal-optimizations/{meal_id}/results
  * Backend: returns optimization macros and weights for a meal for the current user in shape of JSON tables form.
  */
 export async function getOptimizationWeightsAndMacros(mealId) {
@@ -59,7 +59,7 @@ export async function getOptimizationWeightsAndMacros(mealId) {
   }
 
   const res = await authFetch(
-    `${API_ORIGIN}/optim/optimize/get_optimization_macros_and_weights/${encodeURIComponent(mealId)}`,
+    `${API_ORIGIN}/meal-optimizations/${encodeURIComponent(mealId)}/results`,
     { method: "GET" }
   );
 

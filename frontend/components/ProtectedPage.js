@@ -22,7 +22,7 @@ export default function ProtectedPage({ children }) {
       }
 
       try {
-        const res = await authFetch(`${API_ORIGIN}/Auth/me`, {
+        const res = await authFetch(`${API_ORIGIN}/auth/profile`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });

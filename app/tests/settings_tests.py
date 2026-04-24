@@ -5,20 +5,21 @@ from app.utils.settingsPayload import SettingsPayload
 @pytest.mark.asyncio
 async def test_create_settings(client, fake_db):
     payload = {
+        "meal_type": "Breakfast",
         "optimized_properties": ["kcal", "protein", "carbs", "fat"],
         "target_goal": [600.0, 30.0, 60.0, 20.0],
         "excess_weights": [1.0, 1.0, 1.0, 1.0],
         "slack_weights": [1.0, 1.0, 1.0, 1.0],
     }
         
-    resp = await client.post(f"/settings/save_settings", json= payload)
+    resp = await client.post(f"/settings", json= payload)
     assert resp.status_code == status.HTTP_200_OK
 
 @pytest.mark.asyncio
 async def test_get_settings(client, fake_db):
     await fake_db.user_settings.clear()
     """ Not found in the db - raise default values"""
-    resp = await client.get((f"/settings/get_settings"))
+    resp = await client.post("/settings/items", json={"meal_type": "Breakfast"})
     data = resp.json()
     print(data)
     assert resp.status_code == status.HTTP_200_OK, f"{resp.status_code} - {resp.text}"
@@ -31,7 +32,7 @@ async def test_get_settings(client, fake_db):
                                       "target_goal": [460.0, 30.0, 60.0, 20.0],
                                       "excess_weights": [1.0, 1.0, 1.0, 1.0],
                                       "slack_weights": [1.0, 1.0, 1.0, 1.0], })
-    resp = await client.get((f"/settings/get_settings"))
+    resp = await client.post("/settings/items", json={"meal_type": "Breakfast"})
     data = resp.json()
     print(data)
     assert resp.status_code == status.HTTP_200_OK, f"{resp.status_code} - {resp.text}"

@@ -26,7 +26,7 @@ useEffect(() => {
 }, [redirect, router]);
 
   const handleSignup = async () => {
-    const res = await fetch(`${API_ORIGIN}/Signup/signup`, {
+    const res = await fetch(`${API_ORIGIN}/users`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, email, password }),

@@ -4,7 +4,7 @@ const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 export async function deleteSharedKey(sharedKey) {
   const res = await authFetch(
-    `${API_ORIGIN}/User_functions/delete_user_shared_key/${encodeURIComponent(sharedKey)}`,
+    `${API_ORIGIN}/user-functions/shared-keys/${encodeURIComponent(sharedKey)}`,
     {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
