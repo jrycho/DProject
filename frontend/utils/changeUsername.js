@@ -1,12 +1,12 @@
 import { authFetch } from "./authFetch";
 
-const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL;
+const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 export async function changeUsername(newUsername) {
   const res = await authFetch(
-    `${API_ORIGIN}/Auth/change_username?new_username=${encodeURIComponent(newUsername)}`,
+    `${API_ORIGIN}/auth/profile/username?new_username=${encodeURIComponent(newUsername)}`,
     {
-      method: "POST",
+      method: "PATCH",
       headers: { "Content-Type": "application/json" },
     }
   );

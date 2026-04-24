@@ -16,7 +16,7 @@ SECRET_KEY = os.getenv("SECRET_KEY") #replace with OS environment variable
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/Auth/login") #important for swagger docs 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/sessions") #important for swagger docs 
 
 
 """

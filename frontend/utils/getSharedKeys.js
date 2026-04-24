@@ -1,9 +1,9 @@
 import { authFetch } from "./authFetch";
 
-const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL;
+const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 export async function getSharedKeys() {
-  const res = await authFetch(`${API_ORIGIN}/User_functions/get_user_shared_keys`, {
+  const res = await authFetch(`${API_ORIGIN}/user-functions/shared-keys`, {
     method: "GET",
     headers: { "Content-Type": "application/json" },
   });

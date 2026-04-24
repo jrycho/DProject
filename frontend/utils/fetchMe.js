@@ -1,9 +1,9 @@
 import { authFetch } from "./authFetch";
 
-const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL;
+const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 export async function fetchMe() {
-  const res = await authFetch(`${API_ORIGIN}/Auth/me`, {
+  const res = await authFetch(`${API_ORIGIN}/auth/profile`, {
     method: "GET",
     headers: { "Content-Type": "application/json" },
   });

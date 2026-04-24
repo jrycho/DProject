@@ -1,11 +1,11 @@
 import React from 'react'
 import { authFetch } from './authFetch';
 
-const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL;
+const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 export async function addIngredient(barcode, mealId) {
 
-  const res = await authFetch( `${API_ORIGIN}/logs/add_ingredient/${encodeURIComponent(barcode)}?meal_id=${encodeURIComponent(mealId)}`, {
+  const res = await authFetch( `${API_ORIGIN}/meal-logs/${encodeURIComponent(mealId)}/ingredients/${encodeURIComponent(barcode)}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
   });

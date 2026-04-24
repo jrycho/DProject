@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import AppBackground from "@/components/AppBackground";
 
-const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL;
+const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 export default function SignupPage() {
   const [username, setUsername] = useState("");
@@ -26,7 +26,7 @@ useEffect(() => {
 }, [redirect, router]);
 
   const handleSignup = async () => {
-    const res = await fetch(`${API_ORIGIN}/Signup/signup`, {
+    const res = await fetch(`${API_ORIGIN}/users`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, email, password }),

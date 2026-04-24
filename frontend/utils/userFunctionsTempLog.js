@@ -1,9 +1,9 @@
 import { authFetch } from "./authFetch";
 
-const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL;
+const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 /**
- * POST /User_functions/add_ingredient_to_log
+ * POST /user-functions/ingredients/temp-ingredients
  * payload must match IngredientEntryTemp on backend (e.g., { barcode, name, ... })
  */
 export async function addIngredientToTempLog(barcode, mealId) {
@@ -11,7 +11,7 @@ export async function addIngredientToTempLog(barcode, mealId) {
     barcode: barcode,
     amount: 0,
   };
-  const res = await authFetch(`${API_ORIGIN}/User_functions/add_ingredient_to_log`, {
+  const res = await authFetch(`${API_ORIGIN}/user-functions/ingredients/temp-ingredients`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload ?? {}),
@@ -28,14 +28,12 @@ export async function addIngredientToTempLog(barcode, mealId) {
 }
 
 /**
- * POST /User_functions/delete_ingredient_from_log
- * backend expects { barcode: "..." }
+ * DELETE /user-functions/ingredients/temp-ingredients?barcode=...
  */
 export async function deleteIngredientFromTempLog(barcode) {
-  const res = await authFetch(`${API_ORIGIN}/User_functions/delete_ingredient_from_log`, {
-    method: "POST",
+  const res = await authFetch(`${API_ORIGIN}/user-functions/ingredients/temp-ingredients?barcode=${encodeURIComponent(barcode)}`, {
+    method: "DELETE",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ barcode }),
   });
 
   if (!res.ok) {
@@ -48,12 +46,12 @@ export async function deleteIngredientFromTempLog(barcode) {
 }
 
 /**
- * POST /User_functions/fetch_temp_ingredients_buttons
+ * GET /user-functions/ingredients/temp-ingredients
  * No body. Returns list (or doc) for rendering buttons.
  */
 export async function fetchTempIngredientButtons() {
-  const res = await authFetch(`${API_ORIGIN}/User_functions/fetch_temp_ingredients_buttons`, {
-    method: "POST",
+  const res = await authFetch(`${API_ORIGIN}/user-functions/ingredients/temp-ingredients`, {
+    method: "GET",
     headers: { "Content-Type": "application/json" },
   });
 
@@ -67,13 +65,13 @@ export async function fetchTempIngredientButtons() {
 
 
 /**
- * POST /User_functions/save_temp_to_perm
+ * POST /user-functions/ingredients/temp-ingredients/commits
  * payload = meal metadata 
  * nutriments are added automatically on backend
  */
 export async function saveTempLogToPermanent(payload) {
   const res = await authFetch(
-    `${API_ORIGIN}/User_functions/save_temp_to_perm`,
+    `${API_ORIGIN}/user-functions/ingredients/temp-ingredients/commits`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -93,12 +91,12 @@ export async function saveTempLogToPermanent(payload) {
 
 
 /**
- * POST /User_functions/set_amount_in_temp_
+ * PATCH /user-functions/ingredients/temp-ingredients/amounts
  * backend expects { barcode: "...", amount: number }
  */
 export async function setAmountInTemp(barcode, amount) {
-  const res = await authFetch(`${API_ORIGIN}/User_functions/set_amount_in_temp_`, {
-    method: "POST",
+  const res = await authFetch(`${API_ORIGIN}/user-functions/ingredients/temp-ingredients/amounts`, {
+    method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ barcode, amount }),
   });

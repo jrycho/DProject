@@ -1,11 +1,11 @@
 "use client";
 import react from "react";
-const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL;
+const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL || "/api";
 import { authFetch } from "./authFetch";
 
 export async function addUserIngredientDirect(payload) {
   const res = await authFetch(
-    `${API_ORIGIN}/User_functions/add_user_ingredient_direct`,
+    `${API_ORIGIN}/user-functions/ingredients/direct`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },

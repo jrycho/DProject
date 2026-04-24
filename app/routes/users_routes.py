@@ -16,7 +16,7 @@ from app.db_files.crud.user_db_crud import user_shared_keys_init
 load_dotenv()
 DOMAIN = os.getenv("DOMAIN")
 
-router = APIRouter(prefix="/Signup", tags=["Signup"])
+router = APIRouter(prefix="/users", tags=["Users"])
 settings_placeholder_values = {
     "optimized_properties": ["calories", "protein", "carbs", "fats"],
     "target_goal": [600.0, 30.0, 60.0, 20.0],
@@ -36,7 +36,7 @@ Returns:
 Raises: 
     HTTPException: 400 if user already exists
 """
-@router.post("/signup") #! USED
+@router.post("") #! USED
 async def signup(user: UserCreate, db=Depends(get_db)):
     email = user.email.lower().strip()
     if not await email_not_registered(db=db, email=email):
@@ -72,7 +72,7 @@ async def signup(user: UserCreate, db=Depends(get_db)):
 
 
 #NOT YET DONE:
-@router.post("/forgotten_password")
+@router.post("/password-reset-requests")
 async def forgotten_password(payload: ForgotPasswordRequest, db=Depends(get_db)):
     email = payload.email
     resp = await get_user_by_email(db, email)
@@ -92,7 +92,7 @@ async def forgotten_password(payload: ForgotPasswordRequest, db=Depends(get_db))
 
 
 
-@router.post("/reset_password")
+@router.post("/password-resets")
 async def reset_password(payload: ResetPasswordPayload, db=Depends(get_db)):
     token_hash = hash_token(payload.token)
     new_pw_hash = hash_password(payload.password)

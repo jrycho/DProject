@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { forgottenPassword } from "@/utils/forgottenPassword";
 import AppBackground from "@/components/AppBackground";
 
-const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL;
+const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 export default function ForgottenPassword() {
   const [email, setEmail] = useState("");

@@ -1,5 +1,5 @@
 import { authFetch } from "./authFetch";
-const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL;
+const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 export async function updateIngredientValues({
   barcode,
@@ -10,7 +10,7 @@ export async function updateIngredientValues({
   maxAmount,
 }) {
   const res = await authFetch(
-    `${API_ORIGIN}/logs/update_ingredient_amount_settings` +
+    `${API_ORIGIN}/meal-logs/ingredient-amount-settings` +
       `?barcode=${encodeURIComponent(barcode)}` +
       `&meal_id=${encodeURIComponent(mealId)}` +
       `&set_amount=${encodeURIComponent(setAmount)}` +

@@ -13,16 +13,16 @@ from uuid import uuid4
 from app.security.security import get_current_user_id
 from datetime import datetime
 import logging
-from app.models.payload_inputs import DatePayload, MealIngredientPayload, MealLogPayload, MealLogWithIdPayload, SetAndPieceWeightsPayload
+from app.models.payload_inputs import DatePayload, MealLogPayload, MealLogWithIdPayload, SetAndPieceWeightsPayload
 
 
 
 log = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/logs", tags=["Meal Logs"])
+router = APIRouter(prefix="/meal-logs", tags=["Meal Logs"])
 
 
-@router.post("/log_custom_id") #!UNUSED, testable
+@router.post("/custom-id") #!UNUSED, testable
 async def log_meal_with_id(payload: MealLogWithIdPayload = Depends(), user_id: str = Depends(get_current_user_id)): 
     """
     Log a meal by its ID.
@@ -47,7 +47,7 @@ async def log_meal_with_id(payload: MealLogWithIdPayload = Depends(), user_id: s
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
-@router.post("/log_meal") #!USED
+@router.post("") #!USED
 async def log_meal(payload: MealLogPayload = Depends(), user_id: str = Depends(get_current_user_id)):
     
     """
@@ -84,7 +84,7 @@ async def log_meal(payload: MealLogPayload = Depends(), user_id: str = Depends(g
 
 
 
-@router.get("/Read_logs") #!UNUSED, not functional
+@router.get("") #!UNUSED, not functional
 async def read_logs():
     """  
     Returns all meal logs
@@ -155,14 +155,14 @@ Returns: message
 calls crud function to remove ingredient from log
 removes ingredient if in state
 """
-@router.delete("/meal/{meal_id}/ingredient") #!USED
+@router.delete("/{meal_id}/ingredients") #!USED
 async def remove_ingredient_by_barcode(meal_id: str, barcode: str, user_id: str = Depends(get_current_user_id)):
     print("right before delete")
     res = await delete_ingredient_from_meal_log(meal_id, barcode, user_id)
     return res
 
 
-@router.get("/fetch_meal_by_date") #!USED
+@router.get("/by-date") #!USED
 async def fetch_meal_by_date(payload: DatePayload = Depends(), current_user_id: str = Depends(get_current_user_id)):
     if not current_user_id:
         raise HTTPException(status_code=401, detail="User not authenticated")
@@ -175,8 +175,8 @@ async def fetch_meal_by_date(payload: DatePayload = Depends(), current_user_id: 
     return await get_meal_by_date(current_user_id, payload.date)
 
 
-@router.post("/add_ingredient/{barcode}") #!USED
-async def add_ingredient(barcode: str, payload: MealIngredientPayload = Depends(), user_id: str = Depends(get_current_user_id)):
+@router.post("/{meal_id}/ingredients/{barcode}") #!USED
+async def add_ingredient(barcode: str, meal_id: str, user_id: str = Depends(get_current_user_id)):
     if not user_id:
         return  {
             "message": f"No user found, log in",
@@ -188,19 +188,19 @@ async def add_ingredient(barcode: str, payload: MealIngredientPayload = Depends(
     #make ingredient entry ✅
     entry = await doc_to_ingredient_entry(doc,1)
     # append to meal of meal id ✅
-    await add_ingredient_to_log(payload.meal_id, entry)
+    await add_ingredient_to_log(meal_id, entry)
     return  {
             "message": f"Ingredient added successfully.",
             
         }
 
-@router.get("/return_ingredients_for_buttons/{meal_id}")
+@router.get("/{meal_id}/ingredients")
 async def return_ingredients_for_buttons(meal_id: str, user_id: str = Depends(get_current_user_id)):
     data = await return_ingredients_button(meal_id, user_id)
     return data
 
 
-@router.post("/update_ingredient_amount_settings")
+@router.post("/ingredient-amount-settings")
 async def update_ingredient_amount_settings(payload: SetAndPieceWeightsPayload = Depends(), user_id: str = Depends(get_current_user_id)):
     data = await update_ingredient_amount_settings_crud(
         barcode=payload.barcode,

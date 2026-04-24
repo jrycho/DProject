@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { authFetch } from "@/utils/authFetch";
 
-const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL;
+const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL || "/api";
 
 export default function ProtectedPage({ children }) {
   const router = useRouter();
@@ -22,7 +22,7 @@ export default function ProtectedPage({ children }) {
       }
 
       try {
-        const res = await authFetch(`${API_ORIGIN}/Auth/me`, {
+        const res = await authFetch(`${API_ORIGIN}/auth/profile`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });

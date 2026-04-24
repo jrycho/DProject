@@ -11,9 +11,9 @@ from app.db_files.crud.temp_ingredients_crud import get_total_normalized_temp_nu
 from app.models.payload_inputs import BarcodePayload, SaveTempToPermPayload, SearchPayload, SharedKeyPayload, TempIngredientAmountPayload, TempIngredientPayload, UserIngredientPayload
 
 
-router = APIRouter(prefix="/User_functions", tags=["UF"])
+router = APIRouter(prefix="/user-functions", tags=["UF"])
 
-@router.post("/add_user_ingredient")
+@router.post("/ingredients")
 async def add_user_ingredient(payload: UserIngredientPayload, user_id: str = Depends(get_current_user_id)):
     if user_id is None:
         raise HTTPException(status_code=401, detail="Unauthorized")
@@ -30,7 +30,7 @@ async def add_user_ingredient(payload: UserIngredientPayload, user_id: str = Dep
     
 
 
-@router.get("/get_user_ingrediend")
+@router.get("/ingredients")
 async def get_user_ingredient(name: str, user_id: str = Depends(get_current_user_id)):
     if user_id is None:
         raise HTTPException(status_code=401, detail="Unauthorized")
@@ -43,7 +43,7 @@ async def get_user_ingredient(name: str, user_id: str = Depends(get_current_user
 
 
 #******
-@router.get("/get_user_key")
+@router.get("/shared-keys/personal")
 async def get_user_key(user_id: str = Depends(get_current_user_id)):
     if user_id is None:
         raise HTTPException(status_code=401, detail="Unauthorized")
@@ -54,7 +54,7 @@ async def get_user_key(user_id: str = Depends(get_current_user_id)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/add_user_shared_id")
+@router.post("/shared-keys")
 async def add_key_to_library(payload: SharedKeyPayload, user_id: str = Depends(get_current_user_id)):
     shared_key = payload.shared_key
     if user_id is None:
@@ -65,7 +65,7 @@ async def add_key_to_library(payload: SharedKeyPayload, user_id: str = Depends(g
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.get("/get_user_shared_keys")
+@router.get("/shared-keys")
 async def get_user_shared_keys(user_id: str = Depends(get_current_user_id)):
     if user_id is None:
         raise HTTPException(status_code=401, detail="Unauthorized")
@@ -73,7 +73,7 @@ async def get_user_shared_keys(user_id: str = Depends(get_current_user_id)):
     return resp
 
 
-@router.delete("/delete_user_shared_key/{shared_key}")
+@router.delete("/shared-keys/{shared_key}")
 async def delete_user_shared_key(shared_key: str, user_id: str = Depends(get_current_user_id)):
     if user_id is None:
         raise HTTPException(status_code=401, detail="Unauthorized")
@@ -81,7 +81,7 @@ async def delete_user_shared_key(shared_key: str, user_id: str = Depends(get_cur
     return {"message": f"Shared key '{shared_key}' deleted"}
 
 
-@router.post("/add_user_ingredient_direct")
+@router.post("/ingredients/direct")
 async def add_user_ingredient_direct(payload: UserIngredientPayload, user_id:str = Depends(get_current_user_id)):
 
     barcode = f"custom-{user_id}-{uuid4().hex[:8]}"
@@ -119,7 +119,7 @@ async def search(payload: SearchPayload, user_id:str=Depends(get_current_user_id
 
 
 
-@router.post("/add_ingredient_to_log")
+@router.post("/ingredients/temp-ingredients")
 async def add_ingredient_to_temp_log(payload: TempIngredientPayload, user_id:str=Depends(get_current_user_id)):
     if user_id is None:
         raise HTTPException(status_code=401, detail="Unauthorized")
@@ -133,16 +133,16 @@ async def add_ingredient_to_temp_log(payload: TempIngredientPayload, user_id:str
     resp = await add_ingredient_to_temp_meal(user_id=user_id, ingredient=payload)
     return resp
     
-@router.post("/delete_ingredient_from_log")
-async def delete_ingredient_from_temp_log(payload: BarcodePayload, user_id:str=Depends(get_current_user_id)):
+@router.delete("/ingredients/temp-ingredients")
+async def delete_ingredient_from_temp_log(barcode: str, user_id:str=Depends(get_current_user_id)):
     if user_id is None:
         raise HTTPException(status_code=401, detail="Unauthorized")
-    resp=await delete_ingredient_from_temp_meal(barcode=payload.barcode, user_id=user_id)
+    resp=await delete_ingredient_from_temp_meal(barcode=barcode, user_id=user_id)
     return "Ingredient deleted successfully"
 
 
 
-@router.post("/fetch_temp_ingredients_buttons")
+@router.get("/ingredients/temp-ingredients")
 async def fetch_temp_ingredients_buttons(user_id:str=Depends(get_current_user_id)):
     if user_id is None:
         raise HTTPException(status_code=401, detail="Unauthorized")
@@ -152,7 +152,7 @@ async def fetch_temp_ingredients_buttons(user_id:str=Depends(get_current_user_id
     return doc
 
 
-@router.post("/save_temp_to_perm")
+@router.post("/ingredients/temp-ingredients/commits")
 async def save_temp_to_perm(payload: SaveTempToPermPayload, user_id:str=Depends(get_current_user_id)):
     if user_id is None:
         raise HTTPException(status_code=401, detail="Unauthorized")
@@ -176,7 +176,7 @@ async def save_temp_to_perm(payload: SaveTempToPermPayload, user_id:str=Depends(
     
     return {"message": f"User ingredient added successfully, id: {resp.inserted_id} "}
 
-@router.post("/set_amount_in_temp_")
+@router.patch("/ingredients/temp-ingredients/amounts")
 async def set_amount_in_temp_(payload: TempIngredientAmountPayload, user_id:str=Depends(get_current_user_id)):
     if user_id is None:
         raise HTTPException(status_code=401, detail="Unauthorized")
@@ -184,7 +184,7 @@ async def set_amount_in_temp_(payload: TempIngredientAmountPayload, user_id:str=
     return "Ingredient added successfully"
 
 
-@router.delete("/delete_user_ingredient/{barcode}")
+@router.delete("/ingredients/{barcode}")
 async def delete_user_ingredient(barcode:str, user_id:str=Depends(get_current_user_id)):
     if user_id is None:
         raise HTTPException(status_code=401, detail="Unauthorized")
