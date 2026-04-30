@@ -22,11 +22,23 @@ collection = db["meal_logs"]  # MongoDB collection
 meal_logs = db.meal_logs
 
 """  
-Create a new meal log
-args: meal_id: str
-creates meal log via MealLogModel class
-returns: str (id of the new meal log)
-
+Create a new meal log.
+Args:
+    - meal_id (Optional[str]): Provided meal ID, or None to generate one.
+    - user_id (str): Owner of the meal log.
+    - type_of_meal (str): Meal type.
+    - date (str): Meal date.
+Returns:
+    - str: MongoDB id of the created meal log.
+Usage:
+    - app/routes/meal_logs_routes.py: log_meal_with_id
+    - app/routes/meal_logs_routes.py: log_meal
+Workflow:
+    - Use provided meal_id or create a UUID.
+    - Build a MealLogModel with empty ingredients.
+    - Insert it into meal_logs collection.
+    - If generated ID collides, generate again.
+    - If user-provided ID collides, raise 409.
 """
 async def create_meal_log(meal_id: Optional[str], user_id:str, type_of_meal: str, date:str )-> str:
  while True:
@@ -47,12 +59,19 @@ async def create_meal_log(meal_id: Optional[str], user_id:str, type_of_meal: str
             meal_id = None
             continue
 """  
-Get all meal logs (can filter by user_id later)
-creates list
-find all documents in the collection
-converts MDB id to string
-appends MealLogModelto list
-returns it
+Get all meal logs.
+Args:
+    - None
+Returns:
+    - List[MealLogModel]: All meal logs in the collection.
+Usage:
+    - Currently no active route uses this function.
+Workflow:
+    - Create an empty result list.
+    - Fetch every document from meal_logs.
+    - Convert MongoDB _id to string.
+    - Convert each document into MealLogModel.
+    - Return the list.
 """
 
 
@@ -66,11 +85,19 @@ async def get_all_meal_logs() -> List[MealLogModel]:
 
 
 """  
-Get a specific meal log by meal_id
-args: meal_id: str, user_id: str
-Finds a document in the meal_logs collection with given meal_id
-Raises 404 if not found
-Returns it as a MealLogModel
+Get a specific meal log by meal_id.
+Args:
+    - meal_id (str): Target meal ID.
+    - user_id (str): Owner of the meal log.
+Returns:
+    - MealLogModel: Found meal log.
+Usage:
+    - Internal helper for build_input_object_from_meal_log.
+Workflow:
+    - Search meal_logs by meal_id and user_id.
+    - Raise 404 if no document exists.
+    - Convert MongoDB _id to string if needed.
+    - Return the document as MealLogModel.
 """
 async def get_meal_log_by_meal_id(meal_id: str, user_id:str):
     doc = await meal_logs.find_one({"meal_id": meal_id, "user_id": user_id})
@@ -82,20 +109,29 @@ async def get_meal_log_by_meal_id(meal_id: str, user_id:str):
 
 
 """  
-Add an ingredient to a meal log
-args: barcode: str, priority: str
-Converts ingredient to dict
-Finds meal log by log_id
-Raises 404 if log not found
-Checks if ingredient already exists (by barcode)
-Raises 400 if duplicate
-Pushes ingredient to log's ingredients list
-Raises 404 if update fails
+Add an ingredient to a meal log.
+Args:
+    - log_id (str): Target meal ID.
+    - user_id (str): Owner of the meal log.
+    - ingredient (IngredientEntry): Ingredient entry to save.
+Returns:
+    - dict: Success message with meal_id and barcode.
+Usage:
+    - app/routes/meal_logs_routes.py: add_ingredient
+Workflow:
+    - Convert IngredientEntry to dict.
+    - Find meal log by meal_id and user_id.
+    - Raise 404 if meal log does not exist.
+    - Check duplicate ingredients by barcode.
+    - Raise 400 if ingredient is already saved.
+    - Push ingredient into meal log ingredients.
+    - Raise 404 if update fails.
+    - Return success response.
 """
-async def add_ingredient_to_log(log_id: str, ingredient: IngredientEntry): #! USED
+async def add_ingredient_to_log(log_id: str, user_id: str, ingredient: IngredientEntry): #! USED
     entry_dict = ingredient.model_dump()
     
-    existing_log = await meal_logs.find_one({"meal_id": log_id})
+    existing_log = await meal_logs.find_one({"meal_id": log_id, "user_id": user_id})
     if not existing_log:
         raise HTTPException(status_code=404, detail="Meal log not found")
     
@@ -103,20 +139,37 @@ async def add_ingredient_to_log(log_id: str, ingredient: IngredientEntry): #! US
         raise HTTPException(status_code=400, detail="Ingredient already exists in the log")
 
     result = await meal_logs.update_one(
-        {"meal_id": log_id},
+        {"meal_id": log_id, "user_id": user_id},
         {"$push": {"ingredients": entry_dict}}
     )
     
     if result.modified_count == 0:
         raise HTTPException(status_code=404, detail="Meal log not found or update failed")
+
+    return {
+        "message": "Ingredient added successfully.",
+        "meal_id": log_id,
+        "barcode": entry_dict["barcode"],
+    }
     
 """  
-Builds an InputObject from a meal log
-Fetches meal log by meal_id
-For each ingredient:
-    Uses run_sync to create ingredient object (from barcode and priority)
-    Adds it to the input object
-Returns the InputObject
+Build an InputObject from a meal log.
+Args:
+    - meal_id (str): Target meal ID.
+    - user_id (str): Owner of the meal log.
+Returns:
+    - tuple: InputObject and list of ingredients with invalid calories.
+Usage:
+    - app/routes/optimization_routes.py: optimize_meal
+    - Uses get_meal_log_by_meal_id internally.
+Workflow:
+    - Fetch meal log by meal_id and user_id.
+    - Create empty InputObject and issue list.
+    - Build full ingredient object for each saved ingredient entry.
+    - Check if calories are numeric and positive.
+    - Add invalid ingredient names to issue list.
+    - Add valid ingredients to InputObject.
+    - Return InputObject and issue list.
 """
 async def build_input_object_from_meal_log(meal_id: str, user_id: str) -> InputObject: #! USED
 
@@ -144,14 +197,23 @@ async def build_input_object_from_meal_log(meal_id: str, user_id: str) -> InputO
     return input_object, issue_list
 
 """  
-Delete an ingredient from a meal log
-Finds meal log by meal_id
-Raises 404 if not found
-Checks if ingredient with given barcode exists
-Raises 404 if not found
-Uses $pull to remove ingredient from log
-Raises 500 if update fails
-Returns success message
+Delete an ingredient from a meal log.
+Args:
+    - meal_id (str): Target meal ID.
+    - barcode (str): Ingredient barcode to remove.
+    - user_id (str): Owner of the meal log.
+Returns:
+    - dict: Success message.
+Usage:
+    - app/routes/meal_logs_routes.py: remove_ingredient_by_barcode
+Workflow:
+    - Find meal log by meal_id and user_id.
+    - Raise 404 if meal log does not exist.
+    - Check if ingredient barcode exists in ingredients.
+    - Raise 404 if ingredient is not in the log.
+    - Pull matching ingredient from the ingredients array.
+    - Raise 500 if database update fails.
+    - Return success response.
 """
 async def delete_ingredient_from_meal_log(meal_id, barcode, user_id):
     doc = await meal_logs.find_one({"meal_id": meal_id,
@@ -174,6 +236,21 @@ async def delete_ingredient_from_meal_log(meal_id, barcode, user_id):
     
     return {"message": f"Ingredient {barcode} removed from meal {meal_id}"}
 
+"""  
+Get meal logs for a user by date.
+Args:
+    - user_id (str): Owner of the meal logs.
+    - date (str): Date key to match.
+Returns:
+    - List[MealLogModel]: JSON-compatible meal logs for that date.
+Usage:
+    - app/routes/meal_logs_routes.py: fetch_meal_by_date
+Workflow:
+    - Use the given date as the lookup key.
+    - Query meal_logs by user_id and date.
+    - Convert MongoDB ObjectId values to strings.
+    - Return JSON-compatible list.
+"""
 async def get_meal_by_date(user_id: str, date: str) -> List[MealLogModel]: #! USED
     # Normalize date to only match the day (ignoring time)
     key = date
@@ -186,6 +263,21 @@ async def get_meal_by_date(user_id: str, date: str) -> List[MealLogModel]: #! US
     return jsonable_encoder(logs, custom_encoder={ObjectId: str})  # List of meal logs for that user and date
 
 
+"""  
+Fetch raw ingredient entries from a meal log.
+Args:
+    - meal_id (str): Target meal ID.
+    - user_id (str): Owner of the meal log.
+Returns:
+    - list: Saved ingredient entries from the meal log.
+Usage:
+    - Internal helper for return_ingredients_button.
+Workflow:
+    - Find meal log by meal_id and user_id.
+    - Raise 404 if ingredient list cannot be fetched.
+    - Read ingredients field from the document.
+    - Return ingredients list.
+"""
 async def fetch_ingredients_list(meal_id: str, user_id: str):
 
     data = await meal_logs.find_one({"meal_id": meal_id,
@@ -196,6 +288,23 @@ async def fetch_ingredients_list(meal_id: str, user_id: str):
     ingredidents = data["ingredients"]
     return ingredidents
 
+"""  
+Return ingredients formatted for frontend buttons.
+Args:
+    - meal_id (str): Target meal ID.
+    - user_id (str): Owner of the meal log.
+Returns:
+    - list: Ingredient button data.
+Usage:
+    - app/routes/meal_logs_routes.py: return_ingredients_for_buttons
+    - Uses fetch_ingredients_list and ingredient_doc_to_button_json internally.
+Workflow:
+    - Fetch saved ingredient entries from meal log.
+    - For each barcode, load ingredient data from DB or external source.
+    - Convert each ingredient document into button JSON.
+    - Preserve amount settings from the meal log entry.
+    - Return button data list.
+"""
 async def return_ingredients_button(meal_id: str, user_id: str):
     barcodes_list = await fetch_ingredients_list(meal_id, user_id)
     ingredients_list = []
@@ -214,6 +323,27 @@ async def return_ingredients_button(meal_id: str, user_id: str):
         print(ret_list)
     return ret_list
 
+"""  
+Convert an ingredient document to frontend button JSON.
+Args:
+    - ingredient (dict): Ingredient document from DB or fetched source.
+    - piece_weight: Saved piece weight.
+    - set_amount: Saved set amount.
+    - min_amount: Saved minimum amount.
+    - max_amount: Saved maximum amount.
+Returns:
+    - dict: Normalized button data.
+Usage:
+    - Internal helper for return_ingredients_button.
+    - Imported by app/routes/tracker_routes.py and app/routes/user_functions_routes.py.
+Workflow:
+    - Read nutrients from nutrients or nutriments field.
+    - Choose display name from known name fields.
+    - Choose barcode from known identifier fields.
+    - Extract calories, protein, carbs, and fat.
+    - Add saved amount settings.
+    - Return normalized dict for frontend.
+"""
 def ingredient_doc_to_button_json(ingredient, piece_weight, set_amount, min_amount, max_amount):
         nutr = ingredient.get("nutrients") or ingredient.get("nutriments")
         name = ingredient.get("name") or ingredient.get("product_name") or "Unnamed"
@@ -240,6 +370,26 @@ def ingredient_doc_to_button_json(ingredient, piece_weight, set_amount, min_amou
     }
         return ret_dict
 
+"""  
+Update amount settings for one meal ingredient.
+Args:
+    - meal_id (str): Target meal ID.
+    - user_id (str): Owner of the meal log.
+    - barcode (str): Ingredient barcode.
+    - set_amount (Optional[float]): Saved set amount.
+    - piece_weight (Optional[float]): Saved piece weight.
+    - min_amount (Optional[float]): Saved minimum amount.
+    - max_amount (Optional[float]): Saved maximum amount.
+Returns:
+    - dict: Update result.
+Usage:
+    - app/routes/meal_logs_routes.py: update_ingredient_amount_settings
+Workflow:
+    - Match meal log by meal_id, user_id, and ingredient barcode.
+    - Set amount fields on the matched ingredient array item.
+    - Raise 404 if meal or ingredient is not found.
+    - Return ok response.
+"""
 async def update_ingredient_amount_settings_crud(
     meal_id: str,
     user_id: str,
@@ -271,11 +421,3 @@ async def update_ingredient_amount_settings_crud(
 
     return {"ok": True}
 
-def proofing(x):
-    if x is None or x =="":
-        return 0.0
-    try:
-        return float(x)
-    except (TypeError, ValueError):
-        return 0.0
-from typing import Optional

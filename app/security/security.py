@@ -19,11 +19,21 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/sessions") #important for swagger docs 
 
 
+"""  
+Create access token.
+Args:
+    - data (dict): JWT payload data.
+    - expires_delta (timedelta): Optional custom expiration.
+Returns:
+    - str: Encoded JWT access token.
+Raises:
+    - None
+Workflow:
+    - Copy input payload so original data is not modified.
+    - Add expiration timestamp.
+    - Encode JWT with SECRET_KEY and selected algorithm.
+    - Return token string.
 """
- create acces token function
-
-"""
-
 def create_access_token(data: dict, expires_delta: timedelta = None): #!USED
     #avoiding modifying data dict
     to_encode = data.copy()
@@ -39,11 +49,18 @@ def create_access_token(data: dict, expires_delta: timedelta = None): #!USED
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
-"""
-verify acces token function
-Args: token: str
-Returns: payload
-Raises: HTTPException 
+"""  
+Verify access token.
+Args:
+    - token (str): JWT access token.
+Returns:
+    - dict: Decoded JWT payload.
+Raises:
+    - HTTPException: 401 if token is invalid.
+Workflow:
+    - Decode JWT using SECRET_KEY and selected algorithm.
+    - Return payload when token is valid.
+    - Raise 401 when token cannot be decoded.
 """
 def verify_access_token(token: str): #!USED
     #decode the JWT using the SECRET_KEY and the selected ALGORITHM (e.g. HS256)
@@ -54,13 +71,24 @@ def verify_access_token(token: str): #!USED
     #if the token is not valid, raise an exception
     except JWTError:
         raise HTTPException(
-            status_code=401,)
+            status_code=401,
+            detail="Invalid or expired token",)
 
 """  
-get user function, querries for user info in db
-Args: token: str
-Returns: User as dict
-Raises: HTTPException 
+Get current user.
+Args:
+    - token (Depends(oauth2_scheme)): Bearer token from request.
+Returns:
+    - User: Current user data as dict-compatible object.
+Raises:
+    - HTTPException: 401 if credentials cannot be validated.
+Workflow:
+    - Build reusable credentials exception.
+    - Decode token and read user id from "sub".
+    - Validate user id exists and is a valid ObjectId.
+    - Fetch user from database.
+    - Convert MongoDB _id to string.
+    - Return user data.
 """
 async def get_current_user(token: str = Depends(oauth2_scheme)) -> User: #! USED Testing
     #credentials exception encapsulation
@@ -96,10 +124,17 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> User: #! USED
 
 
 """  
-get user id function, querries for user id in db, returns only user id
-Args: token: str
-Returns: user id as str
-Raises: HTTPException 
+Get current user ID.
+Args:
+    - token (Depends(oauth2_scheme)): Bearer token from request.
+Returns:
+    - str: Current user ID.
+Raises:
+    - HTTPException: 401 if credentials cannot be validated.
+Workflow:
+    - Load current user from token.
+    - Read _id from user data.
+    - Return user id string.
 """
 async def get_current_user_id(token: str = Depends(oauth2_scheme)) -> str: #! USED a lot
 

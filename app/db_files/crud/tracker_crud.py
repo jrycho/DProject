@@ -6,6 +6,19 @@ user_goals_collection = db["user_goals_collection"]
 meal_log_collection = db["meal_logs"]
 optimized_macro_collection = db["optimized_macros_collection"]
 
+"""  
+Normalize a goal date string.
+Args:
+    - raw_date (str): Raw date value.
+Returns:
+    - str: Normalized YYYY-MM-DD date string.
+Usage:
+    - Internal helper for tracker goal history functions.
+Workflow:
+    - Validate date value exists.
+    - Strip whitespace.
+    - Keep only the first 10 characters for YYYY-MM-DD format.
+"""
 def _normalize_goal_date(raw_date: str) -> str:
     # The frontend sends YYYY-MM-DD, so keep goal dates as simple day strings.
     if not raw_date:
@@ -14,11 +27,40 @@ def _normalize_goal_date(raw_date: str) -> str:
     return raw_date.strip()[:10]
 
 
+"""  
+Sort and deduplicate date strings.
+Args:
+    - dates (List[str]): Raw date strings.
+Returns:
+    - List[str]: Normalized sorted date strings.
+Usage:
+    - Internal helper for _coerce_goal_history and save_new_user_goal.
+Workflow:
+    - Normalize every date.
+    - Remove duplicates with a set.
+    - Sort oldest to newest.
+"""
 def _sort_dates(dates: List[str]) -> List[str]:
     # Normalize every incoming date, drop duplicates with a set, then sort oldest -> newest.
     return sorted({_normalize_goal_date(item) for item in dates})
 
 
+"""  
+Normalize saved goal history.
+Args:
+    - doc (Optional[dict]): Stored user goal document.
+Returns:
+    - List[dict]: Clean grouped goal history.
+Usage:
+    - Internal helper for save_new_user_goal and get_user_goals.
+Workflow:
+    - Return empty list when no document exists.
+    - Read grouped goal history entries.
+    - Skip malformed entries.
+    - Normalize and sort dates.
+    - Merge entries with identical target macros.
+    - Sort groups by earliest date.
+"""
 def _coerce_goal_history(doc: Optional[dict]) -> List[dict]:
     if not doc:
         return []
@@ -70,6 +112,22 @@ def _coerce_goal_history(doc: Optional[dict]) -> List[dict]:
     return normalized_history
 
 
+"""  
+Resolve active goal for a requested date.
+Args:
+    - goal_history (List[dict]): Normalized grouped goal history.
+    - requested_date (str): Date to resolve.
+Returns:
+    - Optional[dict]: Effective goal timeline item, or None.
+Usage:
+    - Internal helper for save_new_user_goal and get_user_goals.
+Workflow:
+    - Normalize requested date.
+    - Expand grouped dates into a flat timeline.
+    - Sort timeline by date.
+    - Select the newest goal active on or before requested date.
+    - Return selected goal item.
+"""
 def _resolve_goal_from_history(goal_history: List[dict], requested_date: str) -> Optional[dict]:
     # Normalize the requested date so it can be compared directly with stored YYYY-MM-DD strings.
     requested_day = _normalize_goal_date(requested_date)
@@ -106,6 +164,26 @@ def _resolve_goal_from_history(goal_history: List[dict], requested_date: str) ->
     return selected
 
 
+"""  
+Save or update a dated user goal.
+Args:
+    - user_goal (dict): Macro goal values.
+    - user_id (str): Owner of the goal.
+    - goal_date (str): Effective date for this goal.
+Returns:
+    - UpdateResult: MongoDB update result.
+Usage:
+    - app/routes/tracker_routes.py: estimate_user_macros
+    - app/routes/tracker_routes.py: set_user_goals
+Workflow:
+    - Load existing goal history.
+    - Normalize requested goal date.
+    - Remove old mapping for the same date.
+    - Reuse existing target group if macros match.
+    - Otherwise create a new target group.
+    - Save grouped history back to database.
+    - Return update result.
+"""
 async def save_new_user_goal(user_goal: dict, user_id: str, goal_date: str):
     """Save or update a dated user goal in database."""
     # Load the current stored history for this user, if any.
@@ -165,6 +243,22 @@ async def save_new_user_goal(user_goal: dict, user_id: str, goal_date: str):
     return result
 
 
+"""  
+Get user goals for a requested date.
+Args:
+    - user_id (str): Owner of the goals.
+    - requested_date (str): Date to resolve.
+Returns:
+    - Optional[dict]: Resolved goal data, or None.
+Usage:
+    - app/routes/tracker_routes.py: fetch_tracker_data
+Workflow:
+    - Load stored goal history.
+    - Return None if user has no goals.
+    - Normalize stored history.
+    - Resolve the active goal for requested date.
+    - Return user_id, effective date, target macros, and goal history.
+"""
 async def get_user_goals(user_id: str, requested_date: str):
     """Resolve user goals for the requested date from dated history."""
     # Read the user's stored goal history.
@@ -190,6 +284,20 @@ async def get_user_goals(user_id: str, requested_date: str):
     }
 
 
+"""  
+Find meal logs for a user and date.
+Args:
+    - user_id (str): Owner of the meal logs.
+    - date (str): Date to match.
+Returns:
+    - list: Meal log documents for the date.
+Usage:
+    - app/routes/tracker_routes.py: calculate_daily_macros
+Workflow:
+    - Query meal_logs by user_id and date.
+    - Convert cursor to a list.
+    - Return up to 10 matching logs.
+"""
 async def find_meal_logs_of_user_and_date(user_id: str, date: str):
     """Find meal logs of user and date"""
     print("user_id:", user_id)
@@ -199,6 +307,19 @@ async def find_meal_logs_of_user_and_date(user_id: str, date: str):
     return await cursor.to_list(length=10)
 
 
+"""  
+Get optimized macros for one meal.
+Args:
+    - meal_id: Target meal ID.
+Returns:
+    - Optional[dict]: Optimized macro results, or None.
+Usage:
+    - Currently no active route imports this function.
+Workflow:
+    - Query optimized macros by meal_id.
+    - Return None if no saved macros exist.
+    - Return the results field.
+"""
 async def get_macros_from_meal_log(meal_id):
     """Return the macros stored in meal_log.results for the given meal_id."""
     doc = await optimized_macro_collection.find_one(
@@ -209,6 +330,21 @@ async def get_macros_from_meal_log(meal_id):
     return doc.get("results")
 
 
+"""  
+Sum optimized macros from multiple meals.
+Args:
+    - ids_list (List[str]): Meal IDs to sum.
+Returns:
+    - Dict[str, float]: Summed macro totals.
+Usage:
+    - app/routes/tracker_routes.py: calculate_daily_macros
+Workflow:
+    - Return empty dict if no meal IDs are provided.
+    - Query optimized macro results for all meal IDs.
+    - Iterate each results dict.
+    - Add numeric macro values by key.
+    - Return totals.
+"""
 async def sum_macros_from_meals(ids_list: List[str]) -> Dict[str, float]:
     """
     Sum macros from multiple meal_ids.

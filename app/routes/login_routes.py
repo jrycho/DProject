@@ -13,6 +13,14 @@ from app.models.payload_inputs import ChangeUsernamePayload
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
+"""  
+Builds a rate limit key for login attempts.
+The key combines client IP and login identifier, so limits apply per user/IP pair.
+Args:
+    - request (Request)
+Returns:
+    - str: Rate limit key.
+"""
 def login_key_func(request: Request) -> str:
     ip = request.client.host if request.client else "unknown"
     login_id = getattr(request.state, "login_identifier", "unknown")
@@ -40,7 +48,7 @@ async def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends
 
     token = create_access_token(data={"sub": str(user["_id"])})
 
-    
+    """
     response = JSONResponse(content={"message": "Login successful"})
     response.set_cookie(
         key="access_token",
@@ -51,7 +59,7 @@ async def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends
         max_age=3600         # Or match your token expiry
     )
     #return response
-
+    """
 
 
     return {"access_token": token, "token_type": "bearer"}
@@ -77,6 +85,15 @@ async def get_me(current_user=Depends(get_current_user)):
     return UserPublic(**current_user)
 
 
+"""  
+Change the current user's username.
+This route updates username for the authenticated user.
+Args:
+    - payload (ChangeUsernamePayload): New username data.
+    - current_user (Depends(get_current_user)): The current user's information.
+Returns:
+    - response from change_username_crud
+"""
 @router.patch("/profile/username")
 async def change_username(payload: ChangeUsernamePayload, current_user=Depends(get_current_user), db=Depends(get_db)):
     data = current_user

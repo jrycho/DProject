@@ -7,8 +7,25 @@ from datetime import datetime, timezone
 from pymongo.errors import PyMongoError
 
 
-
+"""  
+Create a temporary meal document.
+Args:
+    - user_id (str): Owner of the temporary meal.
+Returns:
+    - dict: Created temporary meal document without MongoDB _id.
+Usage:
+    - app/routes/user_functions_routes.py: add_ingredient_to_temp_log
+    - Internal helper for get_temp_meal.
+Workflow:
+    - Check that user_id is present.
+    - Build empty MealLogModelTemp.
+    - Insert it into temp ingredients collection.
+    - Fetch and return the created document.
+"""
 async def create_temp_meal( user_id: str):
+    if not user_id:
+        raise HTTPException(status_code=401, detail="User not authenticated")
+
     doc = MealLogModelTemp(
         user_id=user_id,
         ingredients=[]
@@ -20,7 +37,25 @@ async def create_temp_meal( user_id: str):
         {"_id": res.inserted_id}, {"_id": 0}
     )
 
+"""  
+Get the current user's temporary meal.
+Args:
+    - user_id (str): Owner of the temporary meal.
+Returns:
+    - dict: Temporary meal document.
+Usage:
+    - app/routes/user_functions_routes.py: add_ingredient_to_temp_log
+    - Internal helper for add_ingredient_to_temp_meal and fetch_temp_ingredients_list.
+Workflow:
+    - Check that user_id is present.
+    - Try to find existing temp meal.
+    - Create temp meal if none exists.
+    - Return temp meal document.
+"""
 async def get_temp_meal(user_id: str):
+    if not user_id:
+        raise HTTPException(status_code=401, detail="User not authenticated")
+
     try:
         doc = await temp_ingredients_collection.find_one(
         {"user_id": user_id}, {"_id": 0}
@@ -39,7 +74,27 @@ async def get_temp_meal(user_id: str):
 
         
 
+"""  
+Add or update ingredient in temporary meal.
+Args:
+    - user_id (str): Owner of the temporary meal.
+    - ingredient (IngredientEntryTemp): Ingredient to save.
+Returns:
+    - dict: Updated temporary meal document.
+Usage:
+    - app/routes/user_functions_routes.py: add_ingredient_to_temp_log
+Workflow:
+    - Check that user_id is present.
+    - Load or create user's temp meal.
+    - Replace existing ingredient with same barcode.
+    - Add ingredient if barcode is not already present.
+    - Save updated ingredients list.
+    - Return updated temp meal.
+"""
 async def add_ingredient_to_temp_meal(user_id: str, ingredient: IngredientEntryTemp): 
+    if not user_id:
+        raise HTTPException(status_code=401, detail="User not authenticated")
+
     doc = await get_temp_meal(user_id)
     if not doc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Meal not found")
@@ -62,7 +117,25 @@ async def add_ingredient_to_temp_meal(user_id: str, ingredient: IngredientEntryT
     )
     return await get_temp_meal(user_id=user_id)
 
+"""  
+Delete ingredient from temporary meal.
+Args:
+    - user_id (str): Owner of the temporary meal.
+    - barcode (str): Ingredient barcode to remove.
+Returns:
+    - dict: Delete result.
+Usage:
+    - app/routes/user_functions_routes.py: delete_ingredient_from_temp_log
+Workflow:
+    - Check that user_id is present.
+    - Pull ingredient with matching barcode from temp meal.
+    - Raise 404 if no ingredient was removed.
+    - Return ok response.
+"""
 async def delete_ingredient_from_temp_meal(user_id: str,  barcode: str):
+    if not user_id:
+        raise HTTPException(status_code=401, detail="User not authenticated")
+
     res = await temp_ingredients_collection.update_one(
         {"user_id": user_id},
         {
@@ -83,7 +156,24 @@ async def delete_ingredient_from_temp_meal(user_id: str,  barcode: str):
 
 #****************************************************************************************************************
 from app.db_files.crud.ingredient_crud import get_or_fetch_ingredient_dict_sync
+
+"""  
+Fetch raw temporary ingredient entries.
+Args:
+    - user_id (str): Owner of the temporary meal.
+Returns:
+    - list: Saved temporary ingredient entries.
+Usage:
+    - Internal helper for return_temp_ingredients_button and get_total_normalized_temp_nutrients.
+Workflow:
+    - Check that user_id is present.
+    - Load user's temp meal.
+    - Raise 404 if ingredient list cannot be fetched.
+    - Return ingredients list.
+"""
 async def fetch_temp_ingredients_list(user_id: str):
+    if not user_id:
+        raise HTTPException(status_code=401, detail="User not authenticated")
 
     data = await get_temp_meal(user_id)
     if not data:
@@ -93,6 +183,22 @@ async def fetch_temp_ingredients_list(user_id: str):
     
     return ingredidents
 
+"""  
+Convert ingredient document to temporary button JSON.
+Args:
+    - ingredient (dict): Ingredient document from DB or fetched source.
+    - amount: Saved ingredient amount.
+Returns:
+    - dict: Normalized ingredient button data.
+Usage:
+    - Internal helper for return_temp_ingredients_button.
+Workflow:
+    - Read nutrients from nutrients or nutriments field.
+    - Choose name and barcode from known fields.
+    - Extract calories, protein, carbs, and fat.
+    - Add saved amount.
+    - Return frontend-ready dict.
+"""
 def ingredient_doc_to_button_json(ingredient, amount):
         nutr = ingredient.get("nutrients") or ingredient.get("nutriments")
         name = ingredient.get("name") or ingredient.get("product_name") or "Unnamed"
@@ -116,7 +222,25 @@ def ingredient_doc_to_button_json(ingredient, amount):
     }
         return ret_dict
 
+"""  
+Return temporary ingredients formatted for frontend buttons.
+Args:
+    - user_id (str): Owner of the temporary meal.
+Returns:
+    - list: Temporary ingredient button data.
+Usage:
+    - app/routes/user_functions_routes.py: fetch_temp_ingredients_buttons
+Workflow:
+    - Check that user_id is present.
+    - Fetch raw temp ingredient entries.
+    - Load each ingredient document by barcode.
+    - Convert each ingredient to button JSON.
+    - Return button list.
+"""
 async def return_temp_ingredients_button( user_id: str):
+    if not user_id:
+        raise HTTPException(status_code=401, detail="User not authenticated")
+
     barcodes_list = await fetch_temp_ingredients_list( user_id)
     print(barcodes_list)
 
@@ -130,7 +254,26 @@ async def return_temp_ingredients_button( user_id: str):
 #****************************************************************************************************************
 
 
+"""  
+Calculate normalized nutrients for temporary ingredients.
+Args:
+    - user_id (str): Owner of the temporary meal.
+Returns:
+    - dict: Nutrients normalized per 100 grams.
+Usage:
+    - app/routes/user_functions_routes.py: save_temp_to_perm
+Workflow:
+    - Check that user_id is present.
+    - Fetch temp ingredient entries.
+    - Load ingredient documents and amounts.
+    - Sum nutrients by ingredient amount.
+    - Normalize totals per 100 grams.
+    - Return normalized nutrient dict.
+"""
 async def get_total_normalized_temp_nutrients(user_id: str):
+    if not user_id:
+        raise HTTPException(status_code=401, detail="User not authenticated")
+
     # 1 build ingredients in temp collection
     barcodes_list = await fetch_temp_ingredients_list(user_id)
     ingredients_list = []
@@ -157,6 +300,22 @@ async def get_total_normalized_temp_nutrients(user_id: str):
 
     return ret_dict
 
+"""  
+Sum nutrients for ingredient documents and amounts.
+Args:
+    - ingredients_list: Ingredient documents.
+    - amounts_list: Amounts matching ingredient list positions.
+Returns:
+    - dict: Summed nutrient totals.
+Usage:
+    - Internal helper for get_total_normalized_temp_nutrients.
+Workflow:
+    - Iterate ingredients and matching amounts by index.
+    - Convert amount to per-100g factor.
+    - Iterate nutrient values.
+    - Add numeric nutrient values into totals.
+    - Return totals.
+"""
 def sum_all_nutrients(ingredients_list, amounts_list):
     ret_dict = {}
     #index, object
@@ -177,7 +336,24 @@ def sum_all_nutrients(ingredients_list, amounts_list):
 
     return ret_dict
 
+"""  
+Delete all temporary ingredients.
+Args:
+    - user_id (str): Owner of the temporary meal.
+Returns:
+    - UpdateResult: MongoDB update result.
+Usage:
+    - app/routes/user_functions_routes.py: save_temp_to_perm
+Workflow:
+    - Check that user_id is present.
+    - Set temp ingredients list to empty.
+    - Raise 404 if update did not modify a document.
+    - Return update result.
+"""
 async def delete_all_ingredients_from_temp(user_id: str):
+    if not user_id:
+        raise HTTPException(status_code=401, detail="User not authenticated")
+
     resp = await temp_ingredients_collection.update_one(
         {"user_id": user_id},
         {"$set": {"ingredients": []}}
@@ -187,7 +363,27 @@ async def delete_all_ingredients_from_temp(user_id: str):
     return resp
 
 
+"""  
+Set amount for one temporary ingredient.
+Args:
+    - barcode: Ingredient barcode.
+    - amount: New amount value.
+    - user_id: Owner of the temporary meal.
+Returns:
+    - UpdateResult: MongoDB update result.
+Usage:
+    - app/routes/user_functions_routes.py: set_amount_in_temp_
+Workflow:
+    - Check that user_id is present.
+    - Match temp meal by user_id and ingredient barcode.
+    - Set amount on the matched ingredient array item.
+    - Raise 404 if no document was modified.
+    - Return update result.
+"""
 async def set_amount_in_temp_meal(barcode, amount, user_id):
+    if not user_id:
+        raise HTTPException(status_code=401, detail="User not authenticated")
+
     resp = await temp_ingredients_collection.update_one(
         {"user_id": user_id, "ingredients.barcode": barcode},
         {"$set": {"ingredients.$.amount": amount}}

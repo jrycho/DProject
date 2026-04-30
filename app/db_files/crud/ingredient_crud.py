@@ -1,4 +1,3 @@
-import requests
 import httpx
 from app.db_files.core.database import ingredients_collection
 from fastapi import HTTPException
@@ -7,34 +6,41 @@ from app.db_files.models.ingredient import IngredientDoc
 from app.models.ingredient import Ingredient
 from app.db_files.crud.user_db_crud import get_user_ingredient_secure
 
+"""  
+Normalize Open Food Facts tag lists.
+Args:
+    - xs: Raw tag list from Open Food Facts.
+Returns:
+    - list: Lowercase tags without language prefixes.
+Usage:
+    - Internal helper for get_or_fetch_ingredient_dict_sync.
+Workflow:
+    - Treat None as empty list.
+    - Keep only string values.
+    - Remove prefix before ':'.
+    - Lowercase tag values.
+"""
 def _norm_tags(xs): #! USED
-    """
-    Normalize OFF tag arrays like:
-        ["en:snacks", "cs:sladkosti"] -> ["snacks", "sladkosti"]
-
-    - Handles None by treating it as [].
-    - Keeps only strings.
-    - Lowercases and strips language prefixes before ':'.
-    """
     return [x.split(":")[-1].lower() for x in (xs or []) if isinstance(x, str)]
 
 
+"""  
+Fetch product from Open Food Facts.
+Args:
+    - barcode (str): Product barcode.
+Returns:
+    - dict: Raw Open Food Facts product object.
+Usage:
+    - Internal helper for get_or_fetch_ingredient_dict_sync.
+Workflow:
+    - Build Open Food Facts product URL.
+    - Strip barcode input.
+    - Fetch product with httpx async client.
+    - Raise API status when Open Food Facts fails.
+    - Raise 404 when product is missing.
+    - Return product object.
+"""
 async def off_fetch_product(barcode: str) -> dict: #! USED
-    """
-    Fetch a product from Open Food Facts (OFF) by barcode.
-
-    Returns:
-        product (dict): OFF "product" object (raw OFF schema)
-
-    Raises:
-        HTTPException:
-            - If OFF API fails (non-200)
-            - If product is missing (404)
-
-    NOTE (important):
-        Using `requests.get()` inside `async def` blocks the event loop.
-        So we use `httpx.AsyncClient()` instead.
-    """
     url = f"https://world.openfoodfacts.org/api/v0/product/{barcode}.json"
     barcode = str(barcode).strip()
     
@@ -45,53 +51,70 @@ async def off_fetch_product(barcode: str) -> dict: #! USED
 
     data = response.json()
     product = data.get("product")
-    print(data)
-
 
     if not product:
         raise HTTPException(status_code=404, detail="Product not found.")
 
     return product
 
+"""  
+Get cached ingredient by barcode.
+Args:
+    - barcode: Ingredient barcode.
+Returns:
+    - dict | None: Ingredient document without MongoDB _id.
+Usage:
+    - Internal helper for get_or_fetch_ingredient_dict_sync.
+Workflow:
+    - Query ingredients collection by barcode stored as _id.
+    - Exclude MongoDB _id from result.
+    - Return cached document or None.
+"""
 async def get_ingredient(barcode):  #! USED
-    """
-    Get one ingredient from Mongo by barcode.
-
-    Storage convention here:
-        - Mongo `_id` == barcode
-        - The document also contains "barcode": <barcode>
-
-    Returns:
-        dict without `_id` field (projection removes it),
-        or None if not found.
-    """
     return await ingredients_collection.find_one({"_id":barcode}, projection={"_id": 0})
 
+"""  
+Save ingredient document to cache.
+Args:
+    - doc (dict): Ingredient document containing barcode.
+Returns:
+    - UpdateResult: MongoDB update result.
+Usage:
+    - Currently no active call site found in app/.
+Workflow:
+    - Validate barcode is present.
+    - Use barcode as MongoDB _id.
+    - Upsert ingredient document into ingredients collection.
+    - Return update result.
+"""
 async def save_ingredient(doc): 
-    """
-    Save (upsert) an ingredient document into Mongo.
-
-    Expected:
-        doc contains "barcode"
-
-    Mongo schema:
-        - `_id` is set to barcode so lookups are fast and unique.
-
-    FIX:
-        In your original function `update_one(...)` was not awaited.
-    """
     if not doc.get("barcode"):
         raise ValueError("Ingredient doc missing 'barcode'")
     mongo_doc = {"_id": doc["barcode"], **doc}
-    ingredients_collection.update_one({"_id": mongo_doc["_id"]}, {"$set": mongo_doc}, upsert=True)
+    res = await ingredients_collection.update_one({"_id": mongo_doc["_id"]}, {"$set": mongo_doc}, upsert=True)
+    return res
 
+"""  
+Get ingredient from cache or external source.
+Args:
+    - barcode (str): Ingredient barcode.
+Returns:
+    - dict: Ingredient document.
+Usage:
+    - app/routes/meal_logs_routes.py: add_ingredient
+    - app/db_files/crud/meal_logs_crud.py: build_input_object_from_meal_log
+    - app/db_files/crud/temp_ingredients_crud.py
+Workflow:
+    - If barcode is custom, load user ingredient.
+    - Return cached ingredient if present.
+    - Fetch missing product from Open Food Facts.
+    - Validate product with IngredientDoc.
+    - Normalize category tags and enrichment fields.
+    - Compute automatic priority.
+    - Upsert ingredient into cache.
+    - Return ingredient document.
+"""
 async def get_or_fetch_ingredient_dict_sync( barcode: str) -> dict: #! USED
-    """
-    Get ingredient from DB if cached; otherwise fetch from OFF, validate,
-    compute priority, store in DB, and return the stored dict.
-
-    """
-    print("fetching")
     if barcode.startswith("custom"):
         res = await get_user_ingredient_secure(barcode)
         return res
@@ -100,34 +123,18 @@ async def get_or_fetch_ingredient_dict_sync( barcode: str) -> dict: #! USED
     cached = await get_ingredient(barcode)
     
     if cached:
-        """
-        If we already have it in Mongo, return immediately.
-        `cached` already has `_id` removed due to projection.
-        """
-
         return cached
     
-
-    """
-    Otherwise:
-    1) Fetch product from OFF
-    2) Validate into IngredientDoc (your Pydantic model)
-    3) Enrich fields you want for priority logic
-    4) Compute priority
-    5) Dump to dict and store
-    """
     product = await off_fetch_product(barcode)
-    doc_model = IngredientDoc.model_validate(product)     # your function
+    doc_model = IngredientDoc.model_validate(product)
 
 
     doc_model.categories_tags = _norm_tags(product.get("categories_tags"))
     doc_model.pnns_groups_1 = product.get("pnns_groups_1")
     doc_model.pnns_groups_2 = product.get("pnns_groups_2")
     doc_model.nova_group    = product.get("nova_group")
-    # compute on the model
     priority = doc_model.compute_priority_auto()
 
-    # dump to dict and save
     doc = doc_model.model_dump(by_alias=False, exclude_none=True)
     doc["priority_auto"] = priority
     doc["_id"] = doc["barcode"]
@@ -135,31 +142,47 @@ async def get_or_fetch_ingredient_dict_sync( barcode: str) -> dict: #! USED
 
     return doc
 
+"""  
+Convert ingredient document to meal log entry.
+Args:
+    - doc (dict): Ingredient document.
+    - priority: Priority value for the meal entry.
+Returns:
+    - IngredientEntry: Lightweight ingredient entry.
+Usage:
+    - app/routes/meal_logs_routes.py: add_ingredient
+Workflow:
+    - Read barcode from barcode or code field.
+    - Build IngredientEntry with barcode and priority.
+    - Return entry.
+"""
 async def doc_to_ingredient_entry(doc, priority): #! USED
-    """
-    Convert a stored ingredient doc into an IngredientEntry.
-
-    IngredientEntry seems to be a lightweight object:
-        - barcode
-        - priority
-    """    
     barcode = doc.get("barcode") or doc.get("code")
     entry = IngredientEntry(barcode=barcode, priority=priority)
     return entry
 
+"""  
+Build runtime Ingredient object.
+Args:
+    - barcode: Ingredient barcode.
+    - priority: Ingredient priority.
+    - set_amount: Fixed user amount.
+    - piece_weights: Piece weight value.
+    - min_amount: Minimum allowed amount.
+    - max_amount: Maximum allowed amount.
+Returns:
+    - Ingredient: Runtime optimizer ingredient object.
+Usage:
+    - app/db_files/crud/meal_logs_crud.py: build_input_object_from_meal_log
+Workflow:
+    - Load ingredient from cache or fetch source.
+    - Read nutrients from nutrients or nutriments field.
+    - Convert required nutrient values to floats.
+    - Attach optimization amount limits.
+    - Return Ingredient object.
+"""
 async def build_ingredient(barcode, priority, set_amount, piece_weights, min_amount=0, max_amount=0): #!USED
-        """
-        Build the runtime Ingredient object used by your app.
-
-        Steps:
-        1) Load document from DB or fetch from OFF and store
-        2) Read nutrients from doc["nutrients"] (if missing, use {})
-        3) Build a flat dict 'data' expected by Ingredient(...)
-        4) Return Ingredient(data, priority)
-
-        """
         doc = await get_or_fetch_ingredient_dict_sync( barcode)
-        print(f"the doc {doc}")
         n = doc.get("nutrients") or doc.get("nutriments") or {}
 
         data = {

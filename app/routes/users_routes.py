@@ -1,17 +1,14 @@
 from fastapi import APIRouter, HTTPException, Depends
-from app.db_files.crud.users import create_user, get_user_by_email, update_reset_hashes,  hash_password, change_password, email_not_registered
+from app.db_files.crud.users import create_user, get_user_by_email, update_reset_hashes, hash_password, change_password, email_not_registered
 from app.db_files.core.database import get_db
 from app.db_files.models.users import UserCreate
 from app.utils.forgotten_password import get_reset_token, send_reset_email, hash_token
-from datetime import datetime, timezone
 from app.db_files.crud.settings_saves import save_user_settings
-from fastapi.responses import JSONResponse
 from app.security.security import create_access_token
 from dotenv import load_dotenv
 from app.models.forgotPasswordRequest import ForgotPasswordRequest
 from app.models.payload_inputs import ResetPasswordPayload
 import os
-from app.db_files.crud.user_db_crud import user_shared_keys_init
 
 load_dotenv()
 DOMAIN = os.getenv("DOMAIN")
@@ -27,14 +24,15 @@ MEAL_TYPES = ["Breakfast", "Snack 1", "Lunch", "Snack 2", "Dinner", "Snack 3"]
 
 
 """  
-signup router
-Args: 
-    user: UserCreate
-    db: Session
-Returns: 
-    confirmation message and signs to db
-Raises: 
-    HTTPException: 400 if user already exists
+Create a new user.
+This route registers a user, creates default meal settings, and returns an access token.
+Args:
+    - user (UserCreate): Signup data.
+    - db (Depends(get_db)): Database dependency.
+Returns:
+    - dict: Success message, access token, and token type.
+Raises:
+    - HTTPException: 400 if email already exists.
 """
 @router.post("") #! USED
 async def signup(user: UserCreate, db=Depends(get_db)):
@@ -49,21 +47,6 @@ async def signup(user: UserCreate, db=Depends(get_db)):
     
     token = create_access_token(data={"sub": str(uid)})
 
-
-
-
-    """
-    response = JSONResponse(content={"message": "User created"})
-    response.set_cookie(
-        key="access_token",
-        value=token,
-        httponly=True,
-        secure=True,
-        samesite="Lax",
-        max_age=3600,
-    )"""
-
-    
     return {
         "message": "User created",
         "access_token": token,
@@ -71,11 +54,25 @@ async def signup(user: UserCreate, db=Depends(get_db)):
     }
 
 
-#NOT YET DONE:
+"""  
+Request a password reset.
+This route sends a reset email when the account exists and always returns the same response.
+Args:
+    - payload (ForgotPasswordRequest): Email address for reset request.
+    - db (Depends(get_db)): Database dependency.
+Returns:
+    - dict: Generic reset request message.
+"""
 @router.post("/password-reset-requests")
 async def forgotten_password(payload: ForgotPasswordRequest, db=Depends(get_db)):
-    email = payload.email
-    resp = await get_user_by_email(db, email)
+    email = payload.email.lower().strip()
+    try:
+        resp = await get_user_by_email(db, email)
+    except HTTPException as e:
+        if e.status_code == 404:
+            return {"message": "If email exists, reset link was sent"}
+        raise
+
     if not resp:
         return {"message": "If email exists, reset link was sent"}
     
@@ -89,9 +86,17 @@ async def forgotten_password(payload: ForgotPasswordRequest, db=Depends(get_db))
     return {"message": "If email exists, reset link was sent"}
 
 
-
-
-
+"""  
+Reset a forgotten password.
+This route validates reset token and saves the new password hash.
+Args:
+    - payload (ResetPasswordPayload): Reset token and new password.
+    - db (Depends(get_db)): Database dependency.
+Returns:
+    - dict: Success message.
+Raises:
+    - HTTPException: 400 if token is invalid or expired.
+"""
 @router.post("/password-resets")
 async def reset_password(payload: ResetPasswordPayload, db=Depends(get_db)):
     token_hash = hash_token(payload.token)
