@@ -8,6 +8,7 @@ services:
     environment:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
       NEXT_PUBLIC_API_BASE: ${NEXT_PUBLIC_API_BASE}
+      NEXT_PUBLIC_OFF_API_BASE_URL: ${NEXT_PUBLIC_OFF_API_BASE_URL:-https://world.openfoodfacts.org}
     depends_on:
       - fastapi
     restart: unless-stopped
@@ -30,4 +31,6 @@ services:
       SMTP_FROM_EMAIL: ${SMTP_FROM_EMAIL:-noreply@jrycho.cz}
       SMTP_FROM_NAME: ${SMTP_FROM_NAME:-Jrycho}
       SMTP_PASS: ${SMTP_PASS:?SMTP_PASS is required}
+      CORS_ORIGINS: ${CORS_ORIGINS:-https://jrycho.cz,https://www.jrycho.cz}
+      OFF_API_BASE_URL: ${OFF_API_BASE_URL:-https://world.openfoodfacts.org}
     restart: unless-stopped

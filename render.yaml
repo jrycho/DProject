@@ -21,6 +21,10 @@ services:
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port 8000
     envVars:
       - key: MONGO_URI
-        sync: false        # we’ll fill this in the dashboard
+        sync: false        
       - key: MONGO_DB_NAME
         value: nutrition_app
+      - key: CORS_ORIGINS
+        value: https://dproject-frontend.onrender.com,https://jrycho.cz,https://www.jrycho.cz
+      - key: OFF_API_BASE_URL
+        value: https://world.openfoodfacts.org

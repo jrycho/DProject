@@ -4,6 +4,9 @@
   import SettingsPanel from './settingspanel';
 
   const API_BASE = process.env.NEXT_PUBLIC_API_BASE || '/api';
+  const OFF_API_BASE_URL = (
+    process.env.NEXT_PUBLIC_OFF_API_BASE_URL || 'https://world.openfoodfacts.org'
+  ).replace(/\/$/, '');
 
   const MealCreator = () => {
     const [mealId, setMealId] = useState(null)
@@ -64,7 +67,7 @@
       try {
         const pageSize = full ? 20 : 5
         console.log('Searching for:', query)  
-        const res = await fetch(`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1&page_size=5`
+        const res = await fetch(`${OFF_API_BASE_URL}/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1&page_size=${pageSize}`
         )
         const data = await res.json()
         setResults(data.products || [])
@@ -79,7 +82,7 @@
   const fetchProductDetails = async (barcode) => {
     setLoadingDetails(true)
     try {
-      const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`)
+      const res = await fetch(`${OFF_API_BASE_URL}/api/v0/product/${barcode}.json`)
       const data = await res.json()
       if (data.product){
         setSelectedProduct(data.product)

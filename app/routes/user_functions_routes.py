@@ -1,5 +1,6 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Query
 from app.db_files.crud.user_db_crud import search_crud, create_user_ingredients, get_user_ingredients, get_user_key as get_user_key_crud, add_user_shared_keys as add_user_shared_keys_crud, get_user_shared_keys as get_user_shared_keys_crud, delete_user_shared_key as delete_user_shared_key_crud, delete_user_ingredient_secure
+from app.db_files.crud.ingredient_crud import off_search_products
 from app.security.security import get_current_user_id
 from app.db_files.models.ingredient import IngredientDoc
 from uuid import uuid4
@@ -223,7 +224,7 @@ async def delete_user_ingredient(barcode: str, user_id: str = Depends(get_curren
 
 
 #==========================================================================================
-# SEARCH ENDPOINT
+# SEARCH ENDPOINTS
 #==========================================================================================
 
 """  
@@ -242,6 +243,33 @@ async def search(payload: SearchPayload, user_id: str = Depends(get_current_user
     try:
         resp = await search_crud(payload.query, user_id=user_id)
         return resp
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+"""  
+Search Open Food Facts through backend.
+This route keeps Open Food Facts requests behind the API instead of the frontend.
+Args:
+    - query (str): Product search value.
+    - page_size (int): Number of products to return.
+    - user_id (Depends(get_current_user_id)): Current user ID.
+Returns:
+    - dict: Products returned by Open Food Facts.
+"""
+@router.get("/off_search")
+async def off_search(
+    query: str = Query(..., min_length=1),
+    page_size: int = Query(5, ge=1, le=50),
+    user_id: str = Depends(get_current_user_id),
+):
+    if user_id is None:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    try:
+        products = await off_search_products(query=query, page_size=page_size)
+        return {"products": products}
     except HTTPException:
         raise
     except Exception as e:

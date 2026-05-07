@@ -48,10 +48,10 @@ export default function IngredientSearchBar({
     try {
       // logging
       console.log("Searching for:", query);
-      const res = await fetch(
-        `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(
+      const res = await authFetch(
+        `/user-functions/off_search?query=${encodeURIComponent(
           query,
-        )}&search_simple=1&action=process&json=1&page_size=${full ? 20 : 5}`,
+        )}&page_size=${full ? 20 : 5}`,
       );
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
@@ -67,21 +67,8 @@ export default function IngredientSearchBar({
   const fetchProductDetails = async (barcode) => {
     setLoadingDetails(true);
     try {
-      const res = await fetch(
-        `https://world.openfoodfacts.org/api/v0/product/${barcode}.json`,
-      );
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      if (data.product) {
-        setSelectedProduct(data.product); // writes product as selectedData
-        setFullSearch(searchProducts._id);
-        setIngredientId(data.code);
-        console.log("product details on set:", data.product); // log fresh value
-        console.log("product barcode:" + data.code);
-        return { ok: true, product: data.product, barcode: data.code };
-      } else {
-        setSelectedProduct(null);
-      }
+      setIngredientId(barcode);
+      return { ok: true, barcode };
     } catch (err) {
       console.error("failed to fetch product details", err);
       setSelectedProduct(null);

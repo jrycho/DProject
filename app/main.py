@@ -4,6 +4,7 @@ import requests
 import os
 from typing import List
 from contextlib import asynccontextmanager
+from dotenv import load_dotenv
 
 from app.models.ingredient import Ingredient
 from app.models.input_obj import InputObject
@@ -27,8 +28,15 @@ from slowapi.util import get_remote_address
 
 limiter = Limiter(key_func=get_remote_address)
 
+load_dotenv()
 
 
+def _env_list(name: str, default: str) -> list[str]:
+    return [
+        item.strip()
+        for item in os.getenv(name, default).split(",")
+        if item.strip()
+    ]
 
 
 """ Global vars for meals "db" and session settings, should be both loaded from db. TODO: DO IT """
@@ -41,23 +49,21 @@ app = FastAPI(docs_url="/docs",
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "https://dproject-frontend.onrender.com",
-    "https://jrycho.cz",
-    "https://www.jrycho.cz"
-]
+CORS_ORIGINS = _env_list(
+    "CORS_ORIGINS",
+    "http://localhost:3000,http://127.0.0.1:3000,https://dproject-frontend.onrender.com,https://jrycho.cz,https://www.jrycho.cz",
+)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,          
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,         # True if usage cookies/session
     allow_methods=["*"],            # or ["GET","POST","OPTIONS",...]
     allow_headers=["*"],            # include "Authorization" for bearer tokens
 )
 
-OPEN_FOOD_FACTS_URL = "https://world.openfoodfacts.org/cgi/search.pl"
+OFF_API_BASE_URL = os.getenv("OFF_API_BASE_URL", "https://world.openfoodfacts.org").rstrip("/")
+OPEN_FOOD_FACTS_URL = f"{OFF_API_BASE_URL}/cgi/search.pl"
 
 """  
 Include routers

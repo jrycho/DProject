@@ -1,10 +1,13 @@
 import httpx
+import os
 from app.db_files.core.database import ingredients_collection
 from fastapi import HTTPException
 from app.db_files.models.ingredient_entry import IngredientEntry
 from app.db_files.models.ingredient import IngredientDoc
 from app.models.ingredient import Ingredient
 from app.db_files.crud.user_db_crud import get_user_ingredient_secure
+
+OFF_API_BASE_URL = os.getenv("OFF_API_BASE_URL", "https://world.openfoodfacts.org").rstrip("/")
 
 """  
 Normalize Open Food Facts tag lists.
@@ -41,8 +44,8 @@ Workflow:
     - Return product object.
 """
 async def off_fetch_product(barcode: str) -> dict: #! USED
-    url = f"https://world.openfoodfacts.org/api/v0/product/{barcode}.json"
     barcode = str(barcode).strip()
+    url = f"{OFF_API_BASE_URL}/api/v0/product/{barcode}.json"
     
     async with httpx.AsyncClient(timeout=10) as client:
         response = await client.get(url)
@@ -56,6 +59,38 @@ async def off_fetch_product(barcode: str) -> dict: #! USED
         raise HTTPException(status_code=404, detail="Product not found.")
 
     return product
+
+
+"""  
+Search products in Open Food Facts.
+Args:
+    - query (str): Product search text.
+    - page_size (int): Number of products to return.
+Returns:
+    - list: Raw Open Food Facts product objects.
+Usage:
+    - app/routes/user_functions_routes.py: off_search
+Workflow:
+    - Build Open Food Facts search URL from configured base URL.
+    - Fetch products through the backend so the frontend does not call OFF directly.
+    - Return products from the OFF response.
+"""
+async def off_search_products(query: str, page_size: int = 5) -> list[dict]: #! USED
+    url = f"{OFF_API_BASE_URL}/cgi/search.pl"
+    params = {
+        "search_terms": query.strip(),
+        "search_simple": 1,
+        "action": "process",
+        "json": 1,
+        "page_size": page_size,
+    }
+
+    async with httpx.AsyncClient(timeout=10) as client:
+        response = await client.get(url, params=params)
+    if response.status_code != 200:
+        raise HTTPException(status_code=response.status_code, detail="Open Food Facts API failed")
+
+    return response.json().get("products", [])
 
 """  
 Get cached ingredient by barcode.

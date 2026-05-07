@@ -21,6 +21,8 @@ services:
       - SMTP_FROM_EMAIL=${SMTP_FROM_EMAIL:-noreply@jrycho.cz}
       - SMTP_FROM_NAME=${SMTP_FROM_NAME:-Jrycho}
       - SMTP_PASS=${SMTP_PASS}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
+      - OFF_API_BASE_URL=${OFF_API_BASE_URL:-https://world.openfoodfacts.org}
 
   mongo:
     image: mongo:6
