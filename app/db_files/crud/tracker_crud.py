@@ -1,10 +1,13 @@
 from typing import Dict, List, Optional
 
-from app.db_files.core.database import db
+from app.db_files.core.database import db, optimized_weights_collection
+from app.db_files.crud.ingredient_crud import get_or_fetch_ingredient_dict_sync
 
 user_goals_collection = db["user_goals_collection"]
 meal_log_collection = db["meal_logs"]
 optimized_macro_collection = db["optimized_macros_collection"]
+
+RECONSTRUCTED_MACROS = ("calories", "protein", "carbs", "fats")
 
 """  
 Normalize a goal date string.
@@ -330,6 +333,13 @@ async def get_macros_from_meal_log(meal_id):
     return doc.get("results")
 
 
+def _as_number(value) -> float:
+    try:
+        return float(value or 0)
+    except (TypeError, ValueError):
+        return 0.0
+
+
 """  
 Sum optimized macros from multiple meals.
 Args:
@@ -352,19 +362,38 @@ async def sum_macros_from_meals(ids_list: List[str]) -> Dict[str, float]:
     """
     if not ids_list:
         return {}
-    cursor = optimized_macro_collection.find(
-        {"meal_id": {"$in": ids_list}}, projection={"_id": 0, "results": 1}
+
+    weights_cursor = optimized_weights_collection.find(
+        {"meal_id": {"$in": ids_list}}, projection={"_id": 0, "meal_id": 1, "results": 1}
     )
 
-    docs = await cursor.to_list(length=None)
+    weights_docs = await weights_cursor.to_list(length=None)
+    totals: Dict[str, float] = {macro: 0.0 for macro in RECONSTRUCTED_MACROS}
+    ingredient_weights: Dict[str, float] = {}
 
-    totals: Dict[str, float] = {}
+    # weights_docs shape: [{"meal_id": "...", "results": [{"barcode": "...", "grams": 120}, ...]}, ...]
+    for doc in weights_docs:
+        # doc["results"] shape: [{"barcode": "123", "name": "Rice", "grams": 120}, ...]
+        for item in doc.get("results", []):
+            barcode = item.get("barcode")
+            grams = _as_number(item.get("grams"))
+            if not barcode or grams <= 0:
+                continue
 
-    for doc in docs:
-        results = doc.get("results", {})
+            barcode = str(barcode)
+            # ingredient_weights shape: {"123": 250.0, "456": 80.0}
+            ingredient_weights[barcode] = ingredient_weights.get(barcode, 0) + grams
 
-        for key, value in results.items():
-            if isinstance(value, (int, float)):
-                totals[key] = totals.get(key, 0) + value
+    # ingredient_weights items shape: ("123", 250.0)
+    for barcode, grams in ingredient_weights.items():
+        ingredient = await get_or_fetch_ingredient_dict_sync(barcode)
+        nutrients = ingredient.get("nutrients") or ingredient.get("nutriments") or {}
+        multiplier = grams / 100
+
+        # totals shape: {"calories": 0.0, "protein": 0.0, "carbs": 0.0, "fats": 0.0}
+        totals["calories"] += _as_number(nutrients.get("energy_kcal_100g")) * multiplier
+        totals["protein"] += _as_number(nutrients.get("proteins_100g")) * multiplier
+        totals["carbs"] += _as_number(nutrients.get("carbohydrates_100g")) * multiplier
+        totals["fats"] += _as_number(nutrients.get("fat_100g")) * multiplier
 
     return totals

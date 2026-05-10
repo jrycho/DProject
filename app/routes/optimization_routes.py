@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, HTTPException, Depends
 
 from app.optimizers.gwo_optimizer import gwo_optimizer
@@ -10,6 +12,8 @@ from app.models.payload_inputs import MealTypePayload, OptimizationMacrosPayload
 
 
 router = APIRouter(prefix="/meal-optimizations", tags=["Optimization"])
+logger = logging.getLogger(__name__)
+TARGET_GOAL_EPSILON = 1e-6
 
 """  
 Optimize a meal.
@@ -34,11 +38,25 @@ async def optimize_meal(meal_id: str, payload: MealTypePayload = Depends(), user
     settings_obj = await get_settings_obj(user_id=user_id, meal_type=payload.meal_type)
     if settings_obj is None:
         raise HTTPException(status_code=404, detail="User settings not found")
+
+    target_goal = []
+    for value in settings_obj.get_target_goal():
+        if value == 0:
+            target_goal.append(TARGET_GOAL_EPSILON)
+        else:
+            target_goal.append(value)
+    settings_obj.set_target_goal(target_goal)
     
     optimization_object = linprog_optimizer(settings_obj, input_obj)
+    try:
+        optimization_object.solve()
+        linprog_solution = optimization_object.get_solution()
+        linprog_failed = linprog_solution is None or not linprog_solution.success
+    except Exception:
+        logger.exception("Linprog optimization failed for meal %s; falling back to GWO", meal_id)
+        linprog_failed = True
 
-    optimization_object.solve()
-    if not optimization_object.get_solution().success:
+    if linprog_failed:
         optimization_object = gwo_optimizer(settings_obj, input_obj)
         optimization_object.solve()
     json_ingredient_weights, json_total_macros = optimization_object.get_json_results()
