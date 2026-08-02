@@ -11,3 +11,4 @@
 .docker-compose.old.yml
 
 node_modules/
+docs/
